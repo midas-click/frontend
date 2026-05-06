@@ -4,7 +4,7 @@ import { applicationsApi } from "@/api/client";
 import { Application } from "@/types";
 import { Building2, MapPin, Clock, DollarSign, Pencil, Trash2, X, Save } from "lucide-react";
 import { format } from "date-fns";
-import { getStageLabel, getStageColor } from "@/lib/stage-utils";
+import { getStageLabel, getStageStyle } from "@/lib/stage-utils";
 
 export function ApplicationDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -172,7 +172,7 @@ export function ApplicationDetailPage() {
                 ) : null}
               </div>
               <div className="flex gap-2 mt-3 flex-wrap">
-                <span className={`px-2.5 py-0.5 rounded-full text-sm font-medium capitalize ${getStageColor(app.stage as string)}`}>
+                <span className="px-2.5 py-0.5 rounded-full text-sm font-medium capitalize" style={getStageStyle(app.stage as string)}>
                   {getStageLabel(app.stage as string)}
                 </span>
                 {app.match_score != null && (

@@ -23,11 +23,25 @@ export function getStageLabel(stage: string): string {
 }
 
 export function getStageColor(stage: string): string {
-  if (STAGE_FALLBACKS[stage]) return STAGE_FALLBACKS[stage].color;
+  // Check localStorage columns first (may have custom color)
   const col = loadColumns().find((c) => c.id === stage);
-  if (col?.color) {
-    const m = col.color.match(/bg-(\w+)-/);
-    if (m) return `bg-${m[1]}-100 text-${m[1]}-700`;
-  }
-  return "bg-gray-100 text-gray-600";
+  if (col?.color) return col.color;
+  // Fall back to hardcoded defaults
+  if (STAGE_FALLBACKS[stage]) return STAGE_FALLBACKS[stage].color;
+  return "";
+}
+
+export function getStageStyle(stage: string): { backgroundColor: string; color: string } {
+  const names: Record<string, string> = {
+    blue: "#dbeafe", yellow: "#fef9c3", orange: "#ffedd5", purple: "#f3e8ff", green: "#dcfce7",
+    red: "#fee2e2", gray: "#f3f4f6", pink: "#fce7f3", teal: "#ccfbf1", indigo: "#e0e7ff",
+  };
+  const texts: Record<string, string> = {
+    blue: "#1d4ed8", yellow: "#a16207", orange: "#c2410c", purple: "#7e22ce", green: "#15803d",
+    red: "#b91c1c", gray: "#4b5563", pink: "#be185d", teal: "#0f766e", indigo: "#4338ca",
+  };
+  const raw = getStageColor(stage);
+  const m = raw.match(/bg-(\w+)-/);
+  const name = m?.[1] || "gray";
+  return { backgroundColor: names[name] || names.gray, color: texts[name] || texts.gray };
 }
