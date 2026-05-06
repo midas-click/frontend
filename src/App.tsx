@@ -7,6 +7,7 @@ import { ApplicationDetailPage } from "@/pages/ApplicationDetailPage";
 import { ResumesPage } from "@/pages/ResumesPage";
 import { ResumeTailorPage } from "@/pages/ResumeTailorPage";
 import { JobsPage } from "@/pages/JobsPage";
+import { JobDetailPage } from "@/pages/JobDetailPage";
 import { AnalyticsPage } from "@/pages/AnalyticsPage";
 
 export default function App() {
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/resumes" element={<ResumesPage />} />
         <Route path="/resumes/tailor/:resumeId" element={<ResumeTailorPage />} />
         <Route path="/jobs" element={<JobsPage />} />
+        <Route path="/jobs/:id" element={<JobDetailPage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

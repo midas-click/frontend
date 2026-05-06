@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useStore } from "@/store";
 import { jobsApi } from "@/api/client";
 import type { JobCreate } from "@/types";
-import { Briefcase, MapPin, Globe, Plus, X, Sparkles, Loader2 } from "lucide-react";
+import { Briefcase, MapPin, Globe, Plus, X, Sparkles, Loader2, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function JobsPage() {
   const { jobs, fetchJobs } = useStore();
@@ -74,7 +75,7 @@ export function JobsPage() {
       ) : (
         <div className="space-y-2">
           {jobs.map((j) => (
-            <div key={j.id} className="bg-white rounded-xl border border-gray-200 p-4">
+            <Link key={j.id} to={`/jobs/${j.id}`} className="block bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="font-semibold">{j.title}</h3>
@@ -95,9 +96,9 @@ export function JobsPage() {
                     <p className="text-sm text-gray-400 mt-2 line-clamp-2">{j.description}</p>
                   )}
                 </div>
-                <span className="text-xs px-2.5 py-0.5 bg-gray-100 rounded-full capitalize">{j.status}</span>
+                <ChevronRight className="w-4 h-4 text-gray-300 shrink-0 ml-2" />
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}
