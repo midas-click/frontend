@@ -11,6 +11,7 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, horizontalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { Application, DEFAULT_KANBAN_COLUMNS } from "@/types";
+import { COLORS, loadColumns, saveColumns } from "@/lib/stage-utils";
 import { KanbanColumn } from "./KanbanColumn";
 import { KanbanCard } from "./KanbanCard";
 import { Plus } from "lucide-react";
@@ -22,26 +23,11 @@ interface Props {
   onStageChange: (id: string, stage: string) => void;
 }
 
-export const COLORS = [
-  "bg-blue-50 border-blue-200", "bg-yellow-50 border-yellow-200",
-  "bg-orange-50 border-orange-200", "bg-purple-50 border-purple-200",
-  "bg-green-50 border-green-200", "bg-red-50 border-red-200",
-  "bg-gray-50 border-gray-200", "bg-pink-50 border-pink-200",
-  "bg-teal-50 border-teal-200", "bg-indigo-50 border-indigo-200",
-];
-
-function loadColumns(): KanbanColumnDef[] {
-  try {
-    const saved = localStorage.getItem("midas-kanban-columns");
-    if (saved) return JSON.parse(saved);
-  } catch {}
-  return [...DEFAULT_KANBAN_COLUMNS];
-}
-
-function saveColumns(cols: KanbanColumnDef[]) { localStorage.setItem("midas-kanban-columns", JSON.stringify(cols)); }
-
 export function KanbanBoard({ applications, onStageChange }: Props) {
-  const [columns, setColumns] = useState<KanbanColumnDef[]>(loadColumns);
+  const [columns, setColumns] = useState<KanbanColumnDef[]>(() => {
+    const saved = loadColumns();
+    return saved.length > 0 ? saved : [...DEFAULT_KANBAN_COLUMNS];
+  });
   const [activeApp, setActiveApp] = useState<Application | null>(null);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 

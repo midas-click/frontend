@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { analyticsApi } from "@/api/client";
+import { getStageLabel, getStageStyle } from "@/lib/stage-utils";
 import type { AnalyticsOverview } from "@/types";
 import { BarChart3, Briefcase, FileText, TrendingUp } from "lucide-react";
 
@@ -63,14 +64,18 @@ export function DashboardPage() {
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="font-semibold mb-4">Applications by Stage</h2>
           <div className="flex gap-2 flex-wrap">
-            {Object.entries(data.by_stage).map(([stage, count]) => (
-              <div
-                key={stage}
-                className="px-3 py-1.5 rounded-full text-sm bg-gray-100 text-gray-700"
-              >
-                {stage}: <span className="font-semibold">{count}</span>
-              </div>
-            ))}
+            {Object.entries(data.by_stage).map(([stage, count]) => {
+                const style = getStageStyle(stage);
+                return (
+                  <div
+                    key={stage}
+                    className="px-3 py-1.5 rounded-full text-sm font-medium"
+                    style={style}
+                  >
+                    {getStageLabel(stage)}: {count}
+                  </div>
+                );
+              })}
           </div>
         </div>
       )}

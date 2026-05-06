@@ -1,18 +1,11 @@
 import { useState } from "react";
 import { Search, X } from "lucide-react";
 import { useStore } from "@/store";
+import { loadColumns } from "@/lib/stage-utils";
 
 interface Props {
   showCreateBtn?: boolean;
   onCreateClick?: () => void;
-}
-
-function loadColumns(): { id: string; label: string }[] {
-  try {
-    const raw = localStorage.getItem("midas-kanban-columns");
-    if (raw) return JSON.parse(raw);
-  } catch {}
-  return [];
 }
 
 export function ApplicationFilters({ showCreateBtn, onCreateClick }: Props) {

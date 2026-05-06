@@ -3,12 +3,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Pencil, X, Check, Palette, AlertTriangle, GripVertical } from "lucide-react";
 import clsx from "clsx";
-
-const DOT_COLORS: Record<string, string> = {
-  blue: "#3b82f6", yellow: "#eab308", orange: "#f97316",
-  purple: "#a855f7", green: "#22c55e", red: "#ef4444",
-  gray: "#6b7280", pink: "#ec4899", teal: "#14b8a6", indigo: "#6366f1",
-};
+import { DOT_COLORS } from "@/lib/stage-utils";
 
 interface Props {
   colId: string;

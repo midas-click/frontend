@@ -3,16 +3,11 @@ import { useStore } from "@/store";
 import { jobsApi } from "@/api/client";
 import type { Job } from "@/types";
 import { X, Search, Briefcase, FileText } from "lucide-react";
+import { loadColumns } from "@/lib/stage-utils";
 
 function getFirstColumnId(): string {
-  try {
-    const raw = localStorage.getItem("midas-kanban-columns");
-    if (raw) {
-      const cols = JSON.parse(raw);
-      if (cols.length > 0) return cols[0].id;
-    }
-  } catch {}
-  return "applied";
+  const cols = loadColumns();
+  return cols.length > 0 ? cols[0].id : "applied";
 }
 
 interface Props {
