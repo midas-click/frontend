@@ -4,23 +4,7 @@ import { applicationsApi } from "@/api/client";
 import { Application } from "@/types";
 import { Building2, MapPin, Clock, DollarSign, Pencil, Trash2, X, Save } from "lucide-react";
 import { format } from "date-fns";
-
-function getStageLabel(stage: string): string {
-  const fallbacks: Record<string, string> = {
-    applied: "Applied", phone_screen: "Phone Screen", technical: "Technical",
-    onsite: "Onsite", offer: "Offer", rejected: "Rejected", withdrawn: "Withdrawn",
-  };
-  if (fallbacks[stage]) return fallbacks[stage];
-  try {
-    const saved = localStorage.getItem("midas-kanban-columns");
-    if (saved) {
-      const cols = JSON.parse(saved);
-      const col = cols.find((c: any) => c.id === stage);
-      if (col) return col.label;
-    }
-  } catch {}
-  return stage;
-}
+import { getStageLabel, getStageColor } from "@/lib/stage-utils";
 
 export function ApplicationDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -188,7 +172,7 @@ export function ApplicationDetailPage() {
                 ) : null}
               </div>
               <div className="flex gap-2 mt-3 flex-wrap">
-                <span className="px-2.5 py-0.5 bg-brand-50 text-brand-700 rounded-full text-sm font-medium capitalize">
+                <span className={`px-2.5 py-0.5 rounded-full text-sm font-medium capitalize ${getStageColor(app.stage as string)}`}>
                   {getStageLabel(app.stage as string)}
                 </span>
                 {app.match_score != null && (

@@ -3,33 +3,7 @@ import { Link } from "react-router-dom";
 import { useStore } from "@/store";
 import { Building2, MapPin, ChevronRight } from "lucide-react";
 import clsx from "clsx";
-
-function getStageLabel(stage: string): string {
-  const fallbacks: Record<string, string> = {
-    applied: "Applied", phone_screen: "Phone Screen", technical: "Technical",
-    onsite: "Onsite", offer: "Offer", rejected: "Rejected", withdrawn: "Withdrawn",
-  };
-  if (fallbacks[stage]) return fallbacks[stage];
-  try {
-    const saved = localStorage.getItem("midas-kanban-columns");
-    if (saved) {
-      const cols = JSON.parse(saved);
-      const col = cols.find((c: any) => c.id === stage);
-      if (col) return col.label;
-    }
-  } catch {}
-  return stage;
-}
-
-const STAGE_COLORS: Record<string, string> = {
-  applied: "bg-blue-100 text-blue-700",
-  phone_screen: "bg-yellow-100 text-yellow-700",
-  technical: "bg-orange-100 text-orange-700",
-  onsite: "bg-purple-100 text-purple-700",
-  offer: "bg-green-100 text-green-700",
-  rejected: "bg-red-100 text-red-700",
-  withdrawn: "bg-gray-100 text-gray-600",
-};
+import { getStageLabel, getStageColor } from "@/lib/stage-utils";
 
 export function ApplicationsPage() {
   const { applications, fetchApplications, loading } = useStore();
@@ -62,7 +36,7 @@ export function ApplicationsPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3 shrink-0">
-                <span className={clsx("px-2.5 py-1 rounded-full text-xs font-medium capitalize", STAGE_COLORS[app.stage as string] || "bg-gray-100 text-gray-600")}>
+                <span className={clsx("px-2.5 py-1 rounded-full text-xs font-medium capitalize", getStageColor(app.stage as string))}>
                   {getStageLabel(app.stage as string)}
                 </span>
                 {app.match_score != null && (
