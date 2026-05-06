@@ -1,5 +1,4 @@
-import { ReactNode, useState, useRef, useEffect, useCallback } from "react";
-import { useDroppable } from "@dnd-kit/core";
+import { ReactNode, useState, useRef, useEffect } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Pencil, X, Check, Palette, AlertTriangle, GripVertical } from "lucide-react";
@@ -24,27 +23,9 @@ interface Props {
 }
 
 export function KanbanColumn({ colId, label, colorClass, count, children, onRename, onChangeColor, onDelete, colors }: Props) {
-  // Droppable for card drops
-  const { setNodeRef: setDropRef, isOver } = useDroppable({ id: `col-${colId}`, data: { stage: colId } });
-  // Sortable for column reorder
-  const {
-    attributes,
-    listeners,
-    setNodeRef: setSortRef,
-    transform,
-    transition,
-    isDragging: isColDragging,
-  } = useSortable({ id: colId });
-
-  const setNodeRef = useCallback((el: HTMLDivElement | null) => {
-    setDropRef(el);
-    setSortRef(el);
-  }, [setDropRef, setSortRef]);
-
-  const style = {
-    transform: CSS.Translate.toString(transform),
-    transition,
-  };
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: colId, data: { stage: colId },
+  });
 
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(label);
@@ -60,10 +41,7 @@ export function KanbanColumn({ colId, label, colorClass, count, children, onRena
   }, [editing]);
 
   useEffect(() => {
-    if (confirmDelete) {
-      const timer = setTimeout(() => setConfirmDelete(false), 4000);
-      return () => clearTimeout(timer);
-    }
+    if (confirmDelete) { const t = setTimeout(() => setConfirmDelete(false), 4000); return () => clearTimeout(t); }
   }, [confirmDelete]);
 
   function openPalette() {
@@ -83,82 +61,66 @@ export function KanbanColumn({ colId, label, colorClass, count, children, onRena
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{ transform: CSS.Translate.toString(transform), transition }}
       data-col-id={colId}
       className={clsx(
-        "flex flex-col w-72 shrink-0 rounded-xl border p-3 transition-all",
-        colorClass,
-        isOver && "ring-2 ring-brand-400",
-        isColDragging && "opacity-50",
+        "flex flex-col w-72 shrink-0 rounded-xl border p-3",
+        colorClass, isDragging && "opacity-40",
       )}
     >
-      {/* Column header */}
-      <div className="flex items-center justify-between min-h-[28px]">
-        <div className="flex items-center gap-1 min-w-0 flex-1">
-          {/* Column drag handle */}
-          <button
-            {...attributes}
-            {...listeners}
-            className="text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing shrink-0 touch-none"
-            tabIndex={-1}
-          >
-            <GripVertical className="w-4 h-4" />
-          </button>
-          {editing ? (
-            <div className="flex items-center gap-1 flex-1">
-              <input ref={inputRef} value={editValue} onChange={(e) => setEditValue(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") save(); if (e.key === "Escape") setEditing(false); }}
-                onBlur={save}
-                className="flex-1 bg-white border border-gray-300 rounded px-2 py-0.5 text-sm font-semibold outline-none" />
-              <button onClick={save} className="text-green-600 hover:text-green-700 shrink-0"><Check className="w-3.5 h-3.5" /></button>
+      {/* Header */}
+      <div className="flex items-center gap-1 mb-3">
+        <button {...attributes} {...listeners}
+          className="text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing shrink-0 touch-none"
+          tabIndex={-1}>
+          <GripVertical className="w-4 h-4" />
+        </button>
+
+        {editing ? (
+          <div className="flex items-center gap-1 flex-1">
+            <input ref={inputRef} value={editValue} onChange={(e) => setEditValue(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") save(); if (e.key === "Escape") setEditing(false); }}
+              onBlur={save}
+              className="flex-1 bg-white border border-gray-300 rounded px-2 py-0.5 text-sm font-semibold outline-none" />
+            <button onClick={save} className="text-green-600 hover:text-green-700 shrink-0"><Check className="w-3.5 h-3.5" /></button>
+          </div>
+        ) : (
+          <>
+            <h3 className="font-semibold text-sm cursor-pointer hover:text-brand-600 truncate flex-1"
+              onDoubleClick={() => { setEditValue(label); setEditing(true); }}>
+              {label}
+            </h3>
+            <div className="flex items-center gap-0.5 shrink-0">
+              <button ref={paletteBtnRef} onClick={openPalette} className="text-gray-400 hover:text-gray-600 p-0.5" title="Color">
+                <Palette className="w-3.5 h-3.5" />
+              </button>
+              <button onClick={() => { setEditValue(label); setEditing(true); }} className="text-gray-400 hover:text-gray-600 p-0.5" title="Rename">
+                <Pencil className="w-3 h-3" />
+              </button>
+              {isEmpty && !confirmDelete && (
+                <button onClick={() => setConfirmDelete(true)} className="text-gray-400 hover:text-red-500 p-0.5" title="Delete">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
-          ) : (
-            <>
-              <h3 className="font-semibold text-sm cursor-pointer hover:text-brand-600 truncate flex-1"
-                onDoubleClick={() => { setEditValue(label); setEditing(true); }} title="Double-click to rename">
-                {label}
-              </h3>
-              <div className="flex items-center gap-0.5 shrink-0">
-                <button ref={paletteBtnRef} onClick={openPalette} className="text-gray-400 hover:text-gray-600 p-0.5" title="Change color">
-                  <Palette className="w-3.5 h-3.5" />
-                </button>
-                <button onClick={() => { setEditValue(label); setEditing(true); }} className="text-gray-400 hover:text-gray-600 p-0.5" title="Rename">
-                  <Pencil className="w-3 h-3" />
-                </button>
-                {isEmpty && !confirmDelete && (
-                  <button onClick={() => setConfirmDelete(true)} className="text-gray-400 hover:text-red-500 p-0.5" title="Delete empty column">
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
-            </>
-          )}
-        </div>
+          </>
+        )}
       </div>
 
-      {/* Count badge — prominent */}
-      <span className={clsx(
-        "text-xs font-bold px-2.5 py-0.5 rounded-full self-start mb-3 mt-1",
-        count > 0 ? "bg-gray-200 text-gray-700" : "bg-white/50 text-gray-400",
-      )}>
+      {/* Count */}
+      <span className={clsx("text-xs font-bold px-2.5 py-0.5 rounded-full self-start mb-3", count > 0 ? "bg-gray-200 text-gray-700" : "bg-white/50 text-gray-400")}>
         {count} {count === 1 ? "card" : "cards"}
       </span>
 
       {/* Confirm delete */}
       {confirmDelete && (
         <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded-lg text-xs">
-          <p className="flex items-center gap-1 text-red-700 mb-1.5">
-            <AlertTriangle className="w-3 h-3" />Delete this column?
-          </p>
+          <p className="flex items-center gap-1 text-red-700 mb-1.5"><AlertTriangle className="w-3 h-3" />Delete this column?</p>
           <div className="flex gap-1.5">
             <button onClick={() => { onDelete(colId); setConfirmDelete(false); }}
-              className="flex-1 px-2 py-1 bg-red-600 text-white rounded text-xs font-medium hover:bg-red-700">
-              Delete
-            </button>
+              className="flex-1 px-2 py-1 bg-red-600 text-white rounded text-xs font-medium hover:bg-red-700">Delete</button>
             <button onClick={() => setConfirmDelete(false)}
-              className="flex-1 px-2 py-1 bg-white border border-gray-300 rounded text-xs hover:bg-gray-50">
-              Cancel
-            </button>
+              className="flex-1 px-2 py-1 bg-white border border-gray-300 rounded text-xs hover:bg-gray-50">Cancel</button>
           </div>
         </div>
       )}
@@ -166,7 +128,7 @@ export function KanbanColumn({ colId, label, colorClass, count, children, onRena
       {/* Cards */}
       <div className="flex flex-col gap-2 overflow-y-auto flex-1 min-h-0">{children}</div>
 
-      {/* Color palette popover */}
+      {/* Color palette */}
       {showColors && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setShowColors(false)} />
@@ -176,7 +138,7 @@ export function KanbanColumn({ colId, label, colorClass, count, children, onRena
               const name = c.match(/bg-(\w+)-50/)?.[1] || "gray";
               return (
                 <button key={c} onClick={() => { onChangeColor(colId, c); setShowColors(false); }}
-                  className="w-7 h-7 rounded-full border-2 border-gray-200 hover:scale-125 hover:border-gray-400 transition-all"
+                  className="w-7 h-7 rounded-full border-2 border-gray-200 hover:scale-125 transition-all"
                   style={{ backgroundColor: DOT_COLORS[name] || "#6b7280" }} title={name} />
               );
             })}
