@@ -4,7 +4,6 @@ import { KanbanBoard } from "@/components/kanban/KanbanBoard";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { ApplicationCreateModal } from "@/components/kanban/ApplicationCreateModal";
-import { ApplicationStage } from "@/types";
 
 export function KanbanPage() {
   const { applications, fetchApplications, moveStage, loading } = useStore();

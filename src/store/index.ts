@@ -4,7 +4,6 @@ import { create } from "zustand";
 import {
   Application,
   ApplicationCreate,
-  ApplicationStage,
   Resume,
   Job,
 } from "@/types";
@@ -17,7 +16,7 @@ interface AppState {
   error: string | null;
   fetchApplications: (params?: Record<string, string>) => Promise<void>;
   createApplication: (data: ApplicationCreate) => Promise<Application>;
-  moveStage: (id: string, stage: ApplicationStage) => Promise<void>;
+  moveStage: (id: string, stage: string) => Promise<void>;
 
   // ── Resumes ───────────────────────────────
   resumes: Resume[];

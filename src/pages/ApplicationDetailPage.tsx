@@ -5,14 +5,14 @@ import { Application, ApplicationStage } from "@/types";
 import { Building2, MapPin, Clock, DollarSign, Pencil, Trash2, X, Save } from "lucide-react";
 import { format } from "date-fns";
 
-const STAGE_LABELS: Record<ApplicationStage, string> = {
-  [ApplicationStage.Applied]: "Applied",
-  [ApplicationStage.PhoneScreen]: "Phone Screen",
-  [ApplicationStage.Technical]: "Technical",
-  [ApplicationStage.Onsite]: "Onsite",
-  [ApplicationStage.Offer]: "Offer",
-  [ApplicationStage.Rejected]: "Rejected",
-  [ApplicationStage.Withdrawn]: "Withdrawn",
+const STAGE_LABELS: Record<string, string> = {
+  applied: "Applied",
+  phone_screen: "Phone Screen",
+  technical: "Technical",
+  onsite: "Onsite",
+  offer: "Offer",
+  rejected: "Rejected",
+  withdrawn: "Withdrawn",
 };
 
 export function ApplicationDetailPage() {

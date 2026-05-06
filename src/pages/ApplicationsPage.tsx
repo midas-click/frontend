@@ -2,17 +2,16 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "@/store";
 import { Building2, MapPin, ChevronRight } from "lucide-react";
-import { ApplicationStage } from "@/types";
 import clsx from "clsx";
 
-const STAGE_COLORS: Record<ApplicationStage, string> = {
-  [ApplicationStage.Applied]: "bg-blue-100 text-blue-700",
-  [ApplicationStage.PhoneScreen]: "bg-yellow-100 text-yellow-700",
-  [ApplicationStage.Technical]: "bg-orange-100 text-orange-700",
-  [ApplicationStage.Onsite]: "bg-purple-100 text-purple-700",
-  [ApplicationStage.Offer]: "bg-green-100 text-green-700",
-  [ApplicationStage.Rejected]: "bg-red-100 text-red-700",
-  [ApplicationStage.Withdrawn]: "bg-gray-100 text-gray-600",
+const STAGE_COLORS: Record<string, string> = {
+  applied: "bg-blue-100 text-blue-700",
+  phone_screen: "bg-yellow-100 text-yellow-700",
+  technical: "bg-orange-100 text-orange-700",
+  onsite: "bg-purple-100 text-purple-700",
+  offer: "bg-green-100 text-green-700",
+  rejected: "bg-red-100 text-red-700",
+  withdrawn: "bg-gray-100 text-gray-600",
 };
 
 export function ApplicationsPage() {

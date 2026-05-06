@@ -18,6 +18,14 @@ export const KANBAN_STAGES: ApplicationStage[] = [
   ApplicationStage.Offer,
 ];
 
+export const DEFAULT_KANBAN_COLUMNS: { id: string; label: string; color: string }[] = [
+  { id: "applied", label: "Applied", color: "bg-blue-50 border-blue-200" },
+  { id: "phone_screen", label: "Phone Screen", color: "bg-yellow-50 border-yellow-200" },
+  { id: "technical", label: "Technical", color: "bg-orange-50 border-orange-200" },
+  { id: "onsite", label: "Onsite", color: "bg-purple-50 border-purple-200" },
+  { id: "offer", label: "Offer", color: "bg-green-50 border-green-200" },
+];
+
 export interface CommunicationLog {
   date: string;
   channel: string;
@@ -40,7 +48,7 @@ export interface Application {
   location?: string;
   salary_expectation?: number;
   salary_currency: string;
-  stage: ApplicationStage;
+  stage: ApplicationStage | string;
   recruiter_name?: string;
   initial_contact_date?: string;
   resume_ids: string[];
