@@ -1,9 +1,12 @@
+import { useEffect } from "react";
 import { useStore } from "@/store";
 import { KanbanBoard } from "@/components/kanban/KanbanBoard";
 import { ApplicationFilters } from "@/components/ApplicationFilters";
 
 export function KanbanPage() {
-  const { applications, moveStage, loading } = useStore();
+  const { applications, fetchApplications, moveStage, loading } = useStore();
+
+  useEffect(() => { fetchApplications(); }, [fetchApplications]);
 
   return (
     <div>

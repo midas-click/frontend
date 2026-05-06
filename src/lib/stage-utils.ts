@@ -23,10 +23,8 @@ export function getStageLabel(stage: string): string {
 }
 
 export function getStageColor(stage: string): string {
-  // Check localStorage columns first (may have custom color)
   const col = loadColumns().find((c) => c.id === stage);
   if (col?.color) return col.color;
-  // Fall back to hardcoded defaults
   if (STAGE_FALLBACKS[stage]) return STAGE_FALLBACKS[stage].color;
   return "";
 }
@@ -44,4 +42,12 @@ export function getStageStyle(stage: string): { backgroundColor: string; color: 
   const m = raw.match(/bg-(\w+)-/);
   const name = m?.[1] || "gray";
   return { backgroundColor: names[name] || names.gray, color: texts[name] || texts.gray };
+}
+
+/** Replace stage IDs in timeline events with human-readable labels */
+export function formatEvent(text: string): string {
+  return text.replace(/[a-z0-9_-]+/gi, (match) => {
+    const label = getStageLabel(match);
+    return label !== match ? label : match;
+  });
 }

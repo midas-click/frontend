@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { analyticsApi } from "@/api/client";
+import { getStageLabel, getStageStyle } from "@/lib/stage-utils";
 import type { AnalyticsOverview, ResumePerformance, IndustryTrend } from "@/types";
 import {
   BarChart,
@@ -14,8 +15,6 @@ import {
   Cell,
   Legend,
 } from "recharts";
-
-const COLORS = ["#3b82f6", "#eab308", "#f97316", "#8b5cf6", "#22c55e", "#ef4444", "#6b7280"];
 
 export function AnalyticsPage() {
   const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
@@ -39,7 +38,7 @@ export function AnalyticsPage() {
   if (loading) return <p className="text-gray-500">Loading analytics…</p>;
 
   const stageData = overview?.by_stage
-    ? Object.entries(overview.by_stage).map(([name, value]) => ({ name, value }))
+    ? Object.entries(overview.by_stage).map(([id, value]) => ({ id, name: getStageLabel(id), value }))
     : [];
 
   return (
@@ -54,9 +53,10 @@ export function AnalyticsPage() {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie data={stageData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
-                  {stageData.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                  ))}
+                  {stageData.map((d, i) => {
+                    const style = getStageStyle(d.id);
+                    return <Cell key={i} fill={style.color} />;
+                  })}
                 </Pie>
                 <Tooltip />
                 <Legend />

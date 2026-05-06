@@ -4,7 +4,8 @@ import { applicationsApi } from "@/api/client";
 import { Application } from "@/types";
 import { Building2, MapPin, Clock, DollarSign, Pencil, Trash2, X, Save } from "lucide-react";
 import { format } from "date-fns";
-import { getStageLabel, getStageStyle } from "@/lib/stage-utils";
+import { getStageLabel, getStageStyle, formatEvent } from "@/lib/stage-utils";
+
 
 export function ApplicationDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -204,16 +205,16 @@ export function ApplicationDetailPage() {
 
       {/* Timeline */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-        <h2 className="font-semibold mb-4">Timeline</h2>
+        <h2 className="font-semibold mb-4">Timeline ({app.timeline.length})</h2>
         {app.timeline.length === 0 ? (
           <p className="text-sm text-gray-400">No events yet.</p>
         ) : (
-          <div className="space-y-3">
-            {app.timeline.map((e, i) => (
+          <div className="space-y-3 max-h-64 overflow-y-auto">
+            {[...app.timeline].reverse().map((e, i) => (
               <div key={i} className="flex gap-3">
                 <Clock className="w-4 h-4 text-gray-300 mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-sm font-medium">{e.event}</p>
+                  <p className="text-sm font-medium">{formatEvent(e.event)}</p>
                   <p className="text-xs text-gray-400">{format(new Date(e.date), "MMM d, yyyy h:mm a")}</p>
                   {e.detail && <p className="text-xs text-gray-500 mt-0.5">{e.detail}</p>}
                 </div>

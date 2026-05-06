@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "@/store";
 import { Building2, MapPin, ChevronRight } from "lucide-react";
@@ -10,6 +10,8 @@ import { ApplicationCreateModal } from "@/components/kanban/ApplicationCreateMod
 export function ApplicationsPage() {
   const { applications, fetchApplications, loading } = useStore();
   const [showCreate, setShowCreate] = useState(false);
+
+  useEffect(() => { fetchApplications(); }, [fetchApplications]);
 
   return (
     <div>

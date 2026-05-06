@@ -66,6 +66,7 @@ export interface Application {
 export interface ApplicationCreate {
   job_title: string;
   company: string;
+  stage?: string;
   role?: string;
   location?: string;
   salary_expectation?: number;
