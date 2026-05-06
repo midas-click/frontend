@@ -11,10 +11,10 @@ import {
 
 const NAV_ITEMS = [
   { to: "/", icon: LayoutDashboard, label: "Dashboard" },
-  { to: "/kanban", icon: Kanban, label: "Kanban" },
-  { to: "/applications", icon: List, label: "Applications" },
-  { to: "/resumes", icon: FileText, label: "Resumes" },
   { to: "/jobs", icon: Briefcase, label: "Jobs" },
+  { to: "/resumes", icon: FileText, label: "Resumes" },
+  { to: "/applications", icon: List, label: "Applicants" },
+  { to: "/kanban", icon: Kanban, label: "Kanban" },
   { to: "/analytics", icon: BarChart3, label: "Analytics" },
 ];
 
