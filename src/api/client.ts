@@ -76,7 +76,15 @@ export const jobsApi = {
 
 // ── Tailoring ────────────────────────────────
 export const tailoringApi = {
-  tailor: (data: { resume_id: string; job_description: string; job_title?: string; company?: string }) =>
+  tailor: (data: {
+    resume_id: string;
+    mode: string;
+    job_id?: string;
+    job_description?: string;
+    job_title?: string;
+    company?: string;
+    keywords?: string;
+  }) =>
     request<any>("/tailor", { method: "POST", body: JSON.stringify(data) }),
   matchScore: (data: { resume_id: string; job_description: string }) =>
     request<any>("/match-score", { method: "POST", body: JSON.stringify(data) }),

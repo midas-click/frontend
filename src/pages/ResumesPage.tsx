@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "@/store";
 import { resumesApi } from "@/api/client";
-import { FileText, Upload, Wand2, Trash2 } from "lucide-react";
+import { FileText, Upload, Wand2, Trash2, ChevronRight } from "lucide-react";
 import type { Resume } from "@/types";
 
 export function ResumesPage() {
@@ -59,19 +59,23 @@ export function ResumesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {resumes.map((r) => (
-            <div key={r.id} className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition-shadow">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2 min-w-0">
-                  <FileText className="w-5 h-5 text-brand-600 shrink-0" />
-                  <span className="font-medium text-sm truncate">{r.original_filename}</span>
+            <div key={r.id} className="bg-white rounded-xl border border-gray-200 hover:shadow-md transition-shadow">
+              <Link to={`/resumes/${r.id}`} className="block p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <FileText className="w-5 h-5 text-brand-600 shrink-0" />
+                    <span className="font-medium text-sm truncate">{r.original_filename}</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-gray-300 shrink-0 ml-2" />
                 </div>
-                <span className="text-xs text-gray-400 shrink-0">v{r.version}</span>
-              </div>
-              <div className="flex gap-2 mt-3 text-xs text-gray-500">
-                <span>{r.sections.length} sections</span>
-                {r.raw_text && <span>· {(r.raw_text.length / 1000).toFixed(1)}k chars</span>}
-              </div>
-              <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+                <div className="flex gap-2 mt-3 text-xs text-gray-500">
+                  <span>v{r.version}</span>
+                  <span>·</span>
+                  <span>{r.sections.length} sections</span>
+                  {r.raw_text && <><span>·</span><span>{(r.raw_text.length / 1000).toFixed(1)}k chars</span></>}
+                </div>
+              </Link>
+              <div className="flex gap-2 px-4 pb-4">
                 <Link
                   to={`/resumes/tailor/${r.id}`}
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg text-xs font-medium hover:bg-purple-100"

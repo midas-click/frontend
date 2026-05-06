@@ -103,6 +103,7 @@ export interface Resume {
   parent_resume_id?: string;
   tailored_for_job_id?: string;
   tailored_prompt?: string;
+  tailored_label?: string;
   total_applications: number;
   interview_count: number;
   offer_count: number;
@@ -144,6 +145,7 @@ export interface JobCreate {
 export interface TailorResponse {
   tailored_resume_id: string;
   tailored_text: string;
+  tailored_label: string;
   missing_keywords: string[];
   improvements: string[];
 }
