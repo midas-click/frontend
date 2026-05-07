@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { analyticsApi } from "@/api/client";
-import { getStageLabel, getStageStyle } from "@/lib/stage-utils";
+import { getStageLabel, getStageStyle } from "@/lib/utils";
 import type { AnalyticsOverview, ResumePerformance, IndustryTrend } from "@/types";
 import {
   BarChart,

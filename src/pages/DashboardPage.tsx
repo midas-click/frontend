@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { analyticsApi } from "@/api/client";
-import { getStageLabel, getStageStyle } from "@/lib/stage-utils";
+import { getStageLabel, getStageStyle } from "@/lib/utils";
 import type { AnalyticsOverview } from "@/types";
 import { BarChart3, Briefcase, FileText, TrendingUp } from "lucide-react";
 

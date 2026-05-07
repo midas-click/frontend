@@ -3,7 +3,7 @@ import { useStore } from "@/store";
 import { jobsApi } from "@/api/client";
 import type { Job } from "@/types";
 import { X, Search, Briefcase, FileText } from "lucide-react";
-import { loadColumns } from "@/lib/stage-utils";
+import { loadColumns } from "@/lib/utils";
 
 function getFirstColumnId(): string {
   const cols = loadColumns();

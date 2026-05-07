@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Search, X } from "lucide-react";
 import { useStore } from "@/store";
-import { loadColumns } from "@/lib/stage-utils";
+import { loadColumns } from "@/lib/utils";
 
 interface Props {
   showCreateBtn?: boolean;

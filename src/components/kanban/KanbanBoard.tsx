@@ -11,7 +11,7 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, horizontalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { Application, DEFAULT_KANBAN_COLUMNS } from "@/types";
-import { COLORS, loadColumns, saveColumns } from "@/lib/stage-utils";
+import { COLORS, loadColumns, saveColumns } from "@/lib/utils";
 import { KanbanColumn } from "./KanbanColumn";
 import { KanbanCard } from "./KanbanCard";
 import { Plus } from "lucide-react";

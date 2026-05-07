@@ -3,7 +3,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Pencil, X, Check, Palette, AlertTriangle, GripVertical } from "lucide-react";
 import clsx from "clsx";
-import { DOT_COLORS } from "@/lib/stage-utils";
+import { DOT_COLORS } from "@/lib/utils";
 
 interface Props {
   colId: string;

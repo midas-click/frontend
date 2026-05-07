@@ -4,7 +4,7 @@ import { applicationsApi } from "@/api/client";
 import { Application } from "@/types";
 import { Building2, MapPin, Clock, DollarSign, Pencil, Trash2, X, Save } from "lucide-react";
 import { format } from "date-fns";
-import { getStageLabel, getStageStyle, formatEvent } from "@/lib/stage-utils";
+import { getStageLabel, getStageStyle, formatEvent } from "@/lib/utils";
 
 
 export function ApplicationDetailPage() {
