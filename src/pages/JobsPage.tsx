@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useStore } from "@/store";
 import { jobsApi } from "@/api/client";
 import type { JobCreate } from "@/types";
-import { Briefcase, MapPin, Globe, Plus, X, Sparkles, Loader2, ChevronRight } from "lucide-react";
+import { Briefcase, MapPin, Globe, Plus, X, Sparkles, Loader2, ChevronRight, DollarSign } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export function JobsPage() {
@@ -30,9 +30,9 @@ export function JobsPage() {
     setAnalyzing(true);
     try {
       await jobsApi.analyze(rawText.trim());
-      setShowCreate(false);
       setRawText("");
       fetchJobs();
+      setShowCreate(false);
     } catch (err) {
       console.error(err);
     } finally {
@@ -83,7 +83,7 @@ export function JobsPage() {
                     <span className="flex items-center gap-1"><Briefcase className="w-3.5 h-3.5" />{j.company}</span>
                     {j.location && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{j.location}</span>}
                     {j.remote && <span className="flex items-center gap-1"><Globe className="w-3.5 h-3.5" />Remote</span>}
-                    {j.salary_range && <span className="text-xs text-gray-400">{j.salary_range}</span>}
+                    {j.salary_range && <span className="flex items-center gap-1 text-xs text-gray-500"><DollarSign className="w-3 h-3" />{j.salary_range}</span>}
                   </p>
                   {j.extracted_keywords && j.extracted_keywords.length > 0 && (
                     <div className="flex gap-1 mt-2 flex-wrap">
@@ -105,9 +105,9 @@ export function JobsPage() {
 
       {/* Create Modal */}
       {showCreate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-xl p-6 relative max-h-[90vh] overflow-y-auto">
-            <button onClick={() => setShowCreate(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => !analyzing && setShowCreate(false)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-xl p-6 relative max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => !analyzing && setShowCreate(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600" disabled={analyzing}>
               <X className="w-5 h-5" />
             </button>
             <h2 className="text-lg font-bold mb-1">Add Job</h2>
@@ -147,7 +147,7 @@ export function JobsPage() {
                   />
                 </div>
                 <div className="flex gap-3 justify-end">
-                  <button onClick={() => setShowCreate(false)} className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg">
+                  <button onClick={() => !analyzing && setShowCreate(false)} className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg" disabled={analyzing}>
                     Cancel
                   </button>
                   <button
