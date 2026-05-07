@@ -95,9 +95,8 @@ export function ApplicationDetailPage() {
     <div className="max-w-3xl">
       {/* Header */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-        <div className="flex items-start justify-between">
-          {editing ? (
-            <div className="flex-1 space-y-3">
+        {editing ? (
+          <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1">Job Title</label>
@@ -163,8 +162,20 @@ export function ApplicationDetailPage() {
               </div>
             </div>
           ) : (
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold">{app.job_title}</h1>
+            <div>
+              <div className="flex items-start justify-between">
+                <h1 className="text-2xl font-bold">{app.job_title}</h1>
+                <div className="flex items-center gap-1 shrink-0 ml-4">
+                  <button onClick={startEditing}
+                    className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    <Pencil className="w-4 h-4" />Edit
+                  </button>
+                  <button onClick={handleDelete}
+                    className="flex items-center gap-1 px-3 py-1.5 text-sm text-red-600 border border-red-200 rounded-lg hover:bg-red-50">
+                    <Trash2 className="w-4 h-4" />Delete
+                  </button>
+                </div>
+              </div>
               <div className="flex items-center gap-4 mt-2 text-gray-500">
                 <span className="flex items-center gap-1"><Building2 className="w-4 h-4" />{app.company}</span>
                 {app.location && <span className="flex items-center gap-1"><MapPin className="w-4 h-4" />{app.location}</span>}
@@ -185,22 +196,9 @@ export function ApplicationDetailPage() {
                   <span key={t} className="px-2.5 py-0.5 bg-gray-100 text-gray-600 rounded-full text-sm">{t}</span>
                 ))}
               </div>
-              {app.notes && <p className="mt-4 text-sm text-gray-600 p-3 bg-gray-50 rounded-lg">{app.notes}</p>}
+              {app.notes && <p className="mt-4 text-sm text-gray-600 p-3 bg-gray-50 rounded-lg whitespace-pre-wrap">{app.notes}</p>}
             </div>
           )}
-          {!editing && (
-            <div className="flex items-center gap-1 shrink-0 ml-4">
-              <button onClick={startEditing}
-                className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
-                <Pencil className="w-4 h-4" />Edit
-              </button>
-              <button onClick={handleDelete}
-                className="flex items-center gap-1 px-3 py-1.5 text-sm text-red-600 border border-red-200 rounded-lg hover:bg-red-50">
-                <Trash2 className="w-4 h-4" />Delete
-              </button>
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Timeline */}

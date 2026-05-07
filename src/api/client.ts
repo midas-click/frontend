@@ -67,8 +67,11 @@ export const jobsApi = {
     const qs = params ? "?" + new URLSearchParams(params) : "";
     return request<any[]>(`/jobs${qs}`);
   },
+  get: (id: string) => request<any>(`/jobs/${id}`),
   create: (data: any) =>
     request<any>("/jobs", { method: "POST", body: JSON.stringify(data) }),
+  update: (id: string, data: any) =>
+    request<any>(`/jobs/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
   analyze: (rawText: string) =>
     request<any>("/jobs/analyze", { method: "POST", body: JSON.stringify({ raw_text: rawText }) }),
   delete: (id: string) => request<void>(`/jobs/${id}`, { method: "DELETE" }),
