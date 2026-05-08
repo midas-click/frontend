@@ -38,7 +38,7 @@ export function KanbanCard({ application, isOverlay }: Props) {
       {...listeners}
       style={style}
       className={clsx(
-        "bg-white rounded-lg border border-gray-200 shadow-sm cursor-grab active:cursor-grabbing touch-none",
+        "bg-white rounded-btn border border-border shadow-sm cursor-grab active:cursor-grabbing touch-none",
         isDragging && "opacity-30",
         isOverlay && "shadow-xl cursor-grabbing",
       )}
@@ -50,12 +50,12 @@ export function KanbanCard({ application, isOverlay }: Props) {
         tabIndex={isDragging ? -1 : 0}
       >
         <h4 className="font-semibold text-sm truncate">{application.job_title}</h4>
-        <div className="flex items-center gap-1.5 mt-1 text-xs text-gray-500">
+        <div className="flex items-center gap-1.5 mt-1 text-xs text-text-secondary">
           <Building2 className="w-3 h-3 shrink-0" />
           <span className="truncate">{application.company}</span>
         </div>
         {application.location && (
-          <div className="flex items-center gap-1.5 mt-0.5 text-xs text-gray-400">
+          <div className="flex items-center gap-1.5 mt-0.5 text-xs text-text-muted">
             <MapPin className="w-3 h-3 shrink-0" />
             {application.location}
           </div>
@@ -79,7 +79,7 @@ export function KanbanCard({ application, isOverlay }: Props) {
         {application.tags.length > 0 && (
           <div className="flex gap-1 mt-2 flex-wrap">
             {application.tags.slice(0, 3).map((t) => (
-              <span key={t} className="px-1.5 py-0.5 bg-gray-100 rounded text-xs text-gray-600">
+              <span key={t} className="px-1.5 py-0.5 bg-surface-secondary rounded text-xs text-text-secondary">
                 {t}
               </span>
             ))}

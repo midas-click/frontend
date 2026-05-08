@@ -18,7 +18,7 @@ export function KanbanPage() {
 
       <div className="mt-4">
         {loading ? (
-          <div className="text-center py-12 text-gray-500">Loading…</div>
+          <div className="text-center py-12 text-text-secondary">Loading…</div>
         ) : (
           <KanbanBoard
             applications={applications}

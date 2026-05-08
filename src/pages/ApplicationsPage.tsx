@@ -26,9 +26,9 @@ export function ApplicationsPage() {
 
       <div className="mt-4">
         {loading ? (
-          <p className="text-gray-500">Loading…</p>
+          <p className="text-text-secondary">Loading…</p>
         ) : applications.length === 0 ? (
-          <p className="text-gray-500">
+          <p className="text-text-secondary">
             No applications yet.{" "}
             <button onClick={() => setShowCreate(true)} className="text-brand-600 underline">
               Create one
@@ -42,11 +42,11 @@ export function ApplicationsPage() {
               <Link
                 key={app.id}
                 to={`/applications/${app.id}`}
-                className="flex items-center justify-between bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition-shadow"
+                className="flex items-center justify-between bg-white rounded-card border border-border shadow-card p-4 hover:shadow-md transition-shadow"
               >
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold truncate">{app.job_title}</h3>
-                  <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
+                  <div className="flex items-center gap-3 mt-1 text-sm text-text-secondary">
                     <span className="flex items-center gap-1"><Building2 className="w-3.5 h-3.5" />{app.company}</span>
                     {app.location && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{app.location}</span>}
                   </div>
@@ -56,9 +56,9 @@ export function ApplicationsPage() {
                     {getStageLabel(app.stage as string)}
                   </span>
                   {app.match_score != null && (
-                    <span className="text-xs text-gray-500 font-medium">Match {app.match_score}%</span>
+                    <span className="text-xs text-text-secondary font-medium">Match {app.match_score}%</span>
                   )}
-                  <ChevronRight className="w-4 h-4 text-gray-300" />
+                  <ChevronRight className="w-4 h-4 text-text-muted" />
                 </div>
               </Link>
             ))}

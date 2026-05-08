@@ -128,7 +128,7 @@ export function KanbanBoard({ applications, onStageChange }: Props) {
           })}
         </SortableContext>
         <button onClick={handleAdd}
-          className="flex flex-col items-center justify-center w-72 shrink-0 rounded-xl border-2 border-dashed border-gray-300 text-gray-400 hover:border-gray-400 hover:text-gray-500 transition-colors p-6 gap-2 min-h-[120px]">
+          className="flex flex-col items-center justify-center w-72 shrink-0 rounded-xl border-2 border-dashed border-border text-text-muted hover:border-gray-400 hover:text-text-secondary transition-colors p-6 gap-2 min-h-[120px]">
           <Plus className="w-5 h-5" /><span className="text-sm font-medium">Add Stage</span>
         </button>
       </div>

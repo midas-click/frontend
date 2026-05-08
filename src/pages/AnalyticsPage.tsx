@@ -35,7 +35,7 @@ export function AnalyticsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p className="text-gray-500">Loading analytics…</p>;
+  if (loading) return <p className="text-text-secondary">Loading analytics…</p>;
 
   const stageData = overview?.by_stage
     ? Object.entries(overview.by_stage).map(([id, value]) => ({ id, name: getStageLabel(id), value }))
@@ -47,7 +47,7 @@ export function AnalyticsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Stage Distribution Pie */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-card border border-border shadow-card p-6">
           <h2 className="font-semibold mb-4">Applications by Stage</h2>
           {stageData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
@@ -63,12 +63,12 @@ export function AnalyticsPage() {
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-gray-400 text-sm">No data yet.</p>
+            <p className="text-text-muted text-sm">No data yet.</p>
           )}
         </div>
 
         {/* Conversion Funnel */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-card border border-border shadow-card p-6">
           <h2 className="font-semibold mb-4">Conversion Rates</h2>
           <div className="space-y-4">
             <div>
@@ -76,8 +76,8 @@ export function AnalyticsPage() {
                 <span>Interview Rate</span>
                 <span className="font-semibold">{overview?.interview_rate ?? 0}%</span>
               </div>
-              <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                <div className="h-full bg-yellow-400 rounded-full" style={{ width: `${overview?.interview_rate ?? 0}%` }} />
+              <div className="h-3 bg-surface-secondary rounded-tag overflow-hidden">
+                <div className="h-full bg-yellow-400 rounded-tag" style={{ width: `${overview?.interview_rate ?? 0}%` }} />
               </div>
             </div>
             <div>
@@ -85,8 +85,8 @@ export function AnalyticsPage() {
                 <span>Offer Rate</span>
                 <span className="font-semibold">{overview?.offer_rate ?? 0}%</span>
               </div>
-              <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                <div className="h-full bg-green-500 rounded-full" style={{ width: `${overview?.offer_rate ?? 0}%` }} />
+              <div className="h-3 bg-surface-secondary rounded-tag overflow-hidden">
+                <div className="h-full bg-green-500 rounded-tag" style={{ width: `${overview?.offer_rate ?? 0}%` }} />
               </div>
             </div>
             <div>
@@ -94,15 +94,15 @@ export function AnalyticsPage() {
                 <span>Rejection Rate</span>
                 <span className="font-semibold">{overview?.rejection_rate ?? 0}%</span>
               </div>
-              <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                <div className="h-full bg-red-400 rounded-full" style={{ width: `${overview?.rejection_rate ?? 0}%` }} />
+              <div className="h-3 bg-surface-secondary rounded-tag overflow-hidden">
+                <div className="h-full bg-red-400 rounded-tag" style={{ width: `${overview?.rejection_rate ?? 0}%` }} />
               </div>
             </div>
           </div>
         </div>
 
         {/* Resume Performance */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-card border border-border shadow-card p-6">
           <h2 className="font-semibold mb-4">Resume Performance</h2>
           {resumes.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
@@ -118,17 +118,17 @@ export function AnalyticsPage() {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-gray-400 text-sm">Upload resumes to see performance.</p>
+            <p className="text-text-muted text-sm">Upload resumes to see performance.</p>
           )}
         </div>
 
         {/* Industry Trends */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 overflow-x-auto">
+        <div className="bg-white rounded-card border border-border shadow-card p-6 overflow-x-auto">
           <h2 className="font-semibold mb-4">Tag / Industry Trends</h2>
           {trends.length > 0 ? (
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left border-b border-gray-100">
+                <tr className="text-left border-b border-border">
                   <th className="py-2 font-medium">Tag</th>
                   <th className="py-2 font-medium text-right">Apps</th>
                   <th className="py-2 font-medium text-right">Interview %</th>
@@ -147,7 +147,7 @@ export function AnalyticsPage() {
               </tbody>
             </table>
           ) : (
-            <p className="text-gray-400 text-sm">Add tags to applications to see trends.</p>
+            <p className="text-text-muted text-sm">Add tags to applications to see trends.</p>
           )}
         </div>
       </div>

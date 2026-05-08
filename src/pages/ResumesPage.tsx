@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "@/store";
 import { resumesApi } from "@/api/client";
-import { FileText, Upload, Trash2, ChevronRight } from "lucide-react";
+import { FileText, Upload, Trash2 } from "lucide-react";
 import type { Resume } from "@/types";
 
 export function ResumesPage() {
@@ -42,7 +42,7 @@ export function ResumesPage() {
         <button
           onClick={() => fileRef.current?.click()}
           disabled={uploading}
-          className="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700 disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2 bg-brand-900 text-white text-sm font-medium rounded-btn hover:bg-brand-800 disabled:opacity-50"
         >
           <Upload className="w-4 h-4" />
           {uploading ? "Uploading…" : "Upload Resume"}
@@ -51,49 +51,46 @@ export function ResumesPage() {
       </div>
 
       {resumes.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-xl border border-dashed border-gray-300">
-          <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500">No resumes uploaded yet.</p>
-          <p className="text-sm text-gray-400 mt-1">Upload a PDF or DOCX to get started.</p>
+        <div className="text-center py-16 bg-white rounded-card border-2 border-dashed border-border">
+          <FileText className="w-12 h-12 text-text-muted mx-auto mb-3" />
+          <p className="text-text-secondary">No resumes uploaded yet.</p>
+          <p className="text-sm text-text-muted mt-1">Upload a PDF or DOCX to get started.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {resumes.map((r) => (
-            <div key={r.id} className="bg-white rounded-xl border border-gray-200 hover:shadow-md transition-shadow">
+            <div key={r.id} className="bg-white rounded-card border border-border shadow-card hover:shadow-md transition-shadow relative">
+              <button
+                onClick={() => handleDelete(r.id)}
+                className="absolute top-3 right-3 p-1 border border-border rounded-btn text-text-muted hover:text-red-500 hover:border-red-200"
+                title="Delete"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
               <Link to={`/resumes/${r.id}`} className="block p-4">
                 <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2 min-w-0">
+                  <div className="flex items-center gap-2 min-w-0 pr-6">
                     <FileText className="w-5 h-5 text-brand-600 shrink-0" />
                     <span className="font-medium text-sm truncate">{r.original_filename}</span>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-gray-300 shrink-0 ml-2" />
                 </div>
-                <div className="flex gap-2 mt-3 text-xs text-gray-500">
+                <div className="flex gap-2 mt-3 text-xs text-text-secondary">
                   <span>{r.sections.length} sections</span>
                   {r.raw_text && <><span>·</span><span>{(r.raw_text.length / 1000).toFixed(1)}k chars</span></>}
+                </div>
+                <div className="flex gap-3 mt-2 pt-2 border-t border-border text-xs">
+                  <span className="font-medium text-gray-700">{r.total_applications || 0} <span className="text-text-muted font-normal">applicants</span></span>
+                  <span className="font-medium text-gray-700">{r.interview_count || 0} <span className="text-text-muted font-normal">interviews</span></span>
+                  <span className="font-medium text-gray-700">{r.offer_count || 0} <span className="text-text-muted font-normal">offers</span></span>
                 </div>
                 {r.tags.length > 0 && (
                   <div className="flex gap-1 mt-2 flex-wrap">
                     {r.tags.map((t) => (
-                      <span key={t} className="px-1.5 py-0.5 bg-brand-50 text-brand-700 rounded text-xs">{t}</span>
+                      <span key={t} className="px-1.5 py-0.5 bg-brand-50 text-brand-600 rounded text-xs">{t}</span>
                     ))}
                   </div>
                 )}
-                <div className="flex gap-3 mt-2 pt-2 border-t border-gray-100 text-xs">
-                  <span className="font-medium text-gray-700">{r.total_applications || 0} <span className="text-gray-400 font-normal">applicants</span></span>
-                  <span className="font-medium text-gray-700">{r.interview_count || 0} <span className="text-gray-400 font-normal">interviews</span></span>
-                  <span className="font-medium text-gray-700">{r.offer_count || 0} <span className="text-gray-400 font-normal">offers</span></span>
-                </div>
               </Link>
-              <div className="flex gap-2 px-4 pb-4">
-                <button
-                  onClick={() => handleDelete(r.id)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 rounded-lg text-xs font-medium hover:bg-red-100 ml-auto"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  Delete
-                </button>
-              </div>
             </div>
           ))}
         </div>

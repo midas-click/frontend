@@ -7,43 +7,85 @@ import {
   Briefcase,
   BarChart3,
   List,
+  Search,
 } from "lucide-react";
 
-const NAV_ITEMS = [
-  { to: "/", icon: LayoutDashboard, label: "Dashboard" },
-  { to: "/jobs", icon: Briefcase, label: "Jobs" },
-  { to: "/resumes", icon: FileText, label: "Resumes" },
-  { to: "/applications", icon: List, label: "Applicants" },
-  { to: "/kanban", icon: Kanban, label: "Kanban" },
-  { to: "/analytics", icon: BarChart3, label: "Analytics" },
+const NAV_SECTIONS = [
+  {
+    label: "MAIN MENU",
+    items: [
+      { to: "/", icon: LayoutDashboard, label: "Dashboard" },
+      { to: "/applications", icon: List, label: "Applicants" },
+      { to: "/kanban", icon: Kanban, label: "Kanban" },
+    ],
+  },
+  {
+    label: "MANAGE",
+    items: [
+      { to: "/jobs", icon: Briefcase, label: "Jobs" },
+      { to: "/resumes", icon: FileText, label: "Resumes" },
+    ],
+  },
+  {
+    label: "INSIGHTS",
+    items: [
+      { to: "/analytics", icon: BarChart3, label: "Analytics" },
+    ],
+  },
 ];
 
 export function Layout() {
   const { pathname } = useLocation();
 
+  const isActive = (to: string) =>
+    to === "/" ? pathname === "/" : pathname.startsWith(to);
+
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden" style={{ backgroundColor: "#F3EEFF" }}>
       {/* Sidebar */}
-      <aside className="w-56 bg-white border-r border-gray-200 flex flex-col shrink-0">
-        <div className="h-14 flex items-center px-4 border-b border-gray-100">
-          <span className="font-bold text-lg text-brand-700">MidasClick</span>
+      <aside className="w-56 bg-white border-r border-border flex flex-col shrink-0">
+        {/* Logo */}
+        <div className="h-14 flex items-center px-4 border-b border-border">
+          <span className="font-bold text-lg text-text-primary tracking-tight">MidasClick</span>
         </div>
-        <nav className="flex-1 p-3 space-y-1">
-          {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={to === "/"}
-              className={clsx(
-                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                pathname === to || (to !== "/" && pathname.startsWith(to))
-                  ? "bg-brand-50 text-brand-700"
-                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
-              )}
-            >
-              <Icon className="w-4 h-4" />
-              {label}
-            </NavLink>
+
+        {/* Search */}
+        <div className="px-3 pt-3 pb-2">
+          <div className="relative">
+            <Search className="absolute left-3 top-2.5 w-4 h-4 text-text-muted" />
+            <input
+              placeholder="Search"
+              className="w-full bg-surface-secondary border border-border rounded-btn pl-9 pr-3 py-2 text-sm text-text-primary placeholder:text-text-muted outline-none"
+            />
+          </div>
+        </div>
+
+        {/* Nav sections */}
+        <nav className="flex-1 px-3 py-2 space-y-4 overflow-y-auto">
+          {NAV_SECTIONS.map((section) => (
+            <div key={section.label}>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-muted mb-1 px-1">
+                {section.label}
+              </p>
+              <div className="space-y-0.5">
+                {section.items.map(({ to, icon: Icon, label }) => (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    end={to === "/"}
+                    className={clsx(
+                      "flex items-center gap-3 px-3 py-2 rounded-btn text-sm font-medium transition-colors",
+                      isActive(to)
+                        ? "bg-surface-secondary text-text-primary font-semibold"
+                        : "text-text-secondary hover:bg-surface-secondary hover:text-text-primary",
+                    )}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {label}
+                  </NavLink>
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
       </aside>

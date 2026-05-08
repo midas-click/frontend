@@ -1,16 +1,20 @@
 
 export const COLORS = [
-  "bg-blue-50 border-blue-200", "bg-yellow-50 border-yellow-200",
-  "bg-orange-50 border-orange-200", "bg-purple-50 border-purple-200",
-  "bg-green-50 border-green-200", "bg-red-50 border-red-200",
-  "bg-gray-50 border-gray-200", "bg-pink-50 border-pink-200",
-  "bg-teal-50 border-teal-200", "bg-indigo-50 border-indigo-200",
+  "bg-purple-50 border-purple-200",
+  "bg-blue-50 border-blue-200",
+  "bg-green-50 border-green-200",
+  "bg-yellow-50 border-yellow-200",
+  "bg-orange-50 border-orange-200",
+  "bg-pink-50 border-pink-200",
+  "bg-red-50 border-red-200",
+  "bg-gray-50 border-gray-200",
+  "bg-teal-50 border-teal-200",
+  "bg-indigo-50 border-indigo-200",
 ];
 
 export const DOT_COLORS: Record<string, string> = {
-  blue: "#3b82f6", yellow: "#eab308", orange: "#f97316",
-  purple: "#a855f7", green: "#22c55e", red: "#ef4444",
-  gray: "#6b7280", pink: "#ec4899", teal: "#14b8a6", indigo: "#6366f1",
+  purple: "#6941C6", blue: "#3b82f6", green: "#22c55e", yellow: "#eab308", orange: "#f97316",
+  pink: "#ec4899", red: "#ef4444", gray: "#6b7280", teal: "#14b8a6", indigo: "#6366f1",
 };
 
 const LS_KEY = "midas-kanban-columns";
@@ -28,11 +32,11 @@ export function saveColumns(cols: { id: string; label: string; color: string }[]
 }
 
 const STAGE_FALLBACKS: Record<string, { label: string; color: string }> = {
-  applied:   { label: "Applied",       color: "bg-blue-100 text-blue-700" },
-  phone_screen: { label: "Phone Screen",  color: "bg-yellow-100 text-yellow-700" },
+  applied:   { label: "Applied",       color: "bg-purple-100 text-purple-700" },
+  phone_screen: { label: "Phone Screen",  color: "bg-blue-100 text-blue-700" },
   technical: { label: "Technical",     color: "bg-orange-100 text-orange-700" },
-  team_panel:    { label: "Team Panel",        color: "bg-purple-100 text-purple-700" },
-  offer:     { label: "Offer",         color: "bg-green-100 text-green-700" },
+  onsite:    { label: "Onsite",        color: "bg-green-100 text-green-700" },
+  offer:     { label: "Offer",         color: "bg-yellow-100 text-yellow-700" },
   rejected:  { label: "Rejected",      color: "bg-red-100 text-red-700" },
   withdrawn: { label: "Withdrawn",     color: "bg-gray-100 text-gray-600" },
 };
@@ -53,12 +57,12 @@ export function getStageColor(stage: string): string {
 
 export function getStageStyle(stage: string): { backgroundColor: string; color: string } {
   const names: Record<string, string> = {
-    blue: "#dbeafe", yellow: "#fef9c3", orange: "#ffedd5", purple: "#f3e8ff", green: "#dcfce7",
-    red: "#fee2e2", gray: "#f3f4f6", pink: "#fce7f3", teal: "#ccfbf1", indigo: "#e0e7ff",
+    purple: "#F3EEFF", blue: "#dbeafe", green: "#dcfce7", yellow: "#fef9c3", orange: "#ffedd5",
+    pink: "#fce7f3", red: "#fee2e2", gray: "#f3f4f6", teal: "#ccfbf1", indigo: "#e0e7ff",
   };
   const texts: Record<string, string> = {
-    blue: "#1d4ed8", yellow: "#a16207", orange: "#c2410c", purple: "#7e22ce", green: "#15803d",
-    red: "#b91c1c", gray: "#4b5563", pink: "#be185d", teal: "#0f766e", indigo: "#4338ca",
+    purple: "#55309E", blue: "#1d4ed8", green: "#15803d", yellow: "#a16207", orange: "#c2410c",
+    pink: "#be185d", red: "#b91c1c", gray: "#4b5563", teal: "#0f766e", indigo: "#4338ca",
   };
   const raw = getStageColor(stage);
   const m = raw.match(/bg-(\w+)-/);

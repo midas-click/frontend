@@ -19,11 +19,11 @@ export const KANBAN_STAGES: ApplicationStage[] = [
 ];
 
 export const DEFAULT_KANBAN_COLUMNS: { id: string; label: string; color: string }[] = [
-  { id: "applied", label: "Applied", color: "bg-blue-50 border-blue-200" },
-  { id: "phone_screen", label: "Phone Screen", color: "bg-yellow-50 border-yellow-200" },
+  { id: "applied", label: "Applied", color: "bg-purple-50 border-purple-200" },
+  { id: "phone_screen", label: "Phone Screen", color: "bg-blue-50 border-blue-200" },
   { id: "technical", label: "Technical", color: "bg-orange-50 border-orange-200" },
-  { id: "onsite", label: "Onsite", color: "bg-purple-50 border-purple-200" },
-  { id: "offer", label: "Offer", color: "bg-green-50 border-green-200" },
+  { id: "onsite", label: "Onsite", color: "bg-green-50 border-green-200" },
+  { id: "offer", label: "Offer", color: "bg-yellow-50 border-yellow-200" },
 ];
 
 export interface CommunicationLog {
@@ -129,7 +129,6 @@ export interface Job {
   salary_range?: string;
   source_url?: string;
   source_name: string;
-  status: string;
   extracted_keywords: string[];
   tags: string[];
   created_at: string;

@@ -89,44 +89,44 @@ export function ApplicationDetailPage() {
     navigate("/applications");
   }
 
-  if (!app) return <p className="text-gray-500">Loading…</p>;
+  if (!app) return <p className="text-text-secondary">Loading…</p>;
 
   return (
     <div className="max-w-3xl">
       {/* Header */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+      <div className="bg-white rounded-card border border-border shadow-card p-6 mb-6">
         {editing ? (
           <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Job Title</label>
+                  <label className="block text-xs font-medium text-text-secondary mb-1">Job Title</label>
                   <input value={editForm.job_title} onChange={(e) => setEditForm({ ...editForm, job_title: e.target.value })}
-                    className="w-full border rounded-lg px-3 py-2 text-sm" />
+                    className="w-full border rounded-btn px-3 py-2 text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Company</label>
+                  <label className="block text-xs font-medium text-text-secondary mb-1">Company</label>
                   <input value={editForm.company} onChange={(e) => setEditForm({ ...editForm, company: e.target.value })}
-                    className="w-full border rounded-lg px-3 py-2 text-sm" />
+                    className="w-full border rounded-btn px-3 py-2 text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Role</label>
+                  <label className="block text-xs font-medium text-text-secondary mb-1">Role</label>
                   <input value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
-                    className="w-full border rounded-lg px-3 py-2 text-sm" />
+                    className="w-full border rounded-btn px-3 py-2 text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Location</label>
+                  <label className="block text-xs font-medium text-text-secondary mb-1">Location</label>
                   <input value={editForm.location} onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
-                    className="w-full border rounded-lg px-3 py-2 text-sm" />
+                    className="w-full border rounded-btn px-3 py-2 text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Salary</label>
+                  <label className="block text-xs font-medium text-text-secondary mb-1">Salary</label>
                   <input type="number" value={editForm.salary_expectation} onChange={(e) => setEditForm({ ...editForm, salary_expectation: e.target.value })}
-                    className="w-full border rounded-lg px-3 py-2 text-sm" />
+                    className="w-full border rounded-btn px-3 py-2 text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Currency</label>
+                  <label className="block text-xs font-medium text-text-secondary mb-1">Currency</label>
                   <select value={editForm.salary_currency} onChange={(e) => setEditForm({ ...editForm, salary_currency: e.target.value })}
-                    className="w-full border rounded-lg px-3 py-2 text-sm">
+                    className="w-full border rounded-btn px-3 py-2 text-sm">
                     <option value="USD">USD</option>
                     <option value="EUR">EUR</option>
                     <option value="GBP">GBP</option>
@@ -136,27 +136,27 @@ export function ApplicationDetailPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Recruiter Name</label>
+                <label className="block text-xs font-medium text-text-secondary mb-1">Recruiter Name</label>
                 <input value={editForm.recruiter_name} onChange={(e) => setEditForm({ ...editForm, recruiter_name: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2 text-sm" />
+                  className="w-full border rounded-btn px-3 py-2 text-sm" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Notes</label>
+                <label className="block text-xs font-medium text-text-secondary mb-1">Notes</label>
                 <textarea value={editForm.notes} onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2 text-sm" rows={3} />
+                  className="w-full border rounded-btn px-3 py-2 text-sm" rows={3} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Tags (comma-separated)</label>
+                <label className="block text-xs font-medium text-text-secondary mb-1">Tags (comma-separated)</label>
                 <input value={editForm.tags} onChange={(e) => setEditForm({ ...editForm, tags: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="react, remote, healthtech" />
+                  className="w-full border rounded-btn px-3 py-2 text-sm" placeholder="react, remote, healthtech" />
               </div>
               <div className="flex gap-2 pt-2">
                 <button onClick={saveEdit} disabled={saving}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-brand-600 text-white text-sm rounded-lg hover:bg-brand-700 disabled:opacity-50">
+                  className="flex items-center gap-1.5 px-4 py-2 bg-brand-900 text-white text-sm rounded-btn hover:bg-brand-800 disabled:opacity-50">
                   <Save className="w-4 h-4" />{saving ? "Saving…" : "Save"}
                 </button>
                 <button onClick={() => setEditing(false)}
-                  className="flex items-center gap-1.5 px-4 py-2 border border-gray-300 text-gray-600 text-sm rounded-lg hover:bg-gray-50">
+                  className="flex items-center gap-1.5 px-4 py-2 border border-border text-text-secondary text-sm rounded-btn hover:bg-surface-secondary">
                   <X className="w-4 h-4" />Cancel
                 </button>
               </div>
@@ -167,16 +167,16 @@ export function ApplicationDetailPage() {
                 <h1 className="text-2xl font-bold">{app.job_title}</h1>
                 <div className="flex items-center gap-1 shrink-0 ml-4">
                   <button onClick={startEditing}
-                    className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
-                    <Pencil className="w-4 h-4" />Edit
+                    className="flex items-center gap-1 px-2.5 py-1 text-xs text-text-secondary border border-border rounded-btn hover:bg-surface-secondary">
+                    <Pencil className="w-3 h-3" />Edit
                   </button>
                   <button onClick={handleDelete}
-                    className="flex items-center gap-1 px-3 py-1.5 text-sm text-red-600 border border-red-200 rounded-lg hover:bg-red-50">
-                    <Trash2 className="w-4 h-4" />Delete
+                    className="flex items-center gap-1 px-2.5 py-1 text-xs text-red-600 border border-red-200 rounded-btn hover:bg-red-50">
+                    <Trash2 className="w-3 h-3" />Delete
                   </button>
                 </div>
               </div>
-              <div className="flex items-center gap-4 mt-2 text-gray-500">
+              <div className="flex items-center gap-4 mt-2 text-text-secondary">
                 <span className="flex items-center gap-1"><Building2 className="w-4 h-4" />{app.company}</span>
                 {app.location && <span className="flex items-center gap-1"><MapPin className="w-4 h-4" />{app.location}</span>}
                 {app.salary_expectation ? (
@@ -188,33 +188,33 @@ export function ApplicationDetailPage() {
                   {getStageLabel(app.stage as string)}
                 </span>
                 {app.match_score != null && (
-                  <span className="px-2.5 py-0.5 bg-green-50 text-green-700 rounded-full text-sm font-medium">
+                  <span className="px-2.5 py-0.5 bg-green-50 text-green-700 rounded-tag text-sm font-medium">
                     Match: {app.match_score}%
                   </span>
                 )}
                 {app.tags.map((t) => (
-                  <span key={t} className="px-2.5 py-0.5 bg-gray-100 text-gray-600 rounded-full text-sm">{t}</span>
+                  <span key={t} className="px-2.5 py-0.5 bg-surface-secondary text-text-secondary rounded-tag text-sm">{t}</span>
                 ))}
               </div>
-              {app.notes && <p className="mt-4 text-sm text-gray-600 p-3 bg-gray-50 rounded-lg whitespace-pre-wrap">{app.notes}</p>}
+              {app.notes && <p className="mt-4 text-sm text-text-secondary p-3 bg-surface-secondary rounded-btn whitespace-pre-wrap">{app.notes}</p>}
             </div>
           )}
       </div>
 
       {/* Timeline */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+      <div className="bg-white rounded-card border border-border shadow-card p-6 mb-6">
         <h2 className="font-semibold mb-4">Timeline ({app.timeline.length})</h2>
         {app.timeline.length === 0 ? (
-          <p className="text-sm text-gray-400">No events yet.</p>
+          <p className="text-sm text-text-muted">No events yet.</p>
         ) : (
           <div className="space-y-3 max-h-64 overflow-y-auto">
             {[...app.timeline].reverse().map((e, i) => (
               <div key={i} className="flex gap-3">
-                <Clock className="w-4 h-4 text-gray-300 mt-0.5 shrink-0" />
+                <Clock className="w-4 h-4 text-text-muted mt-0.5 shrink-0" />
                 <div>
                   <p className="text-sm font-medium">{formatEvent(e.event)}</p>
-                  <p className="text-xs text-gray-400">{format(new Date(e.date), "MMM d, yyyy h:mm a")}</p>
-                  {e.detail && <p className="text-xs text-gray-500 mt-0.5">{e.detail}</p>}
+                  <p className="text-xs text-text-muted">{format(new Date(e.date), "MMM d, yyyy h:mm a")}</p>
+                  {e.detail && <p className="text-xs text-text-secondary mt-0.5">{e.detail}</p>}
                 </div>
               </div>
             ))}
@@ -223,13 +223,13 @@ export function ApplicationDetailPage() {
       </div>
 
       {/* Communication Log */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+      <div className="bg-white rounded-card border border-border shadow-card p-6 mb-6">
         <h2 className="font-semibold mb-4">Communication Log</h2>
         <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
-          {app.communication_log.length === 0 && <p className="text-sm text-gray-400">No communications logged.</p>}
+          {app.communication_log.length === 0 && <p className="text-sm text-text-muted">No communications logged.</p>}
           {app.communication_log.map((c, i) => (
-            <div key={i} className="p-3 bg-gray-50 rounded-lg">
-              <p className="text-xs text-gray-400 mb-1">
+            <div key={i} className="p-3 bg-surface-secondary rounded-btn">
+              <p className="text-xs text-text-muted mb-1">
                 {format(new Date(c.date), "MMM d, yyyy")} · {c.raw_content ? "Email" : c.channel}
               </p>
               <p className="text-sm">{c.summary}</p>
@@ -238,7 +238,7 @@ export function ApplicationDetailPage() {
         </div>
         {/* Add new log */}
         <div className="flex gap-2">
-          <select value={commChannel} onChange={(e) => setCommChannel(e.target.value)} className="border rounded-lg px-2 text-sm">
+          <select value={commChannel} onChange={(e) => setCommChannel(e.target.value)} className="border rounded-btn px-2 text-sm">
             <option value="email">Email</option>
             <option value="phone">Phone</option>
             <option value="linkedin">LinkedIn</option>
@@ -248,10 +248,10 @@ export function ApplicationDetailPage() {
             value={commSummary}
             onChange={(e) => setCommSummary(e.target.value)}
             placeholder="Add a note…"
-            className="flex-1 border rounded-lg px-3 py-2 text-sm"
+            className="flex-1 border rounded-btn px-3 py-2 text-sm"
             onKeyDown={(e) => e.key === "Enter" && addCommunication()}
           />
-          <button onClick={addCommunication} className="px-4 py-2 bg-brand-600 text-white text-sm rounded-lg hover:bg-brand-700">
+          <button onClick={addCommunication} className="px-4 py-2 bg-brand-900 text-white text-sm rounded-btn hover:bg-brand-800">
             Add
           </button>
         </div>

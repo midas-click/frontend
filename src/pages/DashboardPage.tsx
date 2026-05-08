@@ -47,12 +47,12 @@ export function DashboardPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {cards.map((c) => (
-          <div key={c.label} className="bg-white rounded-xl border border-gray-200 p-5">
+          <div key={c.label} className="bg-white rounded-card border border-border shadow-card p-5">
             <div className="flex items-center gap-3 mb-3">
-              <div className={`p-2 rounded-lg ${c.color}`}>
+              <div className={`p-2 rounded-btn ${c.color}`}>
                 <c.icon className="w-5 h-5" />
               </div>
-              <span className="text-sm text-gray-500">{c.label}</span>
+              <span className="text-sm text-text-secondary">{c.label}</span>
             </div>
             <p className="text-3xl font-bold">{c.value}</p>
           </div>
@@ -61,7 +61,7 @@ export function DashboardPage() {
 
       {/* Stage distribution */}
       {data?.by_stage && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-card border border-border shadow-card p-6">
           <h2 className="font-semibold mb-4">Applications by Stage</h2>
           <div className="flex gap-2 flex-wrap">
             {Object.entries(data.by_stage).map(([stage, count]) => {
@@ -69,7 +69,7 @@ export function DashboardPage() {
                 return (
                   <div
                     key={stage}
-                    className="px-3 py-1.5 rounded-full text-sm font-medium"
+                    className="px-3 py-1.5 rounded-tag text-sm font-medium"
                     style={style}
                   >
                     {getStageLabel(stage)}: {count}
@@ -84,19 +84,19 @@ export function DashboardPage() {
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Link
           to="/applications"
-          className="p-4 bg-brand-50 text-brand-700 rounded-xl text-center font-medium hover:bg-brand-100 transition-colors"
+          className="p-4 bg-brand-50 text-brand-600 rounded-xl text-center font-medium hover:bg-brand-100 transition-colors"
         >
           + New Application
         </Link>
         <Link
           to="/resumes"
-          className="p-4 bg-gray-100 text-gray-700 rounded-xl text-center font-medium hover:bg-gray-200 transition-colors"
+          className="p-4 bg-surface-secondary text-gray-700 rounded-xl text-center font-medium hover:bg-gray-200 transition-colors"
         >
           Upload Resume
         </Link>
         <Link
           to="/jobs"
-          className="p-4 bg-gray-100 text-gray-700 rounded-xl text-center font-medium hover:bg-gray-200 transition-colors"
+          className="p-4 bg-surface-secondary text-gray-700 rounded-xl text-center font-medium hover:bg-gray-200 transition-colors"
         >
           Browse Jobs
         </Link>
