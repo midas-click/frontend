@@ -1,3 +1,4 @@
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { jobsApi } from "@/api/client";
@@ -10,6 +11,7 @@ export function JobDetailPage() {
   const navigate = useNavigate();
   const [job, setJob] = useState<Job | null>(null);
   const [editing, setEditing] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     title: "", company: "", location: "", remote: false,
@@ -55,7 +57,7 @@ export function JobDetailPage() {
   }
 
   async function handleDelete() {
-    if (!id || !confirm("Delete this job?")) return;
+    if (!id) return;
     await jobsApi.delete(id);
     navigate("/jobs");
   }
@@ -137,7 +139,7 @@ export function JobDetailPage() {
                   className="flex items-center gap-1 px-2.5 py-1 text-xs text-text-secondary border border-border rounded-btn hover:bg-surface-secondary">
                   <Pencil className="w-3 h-3" />Edit
                 </button>
-                <button onClick={handleDelete}
+                <button onClick={() => setDeleteOpen(true)}
                   className="flex items-center gap-1 px-2.5 py-1 text-xs text-red-600 border border-red-200 rounded-btn hover:bg-red-50">
                   <Trash2 className="w-3 h-3" />Delete
                 </button>
@@ -181,6 +183,13 @@ export function JobDetailPage() {
       <p className="text-xs text-text-muted mt-4">
         Added {format(new Date(job.created_at), "MMM d, yyyy")} · Source: {job.source_name}
       </p>
+      <ConfirmDialog
+        open={deleteOpen}
+        title="Delete Job"
+        message="Are you sure you want to delete this job? Extracted keywords, tags, and description will be permanently removed."
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteOpen(false)}
+      />
     </div>
   );
 }

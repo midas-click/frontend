@@ -5,6 +5,7 @@ import { Application } from "@/types";
 import { Building2, MapPin, Clock, DollarSign, Pencil, Trash2, X, Save } from "lucide-react";
 import { format } from "date-fns";
 import { getStageLabel, getStageStyle, formatEvent } from "@/lib/utils";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 
 export function ApplicationDetailPage() {
@@ -13,6 +14,7 @@ export function ApplicationDetailPage() {
   const [app, setApp] = useState<Application | null>(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [editForm, setEditForm] = useState({
     job_title: "",
     company: "",
@@ -84,7 +86,7 @@ export function ApplicationDetailPage() {
   }
 
   async function handleDelete() {
-    if (!id || !confirm("Delete this application?")) return;
+    if (!id) return;
     await applicationsApi.delete(id);
     navigate("/applications");
   }
@@ -170,7 +172,7 @@ export function ApplicationDetailPage() {
                     className="flex items-center gap-1 px-2.5 py-1 text-xs text-text-secondary border border-border rounded-btn hover:bg-surface-secondary">
                     <Pencil className="w-3 h-3" />Edit
                   </button>
-                  <button onClick={handleDelete}
+                  <button onClick={() => setDeleteOpen(true)}
                     className="flex items-center gap-1 px-2.5 py-1 text-xs text-red-600 border border-red-200 rounded-btn hover:bg-red-50">
                     <Trash2 className="w-3 h-3" />Delete
                   </button>
@@ -256,6 +258,13 @@ export function ApplicationDetailPage() {
           </button>
         </div>
       </div>
+      <ConfirmDialog
+        open={deleteOpen}
+        title="Delete Application"
+        message="Are you sure you want to delete this application? All tracking data, timeline events, and communication logs will be permanently removed."
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteOpen(false)}
+      />
     </div>
   );
 }

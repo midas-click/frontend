@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { resumesApi } from "@/api/client";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import type { Resume } from "@/types";
 import { FileText, ArrowLeft, Trash2, Hash, Clock } from "lucide-react";
 import { format } from "date-fns";
@@ -11,13 +12,14 @@ export function ResumeDetailPage() {
   const [resume, setResume] = useState<Resume | null>(null);
   const [tagInput, setTagInput] = useState("");
   const [savingTags, setSavingTags] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   useEffect(() => {
     if (id) resumesApi.get(id).then(setResume).catch(console.error);
   }, [id]);
 
   async function handleDelete() {
-    if (!id || !confirm("Delete this resume?")) return;
+    if (!id) return;
     await resumesApi.delete(id);
     navigate("/resumes");
   }
@@ -75,7 +77,7 @@ export function ResumeDetailPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={handleDelete}
+            <button onClick={() => setDeleteOpen(true)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-red-600 border border-red-200 rounded-btn hover:bg-red-50">
               <Trash2 className="w-3.5 h-3.5" />Delete
             </button>
@@ -158,6 +160,13 @@ export function ResumeDetailPage() {
           <p className="text-sm text-text-muted">No parsed content available.</p>
         )}
       </div>
+      <ConfirmDialog
+        open={deleteOpen}
+        title="Delete Resume"
+        message="Are you sure you want to delete this resume? The parsed content and all attached tags will be permanently removed."
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteOpen(false)}
+      />
     </div>
   );
 }
