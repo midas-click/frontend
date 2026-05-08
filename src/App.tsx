@@ -5,7 +5,6 @@ import { KanbanPage } from "@/pages/KanbanPage";
 import { ApplicationsPage } from "@/pages/ApplicationsPage";
 import { ApplicationDetailPage } from "@/pages/ApplicationDetailPage";
 import { ResumesPage } from "@/pages/ResumesPage";
-import { ResumeTailorPage } from "@/pages/ResumeTailorPage";
 import { ResumeDetailPage } from "@/pages/ResumeDetailPage";
 import { JobsPage } from "@/pages/JobsPage";
 import { JobDetailPage } from "@/pages/JobDetailPage";
@@ -20,7 +19,6 @@ export default function App() {
         <Route path="/applications" element={<ApplicationsPage />} />
         <Route path="/applications/:id" element={<ApplicationDetailPage />} />
         <Route path="/resumes" element={<ResumesPage />} />
-        <Route path="/resumes/tailor/:resumeId" element={<ResumeTailorPage />} />
         <Route path="/resumes/:id" element={<ResumeDetailPage />} />
         <Route path="/jobs" element={<JobsPage />} />
         <Route path="/jobs/:id" element={<JobDetailPage />} />

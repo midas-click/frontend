@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "@/store";
 import { resumesApi } from "@/api/client";
-import { FileText, Upload, Wand2, Trash2, ChevronRight } from "lucide-react";
+import { FileText, Upload, Trash2, ChevronRight } from "lucide-react";
 import type { Resume } from "@/types";
 
 export function ResumesPage() {
@@ -69,20 +69,23 @@ export function ResumesPage() {
                   <ChevronRight className="w-4 h-4 text-gray-300 shrink-0 ml-2" />
                 </div>
                 <div className="flex gap-2 mt-3 text-xs text-gray-500">
-                  <span>v{r.version}</span>
-                  <span>·</span>
                   <span>{r.sections.length} sections</span>
                   {r.raw_text && <><span>·</span><span>{(r.raw_text.length / 1000).toFixed(1)}k chars</span></>}
                 </div>
+                {r.tags.length > 0 && (
+                  <div className="flex gap-1 mt-2 flex-wrap">
+                    {r.tags.map((t) => (
+                      <span key={t} className="px-1.5 py-0.5 bg-brand-50 text-brand-700 rounded text-xs">{t}</span>
+                    ))}
+                  </div>
+                )}
+                <div className="flex gap-3 mt-2 pt-2 border-t border-gray-100 text-xs">
+                  <span className="font-medium text-gray-700">{r.total_applications || 0} <span className="text-gray-400 font-normal">applicants</span></span>
+                  <span className="font-medium text-gray-700">{r.interview_count || 0} <span className="text-gray-400 font-normal">interviews</span></span>
+                  <span className="font-medium text-gray-700">{r.offer_count || 0} <span className="text-gray-400 font-normal">offers</span></span>
+                </div>
               </Link>
               <div className="flex gap-2 px-4 pb-4">
-                <Link
-                  to={`/resumes/tailor/${r.id}`}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg text-xs font-medium hover:bg-purple-100"
-                >
-                  <Wand2 className="w-3.5 h-3.5" />
-                  Tailor
-                </Link>
                 <button
                   onClick={() => handleDelete(r.id)}
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 rounded-lg text-xs font-medium hover:bg-red-100 ml-auto"

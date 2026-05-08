@@ -2,21 +2,18 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { resumesApi } from "@/api/client";
 import type { Resume } from "@/types";
-import { FileText, ArrowLeft, Wand2, Trash2, Layers, Hash, Clock } from "lucide-react";
+import { FileText, ArrowLeft, Trash2, Hash, Clock } from "lucide-react";
 import { format } from "date-fns";
-import clsx from "clsx";
 
 export function ResumeDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [resume, setResume] = useState<Resume | null>(null);
-  const [versions, setVersions] = useState<Resume[]>([]);
+  const [tagInput, setTagInput] = useState("");
+  const [savingTags, setSavingTags] = useState(false);
 
   useEffect(() => {
-    if (id) {
-      resumesApi.get(id).then(setResume).catch(console.error);
-      resumesApi.versions(id).then(setVersions).catch(() => {});
-    }
+    if (id) resumesApi.get(id).then(setResume).catch(console.error);
   }, [id]);
 
   async function handleDelete() {
@@ -25,12 +22,33 @@ export function ResumeDetailPage() {
     navigate("/resumes");
   }
 
-  if (!resume) return <p className="text-gray-500">Loading…</p>;
+  async function addTag(tag: string) {
+    if (!id || !resume || !tag.trim()) return;
+    const newTags = [...resume.tags, tag.trim()];
+    setSavingTags(true);
+    await resumesApi.update(id, { tags: newTags });
+    setResume({ ...resume, tags: newTags });
+    setSavingTags(false);
+  }
 
-  const allVersions = resume.parent_resume_id
-    ? versions
-    : [resume, ...versions.filter((v) => v.id !== resume.id)];
-  const currentVersion = resume;
+  async function removeTag(tag: string) {
+    if (!id || !resume) return;
+    const newTags = resume.tags.filter((t) => t !== tag);
+    setSavingTags(true);
+    await resumesApi.update(id, { tags: newTags });
+    setResume({ ...resume, tags: newTags });
+    setSavingTags(false);
+  }
+
+  function handleTagKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addTag(tagInput);
+      setTagInput("");
+    }
+  }
+
+  if (!resume) return <p className="text-gray-500">Loading…</p>;
 
   return (
     <div className="max-w-4xl">
@@ -48,9 +66,6 @@ export function ResumeDetailPage() {
             </h1>
             <div className="flex items-center gap-3 mt-2 text-sm text-gray-500 flex-wrap">
               <span className="flex items-center gap-1">
-                <Layers className="w-3.5 h-3.5" />v{resume.version}
-              </span>
-              <span className="flex items-center gap-1">
                 <Hash className="w-3.5 h-3.5" />{resume.sections.length} sections
               </span>
               <span className="flex items-center gap-1">
@@ -60,12 +75,6 @@ export function ResumeDetailPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              to={`/resumes/tailor/${resume.id}`}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg text-sm font-medium hover:bg-purple-100"
-            >
-              <Wand2 className="w-3.5 h-3.5" />Tailor
-            </Link>
             <button onClick={handleDelete}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-red-600 border border-red-200 rounded-lg hover:bg-red-50">
               <Trash2 className="w-3.5 h-3.5" />Delete
@@ -90,27 +99,41 @@ export function ResumeDetailPage() {
         </div>
 
         {/* Tags */}
-        {resume.tags.length > 0 && (
-          <div className="flex gap-1.5 mt-4 flex-wrap">
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Tags</span>
+            <span className="text-xs text-gray-400">({resume.tags.length})</span>
+          </div>
+          <div className="flex gap-1.5 flex-wrap mb-3">
+            {resume.tags.length === 0 && <span className="text-xs text-gray-400">No tags yet</span>}
             {resume.tags.map((t) => (
-              <span key={t} className="px-2 py-0.5 bg-brand-50 text-brand-700 rounded-full text-xs font-medium">{t}</span>
+              <span key={t} className="flex items-center gap-1 px-2 py-0.5 bg-brand-50 text-brand-700 rounded-full text-xs font-medium">
+                {t}
+                <button onClick={() => removeTag(t)} className="hover:text-red-500 ml-0.5">&times;</button>
+              </span>
             ))}
           </div>
-        )}
-
-        {/* Tailored info */}
-        {resume.tailored_label && (
-          <div className="mt-3 p-3 bg-purple-50 rounded-lg text-sm">
-            <span className="font-medium text-purple-700">This resume is: </span>
-            <span className="text-purple-600">{resume.tailored_label}</span>
-            {resume.tailored_for_job_id && (
-              <span className="text-purple-400 ml-1">(for job)</span>
-            )}
+          <div className="flex gap-2">
+            <input
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={handleTagKeyDown}
+              placeholder="python, backend..."
+              className="border rounded-lg px-3 py-2 text-sm flex-1"
+            />
+            <button
+              onClick={() => { addTag(tagInput); setTagInput(""); }}
+              disabled={savingTags || !tagInput.trim()}
+              className="px-4 py-2 bg-brand-600 text-white text-sm rounded-lg hover:bg-brand-700 disabled:opacity-50"
+            >
+              Add
+            </button>
           </div>
-        )}
+        </div>
+
+        {/* Resume Preview */}
       </div>
 
-      {/* Resume Preview */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
         <h2 className="font-semibold mb-4">Resume Preview</h2>
         {resume.sections.length > 0 ? (
@@ -135,38 +158,6 @@ export function ResumeDetailPage() {
           <p className="text-sm text-gray-400">No parsed content available.</p>
         )}
       </div>
-
-      {/* Version History */}
-      {allVersions.length > 1 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="font-semibold mb-4">Version History</h2>
-          <div className="space-y-2">
-            {allVersions.map((v) => (
-              <Link
-                key={v.id}
-                to={`/resumes/${v.id}`}
-                className={clsx(
-                  "flex items-center justify-between p-3 rounded-lg border text-sm",
-                  v.id === currentVersion.id
-                    ? "border-brand-200 bg-brand-50"
-                    : "border-gray-200 hover:bg-gray-50",
-                )}
-              >
-                <div>
-                  <span className="font-medium">v{v.version}</span>
-                  <span className="text-gray-500 ml-3">{v.original_filename}</span>
-                  {v.tailored_for_job_id && (
-                    <span className="text-purple-500 ml-2">— tailored</span>
-                  )}
-                </div>
-                <span className="text-xs text-gray-400">
-                  {format(new Date(v.created_at), "MMM d, yyyy")}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

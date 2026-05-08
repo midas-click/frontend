@@ -44,6 +44,8 @@ export const applicationsApi = {
 export const resumesApi = {
   list: () => request<any[]>("/resumes"),
   get: (id: string) => request<any>(`/resumes/${id}`),
+  update: (id: string, data: any) =>
+    request<any>(`/resumes/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
   upload: async (file: File) => {
     const form = new FormData();
     form.append("file", file);
@@ -56,7 +58,6 @@ export const resumesApi = {
       `/resumes/upload-url?filename=${encodeURIComponent(filename)}`,
       { method: "POST" },
     ),
-  versions: (id: string) => request<any[]>(`/resumes/${id}/versions`),
   delete: (id: string) =>
     request<void>(`/resumes/${id}`, { method: "DELETE" }),
 };
@@ -76,25 +77,6 @@ export const jobsApi = {
     request<any>("/jobs/analyze", { method: "POST", body: JSON.stringify({ raw_text: rawText, source_url: sourceUrl || "" }) }),
   delete: (id: string) => request<void>(`/jobs/${id}`, { method: "DELETE" }),
 };
-
-// ── Tailoring ────────────────────────────────
-export const tailoringApi = {
-  tailor: (data: {
-    resume_id: string;
-    mode: string;
-    job_id?: string;
-    job_description?: string;
-    job_title?: string;
-    company?: string;
-    keywords?: string;
-  }) =>
-    request<any>("/tailor", { method: "POST", body: JSON.stringify(data) }),
-  matchScore: (data: { resume_id: string; job_description: string }) =>
-    request<any>("/match-score", { method: "POST", body: JSON.stringify(data) }),
-  interviewQuestions: (data: { job_description: string; role?: string }) =>
-    request<any>("/interview-questions", { method: "POST", body: JSON.stringify(data) }),
-};
-
 // ── Analytics ───────────────────────────────
 export const analyticsApi = {
   overview: () => request<any>("/analytics/overview"),
