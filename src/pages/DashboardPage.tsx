@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { analyticsApi } from "@/api/client";
 import { getStageLabel, getStageStyle } from "@/lib/utils";
 import type { AnalyticsOverview } from "@/types";
-import { BarChart3, Briefcase, FileText, TrendingUp } from "lucide-react";
+import { Briefcase, FileText, TrendingUp } from "lucide-react";
 
 export function DashboardPage() {
   const [data, setData] = useState<AnalyticsOverview | null>(null);
@@ -31,21 +31,13 @@ export function DashboardPage() {
       icon: FileText,
       color: "text-purple-600 bg-purple-50",
     },
-    {
-      label: "Avg. Salary (USD)",
-      value: data?.average_salary_expectation
-        ? `$${data.average_salary_expectation.toLocaleString()}`
-        : "$0",
-      icon: BarChart3,
-      color: "text-orange-600 bg-orange-50",
-    },
   ];
 
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         {cards.map((c) => (
           <div key={c.label} className="bg-white rounded-card border border-border shadow-card p-5">
             <div className="flex items-center gap-3 mb-3">

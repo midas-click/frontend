@@ -4,7 +4,7 @@ export enum ApplicationStage {
   Applied = "applied",
   PhoneScreen = "phone_screen",
   Technical = "technical",
-  Onsite = "onsite",
+  TeamInterview = "team_interview",
   Offer = "offer",
   Rejected = "rejected",
   Withdrawn = "withdrawn",
@@ -14,7 +14,7 @@ export const KANBAN_STAGES: ApplicationStage[] = [
   ApplicationStage.Applied,
   ApplicationStage.PhoneScreen,
   ApplicationStage.Technical,
-  ApplicationStage.Onsite,
+  ApplicationStage.TeamInterview,
   ApplicationStage.Offer,
 ];
 
@@ -22,7 +22,7 @@ export const DEFAULT_KANBAN_COLUMNS: { id: string; label: string; color: string 
   { id: "applied", label: "Applied", color: "bg-purple-50 border-purple-200" },
   { id: "phone_screen", label: "Phone Screen", color: "bg-blue-50 border-blue-200" },
   { id: "technical", label: "Technical", color: "bg-orange-50 border-orange-200" },
-  { id: "onsite", label: "Onsite", color: "bg-green-50 border-green-200" },
+  { id: "team_interview", label: "Team Interview", color: "bg-green-50 border-green-200" },
   { id: "offer", label: "Offer", color: "bg-yellow-50 border-yellow-200" },
 ];
 
@@ -143,7 +143,6 @@ export interface AnalyticsOverview {
   interview_rate: number;
   offer_rate: number;
   rejection_rate: number;
-  average_salary_expectation: number;
   by_stage: Record<string, number>;
 }
 
