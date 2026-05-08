@@ -160,8 +160,9 @@ export function JobDetailPage() {
               {job.salary_range && <span className="flex items-center gap-1"><DollarSign className="w-4 h-4" />{job.salary_range}</span>}
               <span className="text-xs px-2.5 py-0.5 bg-gray-100 rounded-full capitalize">{job.status}</span>
               {job.source_url && (
-                <a href={job.source_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-brand-600 hover:text-brand-700">
-                  <ExternalLink className="w-3.5 h-3.5" />Source
+                <a href={job.source_url} target="_blank" rel="noreferrer"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-brand-50 text-brand-700 rounded-full text-xs font-medium hover:bg-brand-100">
+                  <ExternalLink className="w-3 h-3" />View Source
                 </a>
               )}
             </div>

@@ -72,8 +72,8 @@ export const jobsApi = {
     request<any>("/jobs", { method: "POST", body: JSON.stringify(data) }),
   update: (id: string, data: any) =>
     request<any>(`/jobs/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
-  analyze: (rawText: string) =>
-    request<any>("/jobs/analyze", { method: "POST", body: JSON.stringify({ raw_text: rawText }) }),
+  analyze: (rawText: string, sourceUrl?: string) =>
+    request<any>("/jobs/analyze", { method: "POST", body: JSON.stringify({ raw_text: rawText, source_url: sourceUrl || "" }) }),
   delete: (id: string) => request<void>(`/jobs/${id}`, { method: "DELETE" }),
 };
 
