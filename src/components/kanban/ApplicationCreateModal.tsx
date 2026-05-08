@@ -2,13 +2,8 @@ import { useState, useEffect } from "react";
 import { useStore } from "@/store";
 import { jobsApi } from "@/api/client";
 import type { Job } from "@/types";
+import { DEFAULT_KANBAN_COLUMNS } from "@/types";
 import { X, Search, Briefcase, FileText } from "lucide-react";
-import { loadColumns } from "@/lib/utils";
-
-function getFirstColumnId(): string {
-  const cols = loadColumns();
-  return cols.length > 0 ? cols[0].id : "applied";
-}
 
 interface Props {
   onClose: () => void;
@@ -53,7 +48,7 @@ export function ApplicationCreateModal({ onClose, onCreated }: Props) {
         job_id: selectedJob.id,
         job_title: selectedJob.title,
         company: selectedJob.company,
-        stage: getFirstColumnId(),
+        stage: DEFAULT_KANBAN_COLUMNS[0].id,
         location: selectedJob.location || "",
         salary_expectation: selectedJob.salary_range || undefined,
         tags: selectedJob.tags,

@@ -38,19 +38,15 @@ const STAGE_FALLBACKS: Record<string, { label: string; color: string }> = {
   team_interview:    { label: "Team Interview",        color: "bg-green-100 text-green-700" },
   offer:     { label: "Offer",         color: "bg-yellow-100 text-yellow-700" },
   rejected:  { label: "Rejected",      color: "bg-red-100 text-red-700" },
-  withdrawn: { label: "Withdrawn",     color: "bg-gray-100 text-gray-600" },
 };
 
 
 export function getStageLabel(stage: string): string {
   if (STAGE_FALLBACKS[stage]) return STAGE_FALLBACKS[stage].label;
-  const col = loadColumns().find((c) => c.id === stage);
-  return col?.label || stage;
+  return stage;
 }
 
 export function getStageColor(stage: string): string {
-  const col = loadColumns().find((c) => c.id === stage);
-  if (col?.color) return col.color;
   if (STAGE_FALLBACKS[stage]) return STAGE_FALLBACKS[stage].color;
   return "";
 }

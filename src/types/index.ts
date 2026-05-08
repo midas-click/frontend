@@ -7,7 +7,6 @@ export enum ApplicationStage {
   TeamInterview = "team_interview",
   Offer = "offer",
   Rejected = "rejected",
-  Withdrawn = "withdrawn",
 }
 
 export const KANBAN_STAGES: ApplicationStage[] = [
@@ -16,6 +15,7 @@ export const KANBAN_STAGES: ApplicationStage[] = [
   ApplicationStage.Technical,
   ApplicationStage.TeamInterview,
   ApplicationStage.Offer,
+  ApplicationStage.Rejected,
 ];
 
 export const DEFAULT_KANBAN_COLUMNS: { id: string; label: string; color: string }[] = [
@@ -24,6 +24,7 @@ export const DEFAULT_KANBAN_COLUMNS: { id: string; label: string; color: string 
   { id: "technical", label: "Technical", color: "bg-orange-50 border-orange-200" },
   { id: "team_interview", label: "Team Interview", color: "bg-green-50 border-green-200" },
   { id: "offer", label: "Offer", color: "bg-yellow-50 border-yellow-200" },
+  { id: "rejected", label: "Rejected", color: "bg-red-50 border-red-200" },
 ];
 
 export interface CommunicationLog {
