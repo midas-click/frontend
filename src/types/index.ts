@@ -42,14 +42,12 @@ export interface TimelineEvent {
 export interface Application {
   id: string;
   user_id: string;
+  job_id?: string;
   job_title: string;
   company: string;
-  role?: string;
   location?: string;
-  salary_expectation?: number;
-  salary_currency: string;
+  salary_expectation?: string;
   stage: ApplicationStage | string;
-  recruiter_name?: string;
   initial_contact_date?: string;
   resume_ids: string[];
   tags: string[];
@@ -64,14 +62,12 @@ export interface Application {
 }
 
 export interface ApplicationCreate {
+  job_id?: string;
   job_title: string;
   company: string;
   stage?: string;
-  role?: string;
   location?: string;
-  salary_expectation?: number;
-  salary_currency?: string;
-  recruiter_name?: string;
+  salary_expectation?: string;
   initial_contact_date?: string;
   resume_ids?: string[];
   tags?: string[];
@@ -81,11 +77,8 @@ export interface ApplicationCreate {
 export interface ApplicationUpdate {
   job_title?: string;
   company?: string;
-  role?: string;
   location?: string;
-  salary_expectation?: number;
-  salary_currency?: string;
-  recruiter_name?: string;
+  salary_expectation?: string;
   initial_contact_date?: string;
   resume_ids?: string[];
   tags?: string[];
@@ -129,7 +122,6 @@ export interface Job {
   salary_range?: string;
   source_url?: string;
   source_name: string;
-  extracted_keywords: string[];
   tags: string[];
   created_at: string;
 }

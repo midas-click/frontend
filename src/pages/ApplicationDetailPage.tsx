@@ -1,31 +1,21 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { applicationsApi } from "@/api/client";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { applicationsApi, jobsApi } from "@/api/client";
 import { Application } from "@/types";
-import { Building2, MapPin, Clock, DollarSign, Pencil, Trash2, X, Save } from "lucide-react";
+import { Building2, MapPin, Clock, DollarSign, Pencil, Trash2, X, Save, ArrowLeft, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
 import { getStageLabel, getStageStyle, formatEvent } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-
 
 export function ApplicationDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [app, setApp] = useState<Application | null>(null);
+  const [jobSourceUrl, setJobSourceUrl] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [editForm, setEditForm] = useState({
-    job_title: "",
-    company: "",
-    role: "",
-    location: "",
-    salary_expectation: "",
-    salary_currency: "USD",
-    recruiter_name: "",
-    notes: "",
-    tags: "",
-  });
+  const [editForm, setEditForm] = useState({ job_title: "", company: "", location: "", salary_expectation: "", notes: "", tags: "" });
   const [commSummary, setCommSummary] = useState("");
   const [commChannel, setCommChannel] = useState("email");
 
@@ -33,18 +23,18 @@ export function ApplicationDetailPage() {
     if (id) applicationsApi.get(id).then(setApp).catch(console.error);
   }, [id]);
 
+  useEffect(() => {
+    if (app?.job_id) {
+      jobsApi.get(app.job_id).then((job: any) => setJobSourceUrl(job.source_url || null)).catch(() => {});
+    }
+  }, [app?.job_id]);
+
   function startEditing() {
     if (!app) return;
     setEditForm({
-      job_title: app.job_title,
-      company: app.company,
-      role: app.role || "",
-      location: app.location || "",
-      salary_expectation: app.salary_expectation?.toString() || "",
-      salary_currency: app.salary_currency || "USD",
-      recruiter_name: app.recruiter_name || "",
-      notes: app.notes || "",
-      tags: app.tags.join(", "),
+      job_title: app.job_title, company: app.company,
+      location: app.location || "", salary_expectation: app.salary_expectation || "",
+      notes: app.notes || "", tags: app.tags.join(", "),
     });
     setEditing(true);
   }
@@ -53,33 +43,21 @@ export function ApplicationDetailPage() {
     if (!id || !app) return;
     setSaving(true);
     try {
-      const updateData: any = {
-        job_title: editForm.job_title,
-        company: editForm.company,
-        role: editForm.role || null,
+      const updated = await applicationsApi.update(id, {
+        job_title: editForm.job_title, company: editForm.company,
         location: editForm.location || null,
-        salary_expectation: editForm.salary_expectation ? Number(editForm.salary_expectation) : null,
-        salary_currency: editForm.salary_currency,
-        recruiter_name: editForm.recruiter_name || null,
+        salary_expectation: editForm.salary_expectation || null,
         notes: editForm.notes || null,
-        tags: editForm.tags ? editForm.tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
-      };
-      const updated = await applicationsApi.update(id, updateData);
-      setApp(updated);
-      setEditing(false);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setSaving(false);
-    }
+        tags: editForm.tags ? editForm.tags.split(",").map(t => t.trim()).filter(Boolean) : [],
+      });
+      setApp(updated); setEditing(false);
+    } catch (err) { console.error(err); }
+    finally { setSaving(false); }
   }
 
   async function addCommunication() {
     if (!id || !commSummary.trim()) return;
-    await applicationsApi.addCommunication(id, {
-      channel: commChannel,
-      summary: commSummary,
-    });
+    await applicationsApi.addCommunication(id, { channel: commChannel, summary: commSummary });
     setCommSummary("");
     const updated = await applicationsApi.get(id);
     setApp(updated);
@@ -93,122 +71,87 @@ export function ApplicationDetailPage() {
 
   if (!app) return <p className="text-text-secondary">Loading…</p>;
 
+  const backTo = document.referrer.includes("/kanban") ? "/kanban" : "/applications";
+  const backLabel = backTo === "/kanban" ? "Back to Kanban" : "Back to Applicants";
+
   return (
     <div className="max-w-3xl">
+      <Link to={backTo} className="inline-flex items-center gap-1 text-sm text-text-secondary hover:text-text-primary mb-4">
+        <ArrowLeft className="w-4 h-4" /> {backLabel}
+      </Link>
+
       {/* Header */}
       <div className="bg-white rounded-card border border-border shadow-card p-6 mb-6">
         {editing ? (
           <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1">Job Title</label>
-                  <input value={editForm.job_title} onChange={(e) => setEditForm({ ...editForm, job_title: e.target.value })}
-                    className="w-full border rounded-btn px-3 py-2 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1">Company</label>
-                  <input value={editForm.company} onChange={(e) => setEditForm({ ...editForm, company: e.target.value })}
-                    className="w-full border rounded-btn px-3 py-2 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1">Role</label>
-                  <input value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
-                    className="w-full border rounded-btn px-3 py-2 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1">Location</label>
-                  <input value={editForm.location} onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
-                    className="w-full border rounded-btn px-3 py-2 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1">Salary</label>
-                  <input type="number" value={editForm.salary_expectation} onChange={(e) => setEditForm({ ...editForm, salary_expectation: e.target.value })}
-                    className="w-full border rounded-btn px-3 py-2 text-sm" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1">Currency</label>
-                  <select value={editForm.salary_currency} onChange={(e) => setEditForm({ ...editForm, salary_currency: e.target.value })}
-                    className="w-full border rounded-btn px-3 py-2 text-sm">
-                    <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
-                    <option value="GBP">GBP</option>
-                    <option value="CAD">CAD</option>
-                    <option value="INR">INR</option>
-                  </select>
-                </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-text-secondary mb-1">Job Title</label>
+                <input value={editForm.job_title} onChange={e => setEditForm(f => ({ ...f, job_title: e.target.value }))} className="w-full border rounded-btn px-3 py-2 text-sm" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1">Recruiter Name</label>
-                <input value={editForm.recruiter_name} onChange={(e) => setEditForm({ ...editForm, recruiter_name: e.target.value })}
-                  className="w-full border rounded-btn px-3 py-2 text-sm" />
+                <label className="block text-xs font-medium text-text-secondary mb-1">Company</label>
+                <input value={editForm.company} onChange={e => setEditForm(f => ({ ...f, company: e.target.value }))} className="w-full border rounded-btn px-3 py-2 text-sm" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1">Notes</label>
-                <textarea value={editForm.notes} onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
-                  className="w-full border rounded-btn px-3 py-2 text-sm" rows={3} />
+                <label className="block text-xs font-medium text-text-secondary mb-1">Location</label>
+                <input value={editForm.location} onChange={e => setEditForm(f => ({ ...f, location: e.target.value }))} className="w-full border rounded-btn px-3 py-2 text-sm" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1">Tags (comma-separated)</label>
-                <input value={editForm.tags} onChange={(e) => setEditForm({ ...editForm, tags: e.target.value })}
-                  className="w-full border rounded-btn px-3 py-2 text-sm" placeholder="react, remote, healthtech" />
-              </div>
-              <div className="flex gap-2 pt-2">
-                <button onClick={saveEdit} disabled={saving}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-brand-900 text-white text-sm rounded-btn hover:bg-brand-800 disabled:opacity-50">
-                  <Save className="w-4 h-4" />{saving ? "Saving…" : "Save"}
-                </button>
-                <button onClick={() => setEditing(false)}
-                  className="flex items-center gap-1.5 px-4 py-2 border border-border text-text-secondary text-sm rounded-btn hover:bg-surface-secondary">
-                  <X className="w-4 h-4" />Cancel
-                </button>
+                <label className="block text-xs font-medium text-text-secondary mb-1">Salary</label>
+                <input type="text" value={editForm.salary_expectation} onChange={e => setEditForm(f => ({ ...f, salary_expectation: e.target.value }))} placeholder="e.g. $120k or Competitive" className="w-full border rounded-btn px-3 py-2 text-sm" />
               </div>
             </div>
-          ) : (
             <div>
-              <div className="flex items-start justify-between">
-                <h1 className="text-2xl font-bold">{app.job_title}</h1>
-                <div className="flex items-center gap-1 shrink-0 ml-4">
-                  <button onClick={startEditing}
-                    className="flex items-center gap-1 px-2.5 py-1 text-xs text-text-secondary border border-border rounded-btn hover:bg-surface-secondary">
-                    <Pencil className="w-3 h-3" />Edit
-                  </button>
-                  <button onClick={() => setDeleteOpen(true)}
-                    className="flex items-center gap-1 px-2.5 py-1 text-xs text-red-600 border border-red-200 rounded-btn hover:bg-red-50">
-                    <Trash2 className="w-3 h-3" />Delete
-                  </button>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 mt-2 text-text-secondary">
-                <span className="flex items-center gap-1"><Building2 className="w-4 h-4" />{app.company}</span>
-                {app.location && <span className="flex items-center gap-1"><MapPin className="w-4 h-4" />{app.location}</span>}
-                {app.salary_expectation ? (
-                  <span className="flex items-center gap-1"><DollarSign className="w-4 h-4" />{app.salary_expectation.toLocaleString()} {app.salary_currency}</span>
-                ) : null}
-              </div>
-              <div className="flex gap-2 mt-3 flex-wrap">
-                <span className="px-2.5 py-0.5 rounded-full text-sm font-medium capitalize" style={getStageStyle(app.stage as string)}>
-                  {getStageLabel(app.stage as string)}
-                </span>
-                {app.match_score != null && (
-                  <span className="px-2.5 py-0.5 bg-green-50 text-green-700 rounded-tag text-sm font-medium">
-                    Match: {app.match_score}%
-                  </span>
-                )}
-                {app.tags.map((t) => (
-                  <span key={t} className="px-2.5 py-0.5 bg-surface-secondary text-text-secondary rounded-tag text-sm">{t}</span>
-                ))}
-              </div>
-              {app.notes && <p className="mt-4 text-sm text-text-secondary p-3 bg-surface-secondary rounded-btn whitespace-pre-wrap">{app.notes}</p>}
+              <label className="block text-xs font-medium text-text-secondary mb-1">Notes</label>
+              <textarea value={editForm.notes} onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))} className="w-full border rounded-btn px-3 py-2 text-sm" rows={3} />
             </div>
-          )}
+            <div>
+              <label className="block text-xs font-medium text-text-secondary mb-1">Tags (comma-separated)</label>
+              <input value={editForm.tags} onChange={e => setEditForm(f => ({ ...f, tags: e.target.value }))} className="w-full border rounded-btn px-3 py-2 text-sm" placeholder="react, remote, healthtech" />
+            </div>
+            <div className="flex gap-2 pt-2">
+              <button onClick={saveEdit} disabled={saving} className="flex items-center gap-1.5 px-4 py-2 bg-brand-900 text-white text-sm rounded-btn hover:bg-brand-800 disabled:opacity-50">
+                <Save className="w-4 h-4" />{saving ? "Saving…" : "Save"}
+              </button>
+              <button onClick={() => setEditing(false)} className="flex items-center gap-1.5 px-4 py-2 border border-border text-text-secondary text-sm rounded-btn hover:bg-surface-secondary">
+                <X className="w-4 h-4" />Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <div className="flex items-start justify-between mb-3">
+              <h1 className="text-2xl font-bold flex-1">{app.job_title}</h1>
+              <div className="flex items-center gap-2 shrink-0 ml-4">
+                <span className="px-2.5 py-0.5 rounded-full text-sm font-medium capitalize" style={getStageStyle(app.stage as string)}>{getStageLabel(app.stage as string)}</span>
+                <button onClick={startEditing} className="p-1.5 text-text-muted hover:text-text-primary border border-border rounded-btn" title="Edit"><Pencil className="w-3.5 h-3.5" /></button>
+                <button onClick={() => setDeleteOpen(true)} className="p-1.5 text-text-muted hover:text-red-500 border border-border rounded-btn" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 text-text-secondary flex-wrap">
+              <span className="flex items-center gap-1"><Building2 className="w-4 h-4" />{app.company}</span>
+              {app.location && <span className="flex items-center gap-1"><MapPin className="w-4 h-4" />{app.location}</span>}
+              {app.salary_expectation && <span className="flex items-center gap-1"><DollarSign className="w-4 h-4" />{app.salary_expectation}</span>}
+              {jobSourceUrl && (
+                <a href={jobSourceUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-0 py-1 text-brand-600 rounded-btn text-xs font-medium hover:underline">
+                  <ExternalLink className="w-3 h-3" />Job Posting
+                </a>
+              )}
+            </div>
+            <div className="flex gap-2 mt-3 flex-wrap">
+              {app.match_score != null && <span className="px-2.5 py-0.5 bg-green-50 text-green-700 rounded-tag text-sm font-medium">Match: {app.match_score}%</span>}
+              {app.tags.map(t => <span key={t} className="px-2.5 py-0.5 bg-brand-50 text-brand-600 rounded-tag text-xs font-medium">{t}</span>)}
+            </div>
+            {app.notes && <p className="mt-4 text-sm text-text-secondary p-3 bg-surface-secondary rounded-btn whitespace-pre-wrap">{app.notes}</p>}
+          </div>
+        )}
       </div>
 
       {/* Timeline */}
       <div className="bg-white rounded-card border border-border shadow-card p-6 mb-6">
         <h2 className="font-semibold mb-4">Timeline ({app.timeline.length})</h2>
-        {app.timeline.length === 0 ? (
-          <p className="text-sm text-text-muted">No events yet.</p>
-        ) : (
+        {app.timeline.length === 0 ? <p className="text-sm text-text-muted">No events yet.</p> : (
           <div className="space-y-3 max-h-64 overflow-y-auto">
             {[...app.timeline].reverse().map((e, i) => (
               <div key={i} className="flex gap-3">
@@ -231,40 +174,24 @@ export function ApplicationDetailPage() {
           {app.communication_log.length === 0 && <p className="text-sm text-text-muted">No communications logged.</p>}
           {app.communication_log.map((c, i) => (
             <div key={i} className="p-3 bg-surface-secondary rounded-btn">
-              <p className="text-xs text-text-muted mb-1">
-                {format(new Date(c.date), "MMM d, yyyy")} · {c.raw_content ? "Email" : c.channel}
-              </p>
+              <p className="text-xs text-text-muted mb-1">{format(new Date(c.date), "MMM d, yyyy")} · {c.raw_content ? "Email" : c.channel}</p>
               <p className="text-sm">{c.summary}</p>
             </div>
           ))}
         </div>
-        {/* Add new log */}
         <div className="flex gap-2">
-          <select value={commChannel} onChange={(e) => setCommChannel(e.target.value)} className="border rounded-btn px-2 text-sm">
+          <select value={commChannel} onChange={e => setCommChannel(e.target.value)} className="border rounded-btn px-2 text-sm">
             <option value="email">Email</option>
             <option value="phone">Phone</option>
             <option value="linkedin">LinkedIn</option>
             <option value="in_person">In Person</option>
           </select>
-          <input
-            value={commSummary}
-            onChange={(e) => setCommSummary(e.target.value)}
-            placeholder="Add a note…"
-            className="flex-1 border rounded-btn px-3 py-2 text-sm"
-            onKeyDown={(e) => e.key === "Enter" && addCommunication()}
-          />
-          <button onClick={addCommunication} className="px-4 py-2 bg-brand-900 text-white text-sm rounded-btn hover:bg-brand-800">
-            Add
-          </button>
+          <input value={commSummary} onChange={e => setCommSummary(e.target.value)} placeholder="Add a note…" className="flex-1 border rounded-btn px-3 py-2 text-sm" onKeyDown={e => e.key === "Enter" && addCommunication()} />
+          <button onClick={addCommunication} className="px-4 py-2 bg-brand-900 text-white text-sm rounded-btn hover:bg-brand-800">Add</button>
         </div>
       </div>
-      <ConfirmDialog
-        open={deleteOpen}
-        title="Delete Application"
-        message="Are you sure you want to delete this application? All tracking data, timeline events, and communication logs will be permanently removed."
-        onConfirm={handleDelete}
-        onCancel={() => setDeleteOpen(false)}
-      />
+
+      <ConfirmDialog open={deleteOpen} title="Delete Application" message="Are you sure you want to delete this application? All tracking data, timeline events, and communication logs will be permanently removed." onConfirm={handleDelete} onCancel={() => setDeleteOpen(false)} />
     </div>
   );
 }

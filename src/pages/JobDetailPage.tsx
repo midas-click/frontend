@@ -16,7 +16,7 @@ export function JobDetailPage() {
   const [form, setForm] = useState({
     title: "", company: "", location: "", remote: false,
     salary_range: "", source_url: "",
-    description: "", keywords: "", tags: "",
+    description: "", tags: "",
   });
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export function JobDetailPage() {
       remote: job.remote || false, salary_range: job.salary_range || "",
       source_url: job.source_url || "",
       description: job.description || "",
-      keywords: (job.extracted_keywords || []).join(", "),
+
       tags: (job.tags || []).join(", "),
     });
     setEditing(true);
@@ -42,13 +42,13 @@ export function JobDetailPage() {
     if (!id) return;
     setSaving(true);
     try {
-      const kw = form.keywords ? form.keywords.split(",").map((k) => k.trim()).filter(Boolean) : [];
-      const tg = form.tags ? form.tags.split(",").map((t) => t.trim()).filter(Boolean) : [];
+      const tg = form.tags ? form.tags.split(",").map((t: string) => t.trim()).filter(Boolean) : [];
       const updated = await jobsApi.update(id, {
         title: form.title, company: form.company,
         location: form.location || null, remote: form.remote,
         salary_range: form.salary_range || null, source_url: form.source_url || null,
-        extracted_keywords: kw, tags: tg,
+        description: form.description || null,
+        tags: tg,
       });
       setJob(updated);
       setEditing(false);
@@ -99,20 +99,15 @@ export function JobDetailPage() {
                 <input value={form.source_url} onChange={(e) => setForm((f) => ({ ...f, source_url: e.target.value }))}
                   className="w-full border rounded-btn px-3 py-2 text-sm" />
               </div>
-            </div>
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={form.remote} onChange={(e) => setForm((f) => ({ ...f, remote: e.target.checked }))} />
-              Remote
-            </label>
-            <div>
-              <label className="block text-xs font-medium text-text-secondary mb-1">Keywords (comma-separated)</label>
-              <input value={form.keywords} onChange={(e) => setForm((f) => ({ ...f, keywords: e.target.value }))}
-                className="w-full border rounded-btn px-3 py-2 text-sm" placeholder="Python, AWS, Kubernetes…" />
+              <label className="flex justify-center items-center gap-2 text-sm mt-3">
+                <input type="checkbox" checked={form.remote} onChange={(e) => setForm((f) => ({ ...f, remote: e.target.checked }))} />
+                Remote
+              </label>
             </div>
             <div>
               <label className="block text-xs font-medium text-text-secondary mb-1">Tags (comma-separated)</label>
               <input value={form.tags} onChange={(e) => setForm((f) => ({ ...f, tags: e.target.value }))}
-                className="w-full border rounded-btn px-3 py-2 text-sm" placeholder="fintech, senior, backend" />
+                className="w-full border rounded-btn px-3 py-2 text-sm" placeholder="Python, fintech, senior…" />
             </div>
             <div>
               <label className="block text-xs font-medium text-text-secondary mb-1">Description</label>
@@ -157,15 +152,10 @@ export function JobDetailPage() {
                 </a>
               )}
             </div>
-            {(job.extracted_keywords.length > 0 || job.tags.length > 0) && (
+            {job.tags.length > 0 && (
               <div className="flex gap-2 mt-4 flex-wrap">
-                {job.extracted_keywords.slice(0, 10).map((k) => (
-                  <span key={k} className="px-2.5 py-0.5 bg-brand-50 text-brand-600 rounded-tag text-xs font-medium">{k}</span>
-                ))}
                 {job.tags.map((t) => (
-                  <span key={t} className="px-2.5 py-0.5 bg-surface-secondary text-text-secondary rounded-tag text-xs flex items-center gap-1">
-                    <Tag className="w-3 h-3" />{t}
-                  </span>
+                  <span key={t} className="px-2.5 py-0.5 bg-brand-50 text-brand-600 rounded-tag text-xs font-medium">{t}</span>
                 ))}
               </div>
             )}
@@ -173,7 +163,7 @@ export function JobDetailPage() {
         )}
       </div>
 
-      {job.description && (
+      {!editing && job.description && (
         <div className="bg-white rounded-card border border-border shadow-card p-6">
           <h2 className="font-semibold mb-3">Job Description</h2>
           <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{job.description}</div>
@@ -186,7 +176,7 @@ export function JobDetailPage() {
       <ConfirmDialog
         open={deleteOpen}
         title="Delete Job"
-        message="Are you sure you want to delete this job? Extracted keywords, tags, and description will be permanently removed."
+        message="Are you sure you want to delete this job? All tags and description will be permanently removed."
         onConfirm={handleDelete}
         onCancel={() => setDeleteOpen(false)}
       />

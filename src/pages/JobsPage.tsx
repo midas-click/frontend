@@ -60,15 +60,12 @@ export function JobsPage() {
                     {j.remote && <span className="flex items-center gap-1"><Globe className="w-3.5 h-3.5" />Remote</span>}
                     {j.salary_range && <span className="flex items-center gap-1 text-xs text-text-secondary"><DollarSign className="w-3 h-3" />{j.salary_range}</span>}
                   </p>
-                  {j.extracted_keywords && j.extracted_keywords.length > 0 && (
+                  {j.tags && j.tags.length > 0 && (
                     <div className="flex gap-1 mt-2 flex-wrap">
-                      {j.extracted_keywords.slice(0, 8).map((k: string) => (
+                      {j.tags.slice(0, 8).map((k: string) => (
                         <span key={k} className="px-1.5 py-0.5 bg-brand-50 text-brand-600 rounded text-xs">{k}</span>
                       ))}
                     </div>
-                  )}
-                  {j.description && (
-                    <p className="text-sm text-text-muted mt-2 line-clamp-2">{j.description}</p>
                   )}
                 </div>
                 <ChevronRight className="w-4 h-4 text-text-muted shrink-0 ml-2" />

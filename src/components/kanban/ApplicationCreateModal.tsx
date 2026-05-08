@@ -30,7 +30,6 @@ export function ApplicationCreateModal({ onClose, onCreated }: Props) {
   const [manualCompany, setManualCompany] = useState("");
 
   // Common fields
-  const [recruiterName, setRecruiterName] = useState("");
   const [salary, setSalary] = useState("");
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -55,6 +54,7 @@ export function ApplicationCreateModal({ onClose, onCreated }: Props) {
     setShowJobDropdown(false);
     setTags((prev) => [...new Set([...prev, ...job.tags])]);
     if (!notes) setNotes(job.description || "");
+    setSalary(job.salary_range || "");
   }
 
   function clearJob() {
@@ -79,13 +79,12 @@ export function ApplicationCreateModal({ onClose, onCreated }: Props) {
     setSaving(true);
     try {
       await createApplication({
+        job_id: selectedJob?.id,
         job_title: title,
         company,
         stage: getFirstColumnId(),
-        role: selectedJob ? "" : "",
         location: selectedJob?.location || "",
-        salary_expectation: salary ? Number(salary) : undefined,
-        recruiter_name: recruiterName || undefined,
+        salary_expectation: salary || undefined,
         tags,
         notes: notes || undefined,
         resume_ids: resumeIds.length > 0 ? resumeIds : undefined,
@@ -175,13 +174,9 @@ export function ApplicationCreateModal({ onClose, onCreated }: Props) {
 
           {/* Common fields */}
           <div>
-            <label className="block text-sm font-medium mb-1">Recruiter Name</label>
-            <input value={recruiterName} onChange={(e) => setRecruiterName(e.target.value)}
-              className="w-full border rounded-btn px-3 py-2 text-sm" />
-          </div>
-          <div>
             <label className="block text-sm font-medium mb-1">Salary Expectation (USD)</label>
-            <input type="number" value={salary} onChange={(e) => setSalary(e.target.value)}
+            <input type="text" value={salary} onChange={(e) => setSalary(e.target.value)}
+              placeholder="e.g. $120k or Competitive"
               className="w-full border rounded-btn px-3 py-2 text-sm" />
           </div>
 
