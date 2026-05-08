@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { jobsApi } from "@/api/client";
 import type { Job } from "@/types";
-import { Building2, MapPin, Globe, DollarSign, ExternalLink, ArrowLeft, Tag, Trash2, Pencil, X, Save } from "lucide-react";
+import { Building2, MapPin, Globe, DollarSign, ExternalLink, ArrowLeft, Tag, Trash2, Pencil, X, Save, Briefcase } from "lucide-react";
 import { format } from "date-fns";
+import { ApplicationCreateModal } from "@/components/kanban/ApplicationCreateModal";
 
 export function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -12,6 +13,7 @@ export function JobDetailPage() {
   const [job, setJob] = useState<Job | null>(null);
   const [editing, setEditing] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [showCreateApp, setShowCreateApp] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     title: "", company: "", location: "", remote: false,
@@ -152,6 +154,12 @@ export function JobDetailPage() {
                 </a>
               )}
             </div>
+            <button
+              onClick={() => setShowCreateApp(true)}
+              className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-brand-900 text-white text-sm font-medium rounded-btn hover:bg-brand-800"
+            >
+              <Briefcase className="w-4 h-4" />Create Application
+            </button>
             {job.tags.length > 0 && (
               <div className="flex gap-2 mt-4 flex-wrap">
                 {job.tags.map((t) => (
@@ -180,6 +188,17 @@ export function JobDetailPage() {
         onConfirm={handleDelete}
         onCancel={() => setDeleteOpen(false)}
       />
+
+      {showCreateApp && (
+        <ApplicationCreateModal
+          preSelectedJob={job}
+          onClose={() => setShowCreateApp(false)}
+          onCreated={() => {
+            setShowCreateApp(false);
+            navigate("/kanban");
+          }}
+        />
+      )}
     </div>
   );
 }

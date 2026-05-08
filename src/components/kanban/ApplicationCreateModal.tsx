@@ -8,20 +8,21 @@ import { X, Search, Briefcase, FileText } from "lucide-react";
 interface Props {
   onClose: () => void;
   onCreated: () => void;
+  preSelectedJob?: Job;
 }
 
-export function ApplicationCreateModal({ onClose, onCreated }: Props) {
+export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: Props) {
   const { createApplication, resumes, fetchResumes } = useStore();
   const [saving, setSaving] = useState(false);
   const [jobSearch, setJobSearch] = useState("");
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(preSelectedJob ?? null);
   const [showJobDropdown, setShowJobDropdown] = useState(false);
   const [resumeIds, setResumeIds] = useState<string[]>([]);
 
   useEffect(() => {
     fetchResumes();
-    jobsApi.list().then(setJobs);
+    if (!preSelectedJob) jobsApi.list().then(setJobs);
   }, []);
 
   useEffect(() => {
