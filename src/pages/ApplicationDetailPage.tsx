@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { applicationsApi, jobsApi } from "@/api/client";
 import { Application } from "@/types";
 import { Building2, MapPin, Clock, DollarSign, Pencil, Trash2, X, Save, ArrowLeft, ExternalLink } from "lucide-react";
@@ -18,6 +18,7 @@ export function ApplicationDetailPage() {
   const [editForm, setEditForm] = useState({ job_title: "", company: "", location: "", salary_expectation: "", notes: "", tags: "" });
   const [commSummary, setCommSummary] = useState("");
   const [commChannel, setCommChannel] = useState("email");
+  const location = useLocation();
 
   useEffect(() => {
     if (id) applicationsApi.get(id).then(setApp).catch(console.error);
@@ -71,7 +72,8 @@ export function ApplicationDetailPage() {
 
   if (!app) return <p className="text-text-secondary">Loading…</p>;
 
-  const backTo = document.referrer.includes("/kanban") ? "/kanban" : "/applications";
+  const from = (location.state as any)?.from;
+  const backTo = from === "kanban" ? "/kanban" : "/applications";
   const backLabel = backTo === "/kanban" ? "Back to Kanban" : "Back to Applicants";
 
   return (

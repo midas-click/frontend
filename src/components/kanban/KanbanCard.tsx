@@ -45,6 +45,7 @@ export function KanbanCard({ application, isOverlay }: Props) {
     >
       <Link
         to={`/applications/${application.id}`}
+        state={{ from: "kanban" }}
         className="block p-3"
         onClick={(e) => { if (isDragging) e.preventDefault(); }}
         tabIndex={isDragging ? -1 : 0}

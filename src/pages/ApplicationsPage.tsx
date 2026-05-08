@@ -42,6 +42,7 @@ export function ApplicationsPage() {
               <Link
                 key={app.id}
                 to={`/applications/${app.id}`}
+                state={{ from: "applications" }}
                 className="flex items-center justify-between bg-white rounded-card border border-border shadow-card p-4 hover:shadow-md transition-shadow"
               >
                 <div className="flex-1 min-w-0">
