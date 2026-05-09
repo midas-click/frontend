@@ -49,17 +49,6 @@ export function Layout() {
           <span className="font-bold text-lg text-text-primary tracking-tight">MidasClick</span>
         </div>
 
-        {/* Search */}
-        <div className="px-3 pt-3 pb-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-2.5 w-4 h-4 text-text-muted" />
-            <input
-              placeholder="Search"
-              className="w-full bg-surface-secondary border border-border rounded-btn pl-9 pr-3 py-2 text-sm text-text-primary placeholder:text-text-muted outline-none"
-            />
-          </div>
-        </div>
-
         {/* Nav sections */}
         <nav className="flex-1 px-3 py-2 space-y-4 overflow-y-auto">
           {NAV_SECTIONS.map((section) => (

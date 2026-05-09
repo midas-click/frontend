@@ -40,18 +40,16 @@ export function KanbanColumn({ colId, label, colorClass, count, children, onChan
     >
       {/* Header */}
       <div className="flex items-center gap-1 mb-3">
-        <h3 className="font-semibold text-sm truncate flex-1">
+        <h3 className="font-semibold text-sm truncate">
           {label}
         </h3>
+        <span className={clsx("text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ml-auto", count > 0 ? "bg-white/70 text-gray-700" : "bg-white/40 text-text-muted")}>
+          {count}
+        </span>
         <button ref={paletteBtnRef} onClick={openPalette} className="text-text-muted hover:text-text-secondary p-0.5 shrink-0" title="Color">
           <Palette className="w-3.5 h-3.5" />
         </button>
       </div>
-
-      {/* Count */}
-      <span className={clsx("text-xs font-bold px-2.5 py-0.5 rounded-full self-start mb-3", count > 0 ? "bg-gray-200 text-gray-700" : "bg-white/50 text-text-muted")}>
-        {count} {count === 1 ? "card" : "cards"}
-      </span>
 
       {/* Cards */}
       <div className="flex flex-col gap-2 overflow-y-auto flex-1 min-h-0">{children}</div>

@@ -43,10 +43,13 @@ const STAGE_FALLBACKS: Record<string, { label: string; color: string }> = {
 
 export function getStageLabel(stage: string): string {
   if (STAGE_FALLBACKS[stage]) return STAGE_FALLBACKS[stage].label;
-  return stage;
+  const col = loadColumns().find((c) => c.id === stage);
+  return col?.label || stage;
 }
 
 export function getStageColor(stage: string): string {
+  const col = loadColumns().find((c) => c.id === stage);
+  if (col?.color) return col.color;
   if (STAGE_FALLBACKS[stage]) return STAGE_FALLBACKS[stage].color;
   return "";
 }

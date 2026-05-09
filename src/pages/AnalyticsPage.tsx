@@ -106,19 +106,40 @@ export function AnalyticsPage() {
           <h2 className="font-semibold mb-4">Resume Performance</h2>
           {resumes.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={resumes}>
+              <BarChart data={resumes.map((r) => ({
+                ...r,
+                interviewRate: r.applications > 0 ? Math.round(r.interviews / r.applications * 100) : 0,
+                offerRate: r.applications > 0 ? Math.round(r.offers / r.applications * 100) : 0,
+              }))}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="filename" tick={{ fontSize: 11 }} angle={-20} textAnchor="end" height={60} />
-                <YAxis />
-                <Tooltip />
+                <YAxis unit="%" domain={[0, 100]} />
+                <Tooltip formatter={(value: number) => `${value}%`} />
                 <Legend />
-                <Bar dataKey="applications" fill="#3b82f6" name="Applications" />
-                <Bar dataKey="interviews" fill="#eab308" name="Interviews" />
-                <Bar dataKey="offers" fill="#22c55e" name="Offers" />
+                <Bar dataKey="interviewRate" fill="#eab308" name="Interview Rate" />
+                <Bar dataKey="offerRate" fill="#22c55e" name="Offer Rate" />
               </BarChart>
             </ResponsiveContainer>
           ) : (
             <p className="text-text-muted text-sm">Upload resumes to see performance.</p>
+          )}
+        </div>
+
+        {/* Applications per Resume */}
+        <div className="bg-white rounded-card border border-border shadow-card p-6">
+          <h2 className="font-semibold mb-4">Applications per Resume</h2>
+          {resumes.length > 0 ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={resumes}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="filename" tick={{ fontSize: 11 }} angle={-20} textAnchor="end" height={60} />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Bar dataKey="applications" fill="#3b82f6" name="Applications" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="text-text-muted text-sm">Upload resumes to see data.</p>
           )}
         </div>
 
