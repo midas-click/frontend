@@ -47,10 +47,12 @@ export interface Application {
   job_title: string;
   company: string;
   location?: string;
+  source_url?: string;
   salary_expectation?: string;
   stage: ApplicationStage | string;
   initial_contact_date?: string;
-  resume_ids: string[];
+  resume_id?: string;
+  resume_filename?: string;
   tags: string[];
   match_score?: number;
   match_explanation?: string;
@@ -68,9 +70,10 @@ export interface ApplicationCreate {
   company: string;
   stage?: string;
   location?: string;
+  source_url?: string;
   salary_expectation?: string;
   initial_contact_date?: string;
-  resume_ids?: string[];
+  resume_id?: string;
   tags?: string[];
   notes?: string;
 }
@@ -81,7 +84,7 @@ export interface ApplicationUpdate {
   location?: string;
   salary_expectation?: string;
   initial_contact_date?: string;
-  resume_ids?: string[];
+  resume_id?: string;
   tags?: string[];
   match_score?: number;
   match_explanation?: string;
@@ -107,7 +110,6 @@ export interface Resume {
   interview_count: number;
   offer_count: number;
   tags: string[];
-  version: number;
   created_at: string;
 }
 
@@ -150,7 +152,6 @@ export interface AnalyticsOverview {
 export interface ResumePerformance {
   id: string;
   filename: string;
-  version: number;
   applications: number;
   interviews: number;
   offers: number;

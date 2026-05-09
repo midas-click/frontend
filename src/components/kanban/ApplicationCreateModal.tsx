@@ -18,7 +18,7 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
   const [jobs, setJobs] = useState<Job[]>([]);
   const [selectedJob, setSelectedJob] = useState<Job | null>(preSelectedJob ?? null);
   const [showJobDropdown, setShowJobDropdown] = useState(false);
-  const [resumeIds, setResumeIds] = useState<string[]>([]);
+  const [resumeId, setResumeId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchResumes();
@@ -37,7 +37,7 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
   }
 
   function toggleResume(id: string) {
-    setResumeIds((prev) => prev.includes(id) ? [] : [id]);
+    setResumeId((prev) => prev === id ? null : id);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -51,10 +51,11 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
         company: selectedJob.company,
         stage: DEFAULT_KANBAN_COLUMNS[0].id,
         location: selectedJob.location || "",
+        source_url: selectedJob.source_url || undefined,
         salary_expectation: selectedJob.salary_range || undefined,
         tags: selectedJob.tags,
         notes: selectedJob.description || undefined,
-        resume_ids: resumeIds.length > 0 ? resumeIds : undefined,
+        resume_id: resumeId || undefined,
       });
       onCreated();
     } catch (err) { console.error(err); }
@@ -117,7 +118,7 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
                 {resumes.map((r) => (
                   <button key={r.id} type="button" onClick={() => toggleResume(r.id)}
                     className={`px-2.5 py-1 rounded-tag text-xs border transition-colors ${
-                      resumeIds.includes(r.id) ? "bg-brand-50 border-brand-300 text-brand-600" : "bg-white border-border text-text-secondary"
+                      resumeId === r.id ? "bg-brand-50 border-brand-300 text-brand-600" : "bg-white border-border text-text-secondary"
                     }`}>
                     {r.original_filename}
                   </button>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "@/store";
-import { Building2, MapPin, ChevronRight } from "lucide-react";
+import { Building2, MapPin, ChevronRight, FileText } from "lucide-react";
 import clsx from "clsx";
 import { getStageLabel, getStageStyle } from "@/lib/utils";
 import { ApplicationFilters } from "@/components/ApplicationFilters";
@@ -47,9 +47,10 @@ export function ApplicationsPage() {
               >
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold truncate">{app.job_title}</h3>
-                  <div className="flex items-center gap-3 mt-1 text-sm text-text-secondary">
+                  <div className="flex items-center gap-3 mt-1 text-sm text-text-secondary flex-wrap">
                     <span className="flex items-center gap-1"><Building2 className="w-3.5 h-3.5" />{app.company}</span>
                     {app.location && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{app.location}</span>}
+                    {app.resume_filename && <span className="flex items-center gap-1"><FileText className="w-3.5 h-3.5" />{app.resume_filename}</span>}
                   </div>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">

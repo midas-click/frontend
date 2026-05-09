@@ -2,7 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Link } from "react-router-dom";
 import { Application } from "@/types";
-import { Building2, MapPin } from "lucide-react";
+import { Building2, MapPin, FileText } from "lucide-react";
 import clsx from "clsx";
 
 interface Props {
@@ -61,6 +61,21 @@ export function KanbanCard({ application, isOverlay }: Props) {
             {application.location}
           </div>
         )}
+        {application.resume_filename && (
+          <div className="flex items-center gap-1.5 mt-0.5 text-xs text-text-muted">
+            <FileText className="w-3 h-3 shrink-0" />
+            <span className="truncate">{application.resume_filename}</span>
+          </div>
+        )}
+        {application.tags.length > 0 && (
+          <div className="flex gap-1 mt-2 flex-wrap">
+            {application.tags.slice(0, 3).map((t) => (
+              <span key={t} className="px-1.5 py-0.5 bg-brand-50 text-brand-600 rounded text-xs font-medium">
+                {t}
+              </span>
+            ))}
+          </div>
+        )}
         {application.match_score != null && (
           <div className="mt-2">
             <span
@@ -75,15 +90,6 @@ export function KanbanCard({ application, isOverlay }: Props) {
             >
               Match: {application.match_score}%
             </span>
-          </div>
-        )}
-        {application.tags.length > 0 && (
-          <div className="flex gap-1 mt-2 flex-wrap">
-            {application.tags.slice(0, 3).map((t) => (
-              <span key={t} className="px-1.5 py-0.5 bg-surface-secondary rounded text-xs text-text-secondary">
-                {t}
-              </span>
-            ))}
           </div>
         )}
       </Link>

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
-import { applicationsApi, jobsApi } from "@/api/client";
+import { applicationsApi } from "@/api/client";
 import { Application } from "@/types";
-import { Building2, MapPin, Clock, DollarSign, Pencil, Trash2, X, Save, ArrowLeft, ExternalLink } from "lucide-react";
+import { Building2, MapPin, Clock, DollarSign, Pencil, Trash2, X, Save, ArrowLeft, ExternalLink, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { getStageLabel, getStageStyle, formatEvent } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
@@ -11,7 +11,6 @@ export function ApplicationDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [app, setApp] = useState<Application | null>(null);
-  const [jobSourceUrl, setJobSourceUrl] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -23,12 +22,6 @@ export function ApplicationDetailPage() {
   useEffect(() => {
     if (id) applicationsApi.get(id).then(setApp).catch(console.error);
   }, [id]);
-
-  useEffect(() => {
-    if (app?.job_id) {
-      jobsApi.get(app.job_id).then((job: any) => setJobSourceUrl(job.source_url || null)).catch(() => {});
-    }
-  }, [app?.job_id]);
 
   function startEditing() {
     if (!app) return;
@@ -135,10 +128,15 @@ export function ApplicationDetailPage() {
               <span className="flex items-center gap-1"><Building2 className="w-4 h-4" />{app.company}</span>
               {app.location && <span className="flex items-center gap-1"><MapPin className="w-4 h-4" />{app.location}</span>}
               {app.salary_expectation && <span className="flex items-center gap-1"><DollarSign className="w-4 h-4" />{app.salary_expectation}</span>}
-              {jobSourceUrl && (
-                <a href={jobSourceUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-0 py-1 text-brand-600 rounded-btn text-xs font-medium hover:underline">
+              {app.source_url && (
+                <a href={app.source_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-0 py-1 text-blue-600 rounded-btn text-xs font-medium hover:underline">
                   <ExternalLink className="w-3 h-3" />Job Posting
                 </a>
+              )}
+              {app.resume_id && app.resume_filename && (
+                <Link to={`/resumes/${app.resume_id}`} className="inline-flex items-center gap-1.5 px-0 py-1 text-blue-600 rounded-btn text-xs font-medium hover:underline">
+                  <FileText className="w-3 h-3" />{app.resume_filename}
+                </Link>
               )}
             </div>
             <div className="flex gap-2 mt-3 flex-wrap">
@@ -176,7 +174,7 @@ export function ApplicationDetailPage() {
           {app.communication_log.length === 0 && <p className="text-sm text-text-muted">No communications logged.</p>}
           {app.communication_log.map((c, i) => (
             <div key={i} className="p-3 bg-surface-secondary rounded-btn">
-              <p className="text-xs text-text-muted mb-1">{format(new Date(c.date), "MMM d, yyyy")} · {c.raw_content ? "Email" : c.channel}</p>
+              <p className="text-xs text-text-muted mb-1">{format(new Date(c.date), "MMM d, yyyy")} · {c.channel}</p>
               <p className="text-sm">{c.summary}</p>
             </div>
           ))}
