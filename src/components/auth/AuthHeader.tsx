@@ -1,9 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
-import { useAuth, useOrganizationList } from "@clerk/clerk-react";
-import {
-  OrganizationSwitcher,
-  UserButton,
-} from "@clerk/clerk-react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { UserButton, useUser } from "@clerk/clerk-react";
+import { OrgSwitcher } from "./OrgSwitcher";
 import { ProfileSwitcher, ProfileOption } from "./ProfileSwitcher";
 import { api } from "@/api/client";
 
@@ -27,8 +24,9 @@ function CreateProfileDialog({ open, onClose, onCreated }: CreateProfileDialogPr
       setName("");
       setHeadline("");
       onClose();
-    } catch {
-      alert("Failed to create profile");
+    } catch (err: any) {
+      console.error("Create profile failed:", err);
+      alert("Failed to create profile: " + (err?.message || "Unknown error"));
     } finally {
       setSaving(false);
     }
@@ -90,30 +88,50 @@ function CreateProfileDialog({ open, onClose, onCreated }: CreateProfileDialogPr
 
 /** Header bar with org switcher, profile switcher, and user menu. */
 export function AuthHeader() {
-  const { getToken } = useAuth();
-  const { isLoaded: orgsLoaded } = useOrganizationList();
-
+  const { user } = useUser();
   const [profiles, setProfiles] = useState<ProfileOption[]>([]);
   const [activeProfileId, setActiveProfileId] = useState<string | null>(
     () => localStorage.getItem("midas-active-profile")
   );
   const [profilesLoading, setProfilesLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const autoCreateAttempted = useRef(false);
 
   const fetchProfiles = useCallback(async () => {
     try {
       const data = await api.profiles.list();
       setProfiles(data.map((p: any) => ({ id: p.id, name: p.name, headline: p.headline })));
+
+      // Auto-create a default profile if none exist yet
+      if (data.length === 0 && !autoCreateAttempted.current && user) {
+        autoCreateAttempted.current = true;
+        const defaultName =
+          [user.firstName, user.lastName].filter(Boolean).join(" ") ||
+          user.username ||
+          user.primaryEmailAddress?.emailAddress?.split("@")[0] ||
+          "Default";
+
+        try {
+          const created: any = await api.profiles.create({ name: defaultName });
+          const newProfile = { id: created.id, name: created.name, headline: created.headline };
+          setProfiles([newProfile]);
+          setActiveProfileId(created.id);
+          localStorage.setItem("midas-active-profile", created.id);
+        } catch (e) {
+          console.error("Auto-create profile failed:", e);
+          autoCreateAttempted.current = false; // allow retry on next fetch
+        }
+      }
     } catch {
       // Not yet authenticated or org not selected
     } finally {
       setProfilesLoading(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
-    fetchProfiles();
-  }, [fetchProfiles]);
+    if (user) fetchProfiles();
+  }, [fetchProfiles, user]);
 
   const handleSwitchProfile = (profileId: string) => {
     setActiveProfileId(profileId);
@@ -122,22 +140,14 @@ export function AuthHeader() {
 
   return (
     <div className="flex items-center gap-3">
-      {orgsLoaded && (
-        <OrganizationSwitcher
-          appearance={{
-            elements: {
-              rootBox: "flex",
-              organizationSwitcherTrigger: "py-1.5 px-3 rounded-lg text-sm font-medium bg-white border border-gray-200 hover:border-purple-300 transition-colors",
-            },
-          }}
-        />
-      )}
+      <OrgSwitcher />
 
       <ProfileSwitcher
         profiles={profiles}
         activeProfileId={activeProfileId}
         onSwitch={handleSwitchProfile}
         onCreateNew={() => setShowCreateDialog(true)}
+        onProfilesChanged={fetchProfiles}
         loading={profilesLoading}
       />
 

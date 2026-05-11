@@ -12,6 +12,7 @@ export default function SignUpPage() {
           routing="path"
           path="/sign-up"
           signInUrl="/sign-in"
+          afterSignUpUrl="/setup"
           appearance={{
             elements: {
               card: "shadow-lg border-0 rounded-xl",

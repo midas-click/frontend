@@ -4,6 +4,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { Layout } from "@/components/layout/Layout";
 import SignInPage from "@/pages/SignInPage";
 import SignUpPage from "@/pages/SignUpPage";
+import SetupPage from "@/pages/SetupPage";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { KanbanPage } from "@/pages/KanbanPage";
 import { ApplicationsPage } from "@/pages/ApplicationsPage";
@@ -24,6 +25,9 @@ export default function App() {
 
         {/* Protected */}
         <Route element={<ProtectedRoute />}>
+          {/* Setup (post-signup, before org — has own layout) */}
+          <Route path="/setup" element={<SetupPage />} />
+
           <Route element={<Layout />}>
             <Route path="/" element={<DashboardPage />} />
             <Route path="/kanban" element={<KanbanPage />} />
