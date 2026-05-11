@@ -139,8 +139,7 @@ export interface Resume {
 export interface Job {
   id: string;
   user_id: string;
-  team_id: string;
-  profile_id?: string;
+  team_id?: string;
   title: string;
   company: string;
   description?: string;

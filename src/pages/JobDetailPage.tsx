@@ -1,5 +1,6 @@
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useEffect, useState } from "react";
+import { useAuth } from "@clerk/clerk-react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { jobsApi } from "@/api/client";
 import type { Job } from "@/types";
@@ -10,6 +11,7 @@ import { ApplicationCreateModal } from "@/components/kanban/ApplicationCreateMod
 export function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { userId, orgId, orgRole } = useAuth();
   const [job, setJob] = useState<Job | null>(null);
   const [editing, setEditing] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -34,7 +36,6 @@ export function JobDetailPage() {
       remote: job.remote || false, salary_range: job.salary_range || "",
       source_url: job.source_url || "",
       description: job.description || "",
-
       tags: (job.tags || []).join(", "),
     });
     setEditing(true);
@@ -65,6 +66,11 @@ export function JobDetailPage() {
   }
 
   if (!job) return <p className="text-text-secondary">Loading…</p>;
+
+  // User can manage if they own the job, or are an admin in the job's organization
+  const canManage =
+    (userId && job.user_id === userId) ||
+    (orgId && orgRole === "org:admin" && job.team_id === orgId);
 
   return (
     <div className="max-w-3xl">
@@ -132,14 +138,18 @@ export function JobDetailPage() {
             <div className="flex items-start justify-between">
               <h1 className="text-2xl font-bold">{job.title}</h1>
               <div className="flex items-center gap-1 shrink-0 ml-4">
-                <button onClick={startEdit}
-                  className="flex items-center gap-1 px-2.5 py-1 text-xs text-text-secondary border border-border rounded-btn hover:bg-surface-secondary">
-                  <Pencil className="w-3 h-3" />Edit
-                </button>
-                <button onClick={() => setDeleteOpen(true)}
-                  className="flex items-center gap-1 px-2.5 py-1 text-xs text-red-600 border border-red-200 rounded-btn hover:bg-red-50">
-                  <Trash2 className="w-3 h-3" />Delete
-                </button>
+                {canManage && (
+                  <>
+                    <button onClick={startEdit}
+                      className="flex items-center gap-1 px-2.5 py-1 text-xs text-text-secondary border border-border rounded-btn hover:bg-surface-secondary">
+                      <Pencil className="w-3 h-3" />Edit
+                    </button>
+                    <button onClick={() => setDeleteOpen(true)}
+                      className="flex items-center gap-1 px-2.5 py-1 text-xs text-red-600 border border-red-200 rounded-btn hover:bg-red-50">
+                      <Trash2 className="w-3 h-3" />Delete
+                    </button>
+                  </>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-4 mt-2 text-text-secondary flex-wrap">
