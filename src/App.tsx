@@ -1,5 +1,9 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { AuthTokenBridge } from "@/components/auth/AuthTokenBridge";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { Layout } from "@/components/layout/Layout";
+import SignInPage from "@/pages/SignInPage";
+import SignUpPage from "@/pages/SignUpPage";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { KanbanPage } from "@/pages/KanbanPage";
 import { ApplicationsPage } from "@/pages/ApplicationsPage";
@@ -12,19 +16,29 @@ import { AnalyticsPage } from "@/pages/AnalyticsPage";
 
 export default function App() {
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route path="/" element={<DashboardPage />} />
-        <Route path="/kanban" element={<KanbanPage />} />
-        <Route path="/applications" element={<ApplicationsPage />} />
-        <Route path="/applications/:id" element={<ApplicationDetailPage />} />
-        <Route path="/resumes" element={<ResumesPage />} />
-        <Route path="/resumes/:id" element={<ResumeDetailPage />} />
-        <Route path="/jobs" element={<JobsPage />} />
-        <Route path="/jobs/:id" element={<JobDetailPage />} />
-        <Route path="/analytics" element={<AnalyticsPage />} />
+    <AuthTokenBridge>
+      <Routes>
+        {/* Public */}
+        <Route path="/sign-in/*" element={<SignInPage />} />
+        <Route path="/sign-up/*" element={<SignUpPage />} />
+
+        {/* Protected */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<Layout />}>
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/kanban" element={<KanbanPage />} />
+            <Route path="/applications" element={<ApplicationsPage />} />
+            <Route path="/applications/:id" element={<ApplicationDetailPage />} />
+            <Route path="/resumes" element={<ResumesPage />} />
+            <Route path="/resumes/:id" element={<ResumeDetailPage />} />
+            <Route path="/jobs" element={<JobsPage />} />
+            <Route path="/jobs/:id" element={<JobDetailPage />} />
+            <Route path="/analytics" element={<AnalyticsPage />} />
+          </Route>
+        </Route>
+
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Route>
-    </Routes>
+      </Routes>
+    </AuthTokenBridge>
   );
 }

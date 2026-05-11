@@ -7,8 +7,8 @@ import {
   Briefcase,
   BarChart3,
   List,
-  Search,
 } from "lucide-react";
+import { AuthHeader } from "@/components/auth/AuthHeader";
 
 const NAV_SECTIONS = [
   {
@@ -80,11 +80,19 @@ export function Layout() {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto">
-        <div className="p-6 max-w-[1600px] mx-auto">
-          <Outlet />
-        </div>
-      </main>
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Top bar with auth controls */}
+        <header className="h-14 bg-white border-b border-border flex items-center justify-end px-4 shrink-0">
+          <AuthHeader />
+        </header>
+
+        {/* Page content */}
+        <main className="flex-1 overflow-auto">
+          <div className="p-6 max-w-[1600px] mx-auto">
+            <Outlet />
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

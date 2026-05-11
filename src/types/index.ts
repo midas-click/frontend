@@ -43,6 +43,8 @@ export interface TimelineEvent {
 export interface Application {
   id: string;
   user_id: string;
+  team_id: string;
+  profile_id?: string;
   job_id?: string;
   job_title: string;
   company: string;
@@ -92,6 +94,24 @@ export interface ApplicationUpdate {
   notes?: string;
 }
 
+// ── Profile ─────────────────────────────────────
+export interface Profile {
+  id: string;
+  user_id: string;
+  team_id: string;
+  name: string;
+  email?: string;
+  headline?: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface ProfileCreate {
+  name: string;
+  email?: string;
+  headline?: string;
+}
+
 // ── Resume ──────────────────────────────────────
 export interface ResumeSection {
   title: string;
@@ -101,6 +121,8 @@ export interface ResumeSection {
 export interface Resume {
   id: string;
   user_id: string;
+  team_id: string;
+  profile_id?: string;
   original_filename: string;
   s3_key: string;
   s3_url?: string;
@@ -117,6 +139,8 @@ export interface Resume {
 export interface Job {
   id: string;
   user_id: string;
+  team_id: string;
+  profile_id?: string;
   title: string;
   company: string;
   description?: string;
