@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "@/store";
 import { Building2, MapPin, ChevronRight, FileText } from "lucide-react";
-import clsx from "clsx";
 import { getStageLabel, getStageStyle } from "@/lib/utils";
 import { ApplicationFilters } from "@/components/ApplicationFilters";
 import { ApplicationCreateModal } from "@/components/kanban/ApplicationCreateModal";

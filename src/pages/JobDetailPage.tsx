@@ -70,7 +70,7 @@ export function JobDetailPage() {
   // User can manage if they own the job, or are an admin in the job's organization
   const canManage =
     (userId && job.user_id === userId) ||
-    (orgId && orgRole === "org:admin" && job.team_id === orgId);
+    (orgId && orgRole === "org:admin" && job.org_id === orgId);
 
   return (
     <div className="max-w-3xl">
