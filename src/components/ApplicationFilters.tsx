@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Search, X } from "lucide-react";
 import { useStore } from "@/store";
-import { DEFAULT_KANBAN_COLUMNS } from "@/types";
+import { STAGES } from "@/lib/utils";
 
 interface Props {
   showCreateBtn?: boolean;
@@ -61,8 +61,8 @@ export function ApplicationFilters({ showCreateBtn, onCreateClick }: Props) {
         className="border rounded-btn px-3 py-2 text-sm"
       >
         <option value="">All Stages</option>
-        {DEFAULT_KANBAN_COLUMNS.map((c) => (
-          <option key={c.id} value={c.id}>{c.label}</option>
+        {Object.entries(STAGES).map(([id, s]) => (
+          <option key={id} value={id}>{s.label}</option>
         ))}
       </select>
 

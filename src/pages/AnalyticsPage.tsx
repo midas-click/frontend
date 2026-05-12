@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useStore } from "@/store";
 import { analyticsApi } from "@/api/client";
-import { getStageLabel, getStageStyle } from "@/lib/utils";
+import { STAGES } from "@/lib/utils";
 import type { AnalyticsOverview, ResumePerformance, IndustryTrend } from "@/types";
 import {
   BarChart,
@@ -40,7 +40,7 @@ export function AnalyticsPage() {
   if (loading) return <p className="text-text-secondary">Loading analytics…</p>;
 
   const stageData = overview?.by_stage
-    ? Object.entries(overview.by_stage).map(([id, value]) => ({ id, name: getStageLabel(id), value }))
+    ? Object.entries(overview.by_stage).map(([id, value]) => ({ id, name: STAGES[id]?.label || id, value }))
     : [];
 
   return (
@@ -56,8 +56,8 @@ export function AnalyticsPage() {
               <PieChart>
                 <Pie data={stageData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
                   {stageData.map((d, i) => {
-                    const style = getStageStyle(d.id);
-                    return <Cell key={i} fill={style.color} />;
+                    const s = STAGES[d.id];
+                    return <Cell key={i} fill={s.text} />;
                   })}
                 </Pie>
                 <Tooltip />

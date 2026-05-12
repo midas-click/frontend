@@ -29,7 +29,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   }
 
   const profileId = getActiveProfileId();
-  if (profileId) {
+  if (profileId && headers["Authorization"]) {
     headers["X-Profile-Id"] = profileId;
   }
 
@@ -98,7 +98,7 @@ export const resumesApi = {
       if (token) headers["Authorization"] = `Bearer ${token}`;
     }
     const profileId = getActiveProfileId();
-    if (profileId) headers["X-Profile-Id"] = profileId;
+    if (profileId && headers["Authorization"]) headers["X-Profile-Id"] = profileId;
 
     const res = await fetch(`${BASE}/resumes/upload`, {
       method: "POST",

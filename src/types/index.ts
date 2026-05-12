@@ -1,32 +1,5 @@
 /// ─── Shared Types ───────────────────────────────────────────────
 
-export enum ApplicationStage {
-  Applied = "applied",
-  PhoneScreen = "phone_screen",
-  Technical = "technical",
-  TeamInterview = "team_interview",
-  Offer = "offer",
-  Rejected = "rejected",
-}
-
-export const KANBAN_STAGES: ApplicationStage[] = [
-  ApplicationStage.Applied,
-  ApplicationStage.PhoneScreen,
-  ApplicationStage.Technical,
-  ApplicationStage.TeamInterview,
-  ApplicationStage.Offer,
-  ApplicationStage.Rejected,
-];
-
-export const DEFAULT_KANBAN_COLUMNS: { id: string; label: string; color: string }[] = [
-  { id: "applied", label: "Applied", color: "bg-purple-50 border-purple-200" },
-  { id: "phone_screen", label: "Phone Screen", color: "bg-blue-50 border-blue-200" },
-  { id: "technical", label: "Technical", color: "bg-orange-50 border-orange-200" },
-  { id: "team_interview", label: "Team Interview", color: "bg-green-50 border-green-200" },
-  { id: "offer", label: "Offer", color: "bg-yellow-50 border-yellow-200" },
-  { id: "rejected", label: "Rejected", color: "bg-red-50 border-red-200" },
-];
-
 export interface CommunicationLog {
   date: string;
   channel: string;
@@ -51,7 +24,7 @@ export interface Application {
   location?: string;
   source_url?: string;
   salary_expectation?: string;
-  stage: ApplicationStage | string;
+  stage: string;
   initial_contact_date?: string;
   resume_id?: string;
   resume_filename?: string;

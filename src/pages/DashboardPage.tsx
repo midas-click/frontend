@@ -2,9 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "@/store";
 import { analyticsApi } from "@/api/client";
-import { getStageLabel, getStageStyle } from "@/lib/utils";
+import { STAGES } from "@/lib/utils";
 import type { AnalyticsOverview } from "@/types";
-import { DEFAULT_KANBAN_COLUMNS } from "@/types";
 import { Briefcase, FileText, TrendingUp, Info } from "lucide-react";
 
 export function DashboardPage() {
@@ -17,7 +16,7 @@ export function DashboardPage() {
 
   const stageEntries = useMemo(() => {
     if (!data?.by_stage) return [];
-    const columnOrder = DEFAULT_KANBAN_COLUMNS.map((c) => c.id);
+    const columnOrder = Object.keys(STAGES);
     return Object.entries(data.by_stage).sort(([a], [b]) => {
       const ai = columnOrder.indexOf(a);
       const bi = columnOrder.indexOf(b);
@@ -83,14 +82,14 @@ export function DashboardPage() {
           <h2 className="font-semibold mb-4">Applications by Stage</h2>
           <div className="flex gap-2 flex-wrap">
             {stageEntries.map(([stage, count]) => {
-                const style = getStageStyle(stage);
+                const s = STAGES[stage];
                 return (
                   <div
                     key={stage}
                     className="px-3 py-1.5 rounded-tag text-sm font-medium"
-                    style={style}
+                    style={{ backgroundColor: s.bg, color: s.text }}
                   >
-                    {getStageLabel(stage)}: {count}
+                    {s.label}: {count}
                   </div>
                 );
               })}

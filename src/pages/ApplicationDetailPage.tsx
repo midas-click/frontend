@@ -4,7 +4,7 @@ import { applicationsApi, resumesApi } from "@/api/client";
 import { Application } from "@/types";
 import { Building2, MapPin, Clock, DollarSign, Pencil, Trash2, X, Save, ArrowLeft, ExternalLink, FileText } from "lucide-react";
 import { format } from "date-fns";
-import { getStageLabel, getStageStyle, formatEvent } from "@/lib/utils";
+import { STAGES } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export function ApplicationDetailPage() {
@@ -127,7 +127,7 @@ export function ApplicationDetailPage() {
             <div className="flex items-start justify-between mb-3">
               <h1 className="text-2xl font-bold flex-1">{app.job_title}</h1>
               <div className="flex items-center gap-2 shrink-0 ml-4">
-                <span className="px-2.5 py-0.5 rounded-full text-sm font-medium capitalize" style={getStageStyle(app.stage as string)}>{getStageLabel(app.stage as string)}</span>
+                <span className="px-2.5 py-0.5 rounded-full text-sm font-medium capitalize" style={{ backgroundColor: STAGES[app.stage as string]?.bg, color: STAGES[app.stage as string]?.text }}>{STAGES[app.stage as string]?.label || app.stage}</span>
                 <button onClick={startEditing} className="p-1.5 text-text-muted hover:text-text-primary border border-border rounded-btn" title="Edit"><Pencil className="w-3.5 h-3.5" /></button>
                 <button onClick={() => setDeleteOpen(true)} className="p-1.5 text-text-muted hover:text-red-500 border border-border rounded-btn" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
               </div>
@@ -167,16 +167,28 @@ export function ApplicationDetailPage() {
         <h2 className="font-semibold mb-4">Timeline ({app.timeline.length})</h2>
         {app.timeline.length === 0 ? <p className="text-sm text-text-muted">No events yet.</p> : (
           <div className="space-y-3 max-h-64 overflow-y-auto">
-            {[...app.timeline].reverse().map((e, i) => (
-              <div key={i} className="flex gap-3">
-                <Clock className="w-4 h-4 text-text-muted mt-0.5 shrink-0" />
-                <div>
-                  <p className="text-sm font-medium">{formatEvent(e.event)}</p>
-                  <p className="text-xs text-text-muted">{format(new Date(e.date), "MMM d, yyyy h:mm a")}</p>
-                  {e.detail && <p className="text-xs text-text-secondary mt-0.5">{e.detail}</p>}
+            {[...app.timeline].reverse().map((e, i) => {
+              const parts = e.event.split(/([a-z0-9_-]+)/gi);
+              return (
+                <div key={i} className="flex gap-3">
+                  <Clock className="w-4 h-4 text-text-muted mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium">
+                      {parts.map((part, j) => {
+                        const s = STAGES[part];
+                        return s ? (
+                          <span key={j} className="inline-flex items-center px-1.5 py-0.5 mx-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: s.bg, color: s.text }}>{s.label}</span>
+                        ) : (
+                          <span key={j}>{part}</span>
+                        );
+                      })}
+                    </p>
+                    <p className="text-xs text-text-muted">{format(new Date(e.date), "MMM d, yyyy h:mm a")}</p>
+                    {e.detail && <p className="text-xs text-text-secondary mt-0.5">{e.detail}</p>}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

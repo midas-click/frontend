@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useStore } from "@/store";
 import { jobsApi } from "@/api/client";
 import type { Job } from "@/types";
-import { DEFAULT_KANBAN_COLUMNS } from "@/types";
+import { STAGES } from "@/lib/utils";
 import { X, Search, Briefcase, FileText, Upload } from "lucide-react";
 
 interface Props {
@@ -51,7 +51,7 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
         job_id: selectedJob.id,
         job_title: selectedJob.title,
         company: selectedJob.company,
-        stage: DEFAULT_KANBAN_COLUMNS[0].id,
+        stage: Object.keys(STAGES)[0],
         location: selectedJob.location || "",
         source_url: selectedJob.source_url || undefined,
         salary_expectation: selectedJob.salary_range || undefined,

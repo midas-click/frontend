@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthTokenBridge } from "@/components/auth/AuthTokenBridge";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { Layout } from "@/components/layout/Layout";
+import { JobsLayout } from "@/components/layout/JobsLayout";
 import HomePage from "@/pages/HomePage";
 import SignInPage from "@/pages/SignInPage";
 import SignUpPage from "@/pages/SignUpPage";
@@ -25,6 +26,12 @@ export default function App() {
         <Route path="/sign-in/*" element={<SignInPage />} />
         <Route path="/sign-up/*" element={<SignUpPage />} />
 
+        {/* Public — browse jobs without sign in */}
+        <Route element={<JobsLayout />}>
+          <Route path="/jobs" element={<JobsPage />} />
+          <Route path="/jobs/:id" element={<JobDetailPage />} />
+        </Route>
+
         {/* Protected */}
         <Route element={<ProtectedRoute />}>
           {/* Setup (post-signup, before org — has own layout) */}
@@ -37,8 +44,6 @@ export default function App() {
             <Route path="/applications/:id" element={<ApplicationDetailPage />} />
             <Route path="/resumes" element={<ResumesPage />} />
             <Route path="/resumes/:id" element={<ResumeDetailPage />} />
-            <Route path="/jobs" element={<JobsPage />} />
-            <Route path="/jobs/:id" element={<JobDetailPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
           </Route>
         </Route>
