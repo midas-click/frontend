@@ -4,7 +4,7 @@ import { useAuth } from "@clerk/clerk-react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { jobsApi } from "@/api/client";
 import type { Job } from "@/types";
-import { Building2, MapPin, Globe, DollarSign, ExternalLink, ArrowLeft, Tag, Trash2, Pencil, X, Save, Briefcase } from "lucide-react";
+import { Building2, MapPin, Globe, DollarSign, ExternalLink, ArrowLeft, Trash2, Pencil, X, Save, Briefcase } from "lucide-react";
 import { format } from "date-fns";
 import { ApplicationCreateModal } from "@/components/kanban/ApplicationCreateModal";
 

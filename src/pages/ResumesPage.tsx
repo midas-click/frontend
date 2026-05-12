@@ -4,7 +4,6 @@ import { useStore } from "@/store";
 import { resumesApi } from "@/api/client";
 import { FileText, Upload, Trash2 } from "lucide-react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import type { Resume } from "@/types";
 
 export function ResumesPage() {
   const { resumes, fetchResumes } = useStore();

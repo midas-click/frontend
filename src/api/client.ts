@@ -108,11 +108,6 @@ export const resumesApi = {
     if (!res.ok) throw new Error("Upload failed");
     return res.json();
   },
-  uploadUrl: (filename: string) =>
-    request<{ upload_url: string; s3_key: string }>(
-      `/resumes/upload-url?filename=${encodeURIComponent(filename)}`,
-      { method: "POST" },
-    ),
   delete: (id: string) =>
     request<void>(`/resumes/${id}`, { method: "DELETE" }),
 };

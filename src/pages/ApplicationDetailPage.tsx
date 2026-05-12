@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
-import { applicationsApi } from "@/api/client";
+import { applicationsApi, resumesApi } from "@/api/client";
 import { Application } from "@/types";
 import { Building2, MapPin, Clock, DollarSign, Pencil, Trash2, X, Save, ArrowLeft, ExternalLink, FileText } from "lucide-react";
 import { format } from "date-fns";
@@ -17,11 +17,19 @@ export function ApplicationDetailPage() {
   const [editForm, setEditForm] = useState({ job_title: "", company: "", location: "", salary_expectation: "", notes: "", tags: "" });
   const [commSummary, setCommSummary] = useState("");
   const [commChannel, setCommChannel] = useState("email");
+  const [resumeGone, setResumeGone] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
     if (id) applicationsApi.get(id).then(setApp).catch(console.error);
   }, [id]);
+
+  useEffect(() => {
+    if (app?.resume_id) {
+      setResumeGone(false);
+      resumesApi.get(app.resume_id).catch(() => setResumeGone(true));
+    }
+  }, [app?.resume_id]);
 
   function startEditing() {
     if (!app) return;
@@ -134,9 +142,15 @@ export function ApplicationDetailPage() {
                 </a>
               )}
               {app.resume_id && app.resume_filename && (
-                <Link to={`/resumes/${app.resume_id}`} className="inline-flex items-center gap-1.5 px-0 py-1 text-blue-600 rounded-btn text-xs font-medium hover:underline">
-                  <FileText className="w-3 h-3" />{app.resume_filename}
-                </Link>
+                resumeGone ? (
+                  <span className="inline-flex items-center gap-1.5 px-0 py-1 text-text-secondary text-xs font-medium">
+                    <FileText className="w-3 h-3" />{app.resume_filename}
+                  </span>
+                ) : (
+                  <Link to={`/resumes/${app.resume_id}`} className="inline-flex items-center gap-1.5 px-0 py-1 text-blue-600 rounded-btn text-xs font-medium hover:underline">
+                    <FileText className="w-3 h-3" />{app.resume_filename}
+                  </Link>
+                )
               )}
             </div>
             <div className="flex gap-2 mt-3 flex-wrap">
