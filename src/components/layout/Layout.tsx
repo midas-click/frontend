@@ -14,7 +14,7 @@ const NAV_SECTIONS = [
   {
     label: "MAIN MENU",
     items: [
-      { to: "/", icon: LayoutDashboard, label: "Dashboard" },
+      { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
       { to: "/kanban", icon: Kanban, label: "Kanban" },
     ],
   },

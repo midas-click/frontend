@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthTokenBridge } from "@/components/auth/AuthTokenBridge";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { Layout } from "@/components/layout/Layout";
+import HomePage from "@/pages/HomePage";
 import SignInPage from "@/pages/SignInPage";
 import SignUpPage from "@/pages/SignUpPage";
 import SetupPage from "@/pages/SetupPage";
@@ -20,6 +21,7 @@ export default function App() {
     <AuthTokenBridge>
       <Routes>
         {/* Public */}
+        <Route path="/" element={<HomePage />} />
         <Route path="/sign-in/*" element={<SignInPage />} />
         <Route path="/sign-up/*" element={<SignUpPage />} />
 
@@ -29,7 +31,7 @@ export default function App() {
           <Route path="/setup" element={<SetupPage />} />
 
           <Route element={<Layout />}>
-            <Route path="/" element={<DashboardPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/kanban" element={<KanbanPage />} />
             <Route path="/applications" element={<ApplicationsPage />} />
             <Route path="/applications/:id" element={<ApplicationDetailPage />} />
