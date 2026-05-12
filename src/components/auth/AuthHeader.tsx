@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { UserButton, useUser } from "@clerk/clerk-react";
+import { useStore } from "@/store";
 import { OrgSwitcher } from "./OrgSwitcher";
 import { ProfileSwitcher, ProfileOption } from "./ProfileSwitcher";
 import { api } from "@/api/client";
@@ -89,6 +90,7 @@ function CreateProfileDialog({ open, onClose, onCreated }: CreateProfileDialogPr
 /** Header bar with org switcher, profile switcher, and user menu. */
 export function AuthHeader() {
   const { user } = useUser();
+  const storeSetActiveProfileId = useStore((s) => s.setActiveProfileId);
   const [profiles, setProfiles] = useState<ProfileOption[]>([]);
   const [activeProfileId, setActiveProfileId] = useState<string | null>(
     () => localStorage.getItem("midas-active-profile")
@@ -101,6 +103,16 @@ export function AuthHeader() {
     try {
       const data = await api.profiles.list();
       setProfiles(data.map((p: any) => ({ id: p.id, name: p.name, headline: p.headline })));
+
+      // Auto-select first profile if none is currently active
+      const storedId = localStorage.getItem("midas-active-profile");
+      const storedValid = storedId && data.some((p: any) => p.id === storedId);
+      if (data.length > 0 && !storedValid) {
+        const firstId = data[0].id;
+        setActiveProfileId(firstId);
+        localStorage.setItem("midas-active-profile", firstId);
+        storeSetActiveProfileId(firstId);
+      }
 
       // Auto-create a default profile if none exist yet
       if (data.length === 0 && !autoCreateAttempted.current && user) {
@@ -117,6 +129,7 @@ export function AuthHeader() {
           setProfiles([newProfile]);
           setActiveProfileId(created.id);
           localStorage.setItem("midas-active-profile", created.id);
+          storeSetActiveProfileId(created.id);
         } catch (e) {
           console.error("Auto-create profile failed:", e);
           autoCreateAttempted.current = false; // allow retry on next fetch
@@ -136,6 +149,8 @@ export function AuthHeader() {
   const handleSwitchProfile = (profileId: string) => {
     setActiveProfileId(profileId);
     localStorage.setItem("midas-active-profile", profileId);
+    storeSetActiveProfileId(profileId);
+    window.location.reload();
   };
 
   return (

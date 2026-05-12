@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useStore } from "@/store";
 import { analyticsApi } from "@/api/client";
 import { getStageLabel, getStageStyle } from "@/lib/utils";
 import type { AnalyticsOverview, ResumePerformance, IndustryTrend } from "@/types";
@@ -21,6 +22,7 @@ export function AnalyticsPage() {
   const [resumes, setResumes] = useState<ResumePerformance[]>([]);
   const [trends, setTrends] = useState<IndustryTrend[]>([]);
   const [loading, setLoading] = useState(true);
+  const activeProfileId = useStore((s) => s.activeProfileId);
 
   useEffect(() => {
     Promise.all([
@@ -33,7 +35,7 @@ export function AnalyticsPage() {
       setTrends(t);
     }).catch(console.error)
       .finally(() => setLoading(false));
-  }, []);
+  }, [activeProfileId]);
 
   if (loading) return <p className="text-text-secondary">Loading analytics…</p>;
 

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useStore } from "@/store";
 import { analyticsApi } from "@/api/client";
 import { getStageLabel, getStageStyle } from "@/lib/utils";
 import type { AnalyticsOverview } from "@/types";
@@ -8,10 +9,11 @@ import { Briefcase, FileText, TrendingUp, Info } from "lucide-react";
 
 export function DashboardPage() {
   const [data, setData] = useState<AnalyticsOverview | null>(null);
+  const activeProfileId = useStore((s) => s.activeProfileId);
 
   useEffect(() => {
     analyticsApi.overview().then(setData).catch(console.error);
-  }, []);
+  }, [activeProfileId]);
 
   const stageEntries = useMemo(() => {
     if (!data?.by_stage) return [];

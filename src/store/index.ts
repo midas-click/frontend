@@ -10,6 +10,10 @@ import {
 import { applicationsApi, resumesApi, jobsApi } from "@/api/client";
 
 interface AppState {
+  // ── Auth / Profile ─────────────────────────
+  activeProfileId: string | null;
+  setActiveProfileId: (id: string | null) => void;
+
   // ── Applications ──────────────────────────
   applications: Application[];
   loading: boolean;
@@ -28,6 +32,18 @@ interface AppState {
 }
 
 export const useStore = create<AppState>((set, get) => ({
+  // ── Auth / Profile ─────────────────────────
+  activeProfileId: localStorage.getItem("midas-active-profile"),
+  setActiveProfileId: (id) => {
+    if (id) {
+      localStorage.setItem("midas-active-profile", id);
+    } else {
+      localStorage.removeItem("midas-active-profile");
+    }
+    set({ activeProfileId: id });
+  },
+
+  // ── Applications ──────────────────────────
   applications: [],
   loading: false,
   error: null,
