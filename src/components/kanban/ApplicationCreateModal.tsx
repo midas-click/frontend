@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useStore } from "@/store";
 import { jobsApi } from "@/api/client";
 import type { Job } from "@/types";
 import { DEFAULT_KANBAN_COLUMNS } from "@/types";
-import { X, Search, Briefcase, FileText } from "lucide-react";
+import { X, Search, Briefcase, FileText, Upload } from "lucide-react";
 
 interface Props {
   onClose: () => void;
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: Props) {
+  const navigate = useNavigate();
   const { createApplication, resumes, fetchResumes } = useStore();
   const [saving, setSaving] = useState(false);
   const [jobSearch, setJobSearch] = useState("");
@@ -42,7 +44,7 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!selectedJob) return;
+    if (!selectedJob || !resumeId) return;
     setSaving(true);
     try {
       await createApplication({
@@ -55,7 +57,7 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
         salary_expectation: selectedJob.salary_range || undefined,
         tags: selectedJob.tags,
         notes: selectedJob.description || undefined,
-        resume_id: resumeId || undefined,
+        resume_id: resumeId,
       });
       onCreated();
     } catch (err) { console.error(err); }
@@ -108,12 +110,12 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
             )}
           </div>
 
-          {/* Attach Resume */}
-          {resumes.length > 0 && (
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                <FileText className="w-3.5 h-3.5 inline mr-1" />Attach Resume
-              </label>
+          {/* Attach Resume (required) */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              <FileText className="w-3.5 h-3.5 inline mr-1" />Attach Resume <span className="text-red-500">*</span>
+            </label>
+            {resumes.length > 0 ? (
               <div className="flex gap-2 flex-wrap">
                 {resumes.map((r) => (
                   <button key={r.id} type="button" onClick={() => toggleResume(r.id)}
@@ -124,12 +126,27 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
                   </button>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-btn">
+                <p className="text-sm text-amber-700 mb-2">No resumes uploaded yet. A resume is required to create an application.</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    navigate("/resumes");
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 text-white text-sm font-medium rounded-btn hover:bg-amber-700 transition-colors"
+                >
+                  <Upload className="w-4 h-4" />
+                  Upload a Resume
+                </button>
+              </div>
+            )}
+          </div>
 
           <div className="flex gap-3 justify-end pt-2">
             <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-text-secondary hover:bg-surface-secondary rounded-btn">Cancel</button>
-            <button type="submit" disabled={saving || !selectedJob}
+            <button type="submit" disabled={saving || !selectedJob || !resumeId}
               className="px-4 py-2 bg-brand-900 text-white text-sm font-medium rounded-btn hover:bg-brand-800 disabled:opacity-50">
               {saving ? "Creating…" : "Create"}
             </button>
