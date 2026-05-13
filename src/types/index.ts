@@ -143,6 +143,10 @@ export interface AnalyticsOverview {
   offer_rate: number;
   rejection_rate: number;
   by_stage: Record<string, number>;
+  jobs_last_24h: number;
+  jobs_this_month: number;
+  applications_last_24h: number;
+  applications_this_month: number;
 }
 
 export interface ResumePerformance {

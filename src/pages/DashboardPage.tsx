@@ -4,7 +4,7 @@ import { useStore } from "@/store";
 import { analyticsApi } from "@/api/client";
 import { STAGES } from "@/lib/utils";
 import type { AnalyticsOverview } from "@/types";
-import { Briefcase, FileText, TrendingUp, Info } from "lucide-react";
+import { Briefcase, FileText, TrendingUp, Info, Clock, Calendar, Activity } from "lucide-react";
 
 export function DashboardPage() {
   const [data, setData] = useState<AnalyticsOverview | null>(null);
@@ -29,8 +29,20 @@ export function DashboardPage() {
 
   const cards = [
     {
-      label: "Total Applications",
-      value: data?.total_applications ?? 0,
+      label: "New Jobs (24h)",
+      value: data?.jobs_last_24h ?? 0,
+      icon: Clock,
+      color: "text-amber-600 bg-amber-50",
+    },
+    {
+      label: "Total Jobs This Month",
+      value: data?.jobs_this_month ?? 0,
+      icon: Calendar,
+      color: "text-indigo-600 bg-indigo-50",
+    },
+    {
+      label: "Total Applications This Month",
+      value: data?.applications_this_month ?? 0,
       icon: Briefcase,
       color: "text-blue-600 bg-blue-50",
     },
@@ -39,14 +51,20 @@ export function DashboardPage() {
       value: `${data?.interview_rate ?? 0}%`,
       icon: TrendingUp,
       color: "text-green-600 bg-green-50",
-      tooltip: "Applications that reached Phone Screen, Technical, Team Interview, or Offer stage.",
+      tooltip: "This month — applications that reached Phone Screen, Technical, Team Interview, or Offer stage.",
     },
     {
       label: "Offer Rate",
       value: `${data?.offer_rate ?? 0}%`,
       icon: FileText,
       color: "text-purple-600 bg-purple-50",
-      tooltip: "Percentage of interviewed applications that received an offer.",
+      tooltip: "This month — percentage of interviewed applications that received an offer.",
+    },
+    {
+      label: "New Applications (24h)",
+      value: data?.applications_last_24h ?? 0,
+      icon: Activity,
+      color: "text-teal-600 bg-teal-50",
     },
   ];
 
@@ -54,7 +72,7 @@ export function DashboardPage() {
     <div>
       <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {cards.map((c) => (
           <div key={c.label} className="relative bg-white rounded-card border border-border shadow-card p-5">
             {"tooltip" in c && (
