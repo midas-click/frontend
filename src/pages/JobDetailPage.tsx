@@ -4,7 +4,7 @@ import { useAuth } from "@clerk/clerk-react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { jobsApi } from "@/api/client";
 import type { Job } from "@/types";
-import { Building2, MapPin, Globe, DollarSign, ExternalLink, ArrowLeft, Trash2, Pencil, X, Save, Briefcase } from "lucide-react";
+import { Building2, MapPin, Globe, Banknote, ExternalLink, ArrowLeft, Trash2, Pencil, X, Save, Briefcase } from "lucide-react";
 import { format } from "date-fns";
 import { ApplicationCreateModal } from "@/components/kanban/ApplicationCreateModal";
 
@@ -73,7 +73,7 @@ export function JobDetailPage() {
     (orgId && orgRole === "org:admin" && job.org_id === orgId);
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <Link to="/jobs" className="inline-flex items-center gap-1 text-sm text-text-secondary hover:text-gray-700 mb-4">
         <ArrowLeft className="w-4 h-4" /> Back to Jobs
       </Link>
@@ -138,15 +138,21 @@ export function JobDetailPage() {
             <div className="flex items-start justify-between">
               <h1 className="text-2xl font-bold">{job.title}</h1>
               <div className="flex items-center gap-1 shrink-0 ml-4">
+                <button
+                  onClick={() => setShowCreateApp(true)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-brand-900 text-white font-medium rounded-btn hover:bg-brand-800"
+                >
+                  <Briefcase className="w-3 h-3" />Apply
+                </button>
                 {canManage && (
                   <>
                     <button onClick={startEdit}
                       className="flex items-center gap-1 px-2.5 py-1 text-xs text-text-secondary border border-border rounded-btn hover:bg-surface-secondary">
-                      <Pencil className="w-3 h-3" />Edit
+                      <Pencil className="w-3 h-3" />
                     </button>
                     <button onClick={() => setDeleteOpen(true)}
                       className="flex items-center gap-1 px-2.5 py-1 text-xs text-red-600 border border-red-200 rounded-btn hover:bg-red-50">
-                      <Trash2 className="w-3 h-3" />Delete
+                      <Trash2 className="w-3 h-3" />
                     </button>
                   </>
                 )}
@@ -156,7 +162,7 @@ export function JobDetailPage() {
               <span className="flex items-center gap-1"><Building2 className="w-4 h-4" />{job.company}</span>
               {job.location && <span className="flex items-center gap-1"><MapPin className="w-4 h-4" />{job.location}</span>}
               {job.remote && <span className="flex items-center gap-1"><Globe className="w-4 h-4" />Remote</span>}
-              {job.salary_range && <span className="flex items-center gap-1"><DollarSign className="w-4 h-4" />{job.salary_range}</span>}
+              {job.salary_range && <span className="flex items-center gap-1"><Banknote className="w-4 h-4" />{job.salary_range}</span>}
               {job.source_url && (
                 <a href={job.source_url} target="_blank" rel="noreferrer"
                   className="inline-flex items-center gap-1.5 px-0 py-1 text-brand-600 rounded-btn text-xs font-medium hover:underline">
@@ -164,12 +170,6 @@ export function JobDetailPage() {
                 </a>
               )}
             </div>
-            <button
-              onClick={() => setShowCreateApp(true)}
-              className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-brand-900 text-white text-sm font-medium rounded-btn hover:bg-brand-800"
-            >
-              <Briefcase className="w-4 h-4" />Create Application
-            </button>
             {job.tags.length > 0 && (
               <div className="flex gap-2 mt-4 flex-wrap">
                 {job.tags.map((t) => (
@@ -189,7 +189,7 @@ export function JobDetailPage() {
       )}
 
       <p className="text-xs text-text-muted mt-4">
-        Added {format(new Date(job.created_at), "MMM d, yyyy")} · Source: {job.source_name}
+        Added {format(new Date(job.created_at), "MMM d, yyyy")} · Author: {job.org_name}
       </p>
       <ConfirmDialog
         open={deleteOpen}

@@ -120,7 +120,7 @@ export interface Job {
   remote?: boolean;
   salary_range?: string;
   source_url?: string;
-  source_name: string;
+  org_name: string;
   tags: string[];
   created_at: string;
 }

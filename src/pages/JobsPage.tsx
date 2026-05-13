@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useStore } from "@/store";
 import { jobsApi } from "@/api/client";
-import { Briefcase, MapPin, Globe, Plus, X, Sparkles, Loader2, ChevronRight, DollarSign, LinkIcon } from "lucide-react";
+import { Briefcase, MapPin, Globe, Plus, X, Sparkles, Loader2, ChevronRight, Banknote, LinkIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export function JobsPage() {
@@ -58,7 +58,7 @@ export function JobsPage() {
                     <span className="flex items-center gap-1"><Briefcase className="w-3.5 h-3.5" />{j.company}</span>
                     {j.location && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{j.location}</span>}
                     {j.remote && <span className="flex items-center gap-1"><Globe className="w-3.5 h-3.5" />Remote</span>}
-                    {j.salary_range && <span className="flex items-center gap-1 text-xs text-text-secondary"><DollarSign className="w-3 h-3" />{j.salary_range}</span>}
+                    {j.salary_range && <span className="flex items-center gap-1 text-xs text-text-secondary"><Banknote className="w-3.5 h-3.5" />{j.salary_range}</span>}
                   </p>
                   {j.tags && j.tags.length > 0 && (
                     <div className="flex gap-1 mt-2 flex-wrap">

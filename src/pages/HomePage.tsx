@@ -51,10 +51,7 @@ export default function HomePage() {
     <div className="min-h-screen" style={{ background: "linear-gradient(135deg, #F3EEFF 0%, #E0E7FF 100%)" }}>
       {/* ── Nav ─────────────────────────────────── */}
       <nav className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <span className="text-xl font-bold text-brand-900 tracking-tight">MidasClick</span>
-          <Link to="/jobs" className="text-sm font-medium text-brand-700 hover:text-brand-900 transition-colors">Jobs</Link>
-        </div>
+        <span className="text-xl font-bold text-brand-900 tracking-tight">MidasClick</span>
         <div className="flex items-center gap-3">
           <Link
             to="/sign-in"
@@ -83,19 +80,13 @@ export default function HomePage() {
           every application, tailor your resume with AI, and see what's working with
           real analytics.
         </p>
-        <div className="mt-8 flex items-center justify-center gap-4">
+        <div className="mt-8 flex items-center justify-center">
           <Link
-            to="/sign-up"
+            to="/jobs"
             className="inline-flex items-center gap-2 px-6 py-3 bg-brand-900 text-white font-semibold rounded-btn hover:bg-brand-800 transition-colors text-sm"
           >
-            Get Started Free
+            Browse Jobs
             <ChevronRight className="w-4 h-4" />
-          </Link>
-          <Link
-            to="/sign-in"
-            className="px-6 py-3 text-sm font-medium text-brand-700 hover:text-brand-900 transition-colors"
-          >
-            I already have an account
           </Link>
         </div>
       </section>
@@ -149,10 +140,10 @@ export default function HomePage() {
             tailor resumes, and land more interviews.
           </p>
           <Link
-            to="/sign-up"
+            to="/jobs"
             className="inline-flex items-center gap-2 px-6 py-3 bg-white text-brand-900 font-semibold rounded-btn hover:bg-brand-50 transition-colors text-sm"
           >
-            Get Started Free
+            Browse Jobs
             <ChevronRight className="w-4 h-4" />
           </Link>
         </div>

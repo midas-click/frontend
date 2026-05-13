@@ -1,4 +1,3 @@
-import { Outlet } from "react-router-dom";
 import { useAuth } from "@clerk/clerk-react";
 import { Layout } from "./Layout";
 import { PublicLayout } from "./PublicLayout";
