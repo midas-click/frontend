@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { resumesApi } from "@/api/client";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import type { Resume } from "@/types";
 import { FileText, ArrowLeft, Trash2, Hash, Clock } from "lucide-react";
 import { format } from "date-fns";

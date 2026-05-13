@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { applicationsApi, resumesApi } from "@/api/client";
 import { Application } from "@/types";
-import { Building2, MapPin, Clock, DollarSign, Pencil, Trash2, X, Save, ArrowLeft, ExternalLink, FileText } from "lucide-react";
-import { format } from "date-fns";
+import { Building2, MapPin, Banknote, Pencil, Trash2, X, Save, ArrowLeft, ExternalLink, FileText } from "lucide-react";
 import { STAGES } from "@/lib/utils";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { Timeline } from "@/components/application/Timeline";
+import { CommunicationLog } from "@/components/application/CommunicationLog";
 
 export function ApplicationDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -135,7 +136,7 @@ export function ApplicationDetailPage() {
             <div className="flex items-center gap-4 text-text-secondary flex-wrap">
               <span className="flex items-center gap-1"><Building2 className="w-4 h-4" />{app.company}</span>
               {app.location && <span className="flex items-center gap-1"><MapPin className="w-4 h-4" />{app.location}</span>}
-              {app.salary_expectation && <span className="flex items-center gap-1"><DollarSign className="w-4 h-4" />{app.salary_expectation}</span>}
+              {app.salary_expectation && <span className="flex items-center gap-1"><Banknote className="w-4 h-4" />{app.salary_expectation}</span>}
               {app.source_url && (
                 <a href={app.source_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-0 py-1 text-blue-600 rounded-btn text-xs font-medium hover:underline">
                   <ExternalLink className="w-3 h-3" />Job Posting
@@ -164,47 +165,12 @@ export function ApplicationDetailPage() {
 
       {/* Timeline */}
       <div className="bg-white rounded-card border border-border shadow-card p-6 mb-6">
-        <h2 className="font-semibold mb-4">Timeline ({app.timeline.length})</h2>
-        {app.timeline.length === 0 ? <p className="text-sm text-text-muted">No events yet.</p> : (
-          <div className="space-y-3 max-h-64 overflow-y-auto">
-            {[...app.timeline].reverse().map((e, i) => {
-              const parts = e.event.split(/([a-z0-9_-]+)/gi);
-              return (
-                <div key={i} className="flex gap-3">
-                  <Clock className="w-4 h-4 text-text-muted mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium">
-                      {parts.map((part, j) => {
-                        const s = STAGES[part];
-                        return s ? (
-                          <span key={j} className="inline-flex items-center px-1.5 py-0.5 mx-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: s.bg, color: s.text }}>{s.label}</span>
-                        ) : (
-                          <span key={j}>{part}</span>
-                        );
-                      })}
-                    </p>
-                    <p className="text-xs text-text-muted">{format(new Date(e.date), "MMM d, yyyy h:mm a")}</p>
-                    {e.detail && <p className="text-xs text-text-secondary mt-0.5">{e.detail}</p>}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <Timeline events={app.timeline} />
       </div>
 
       {/* Communication Log */}
       <div className="bg-white rounded-card border border-border shadow-card p-6 mb-6">
-        <h2 className="font-semibold mb-4">Communication Log</h2>
-        <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
-          {app.communication_log.length === 0 && <p className="text-sm text-text-muted">No communications logged.</p>}
-          {app.communication_log.map((c, i) => (
-            <div key={i} className="p-3 bg-surface-secondary rounded-btn">
-              <p className="text-xs text-text-muted mb-1">{format(new Date(c.date), "MMM d, yyyy")} · {c.channel}</p>
-              <p className="text-sm">{c.summary}</p>
-            </div>
-          ))}
-        </div>
+        <CommunicationLog logs={app.communication_log} />
         <div className="flex gap-2">
           <select value={commChannel} onChange={e => setCommChannel(e.target.value)} className="border rounded-btn px-2 text-sm">
             <option value="email">Email</option>

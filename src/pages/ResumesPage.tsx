@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useStore } from "@/store";
 import { resumesApi } from "@/api/client";
 import { FileText, Upload, Trash2 } from "lucide-react";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 
 export function ResumesPage() {
   const { resumes, fetchResumes } = useStore();

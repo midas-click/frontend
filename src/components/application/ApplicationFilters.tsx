@@ -29,7 +29,6 @@ export function ApplicationFilters({ showCreateBtn, onCreateClick }: Props) {
     setSearch("");
     setStage("");
     setTag("");
-    // Fetch all immediately
     fetchApplications();
   }
 

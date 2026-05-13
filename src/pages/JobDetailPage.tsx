@@ -1,4 +1,4 @@
-import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/clerk-react";
 import { useParams, useNavigate, Link } from "react-router-dom";
@@ -6,7 +6,7 @@ import { jobsApi } from "@/api/client";
 import type { Job } from "@/types";
 import { Building2, MapPin, Globe, Banknote, ExternalLink, ArrowLeft, Trash2, Pencil, X, Save, Briefcase } from "lucide-react";
 import { format } from "date-fns";
-import { ApplicationCreateModal } from "@/components/kanban/ApplicationCreateModal";
+import { ApplicationCreateModal } from "@/components/application/ApplicationCreateModal";
 
 export function JobDetailPage() {
   const { id } = useParams<{ id: string }>();

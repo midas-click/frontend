@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { UserCircle, Plus, Check, ChevronDown, Pencil, Trash2 } from "lucide-react";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { api } from "@/api/client";
 
 export interface ProfileOption {
