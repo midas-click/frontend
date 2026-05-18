@@ -1,15 +1,40 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { useStore } from "@/store";
-import { ApplicationFilters } from "@/components/application/ApplicationFilters";
-import { ApplicationCreateModal } from "@/components/application/ApplicationCreateModal";
 import { ApplicationCard } from "@/components/application/ApplicationCard";
+import { ApplicationCreateModal } from "@/components/application/ApplicationCreateModal";
+import { ApplicationFilters } from "@/components/application/ApplicationFilters";
+import { useStore } from "@/store";
 
 export function ApplicationsPage() {
-  const { applications, fetchApplications, loading } = useStore();
+  const {
+    applications,
+    fetchApplications,
+    hasMoreApplications,
+    loadMoreApplications,
+    loading,
+    loadingMore,
+  } = useStore();
   const [showCreate, setShowCreate] = useState(false);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => { fetchApplications(); }, [fetchApplications]);
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && hasMoreApplications && !loading && !loadingMore) {
+          loadMoreApplications();
+        }
+      },
+      { rootMargin: "240px" },
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [hasMoreApplications, loadMoreApplications, loading, loadingMore]);
 
   return (
     <div>
@@ -18,12 +43,13 @@ export function ApplicationsPage() {
         <ApplicationFilters
           showCreateBtn
           onCreateClick={() => setShowCreate(true)}
+          onSearch={fetchApplications}
         />
       </div>
 
       <div className="mt-4">
-        {loading ? (
-          <p className="text-text-secondary">Loading…</p>
+        {loading && applications.length === 0 ? (
+          <p className="text-text-secondary">Loading...</p>
         ) : applications.length === 0 ? (
           <p className="text-text-secondary">
             No applications yet.{" "}
@@ -38,6 +64,10 @@ export function ApplicationsPage() {
             {applications.map((app) => (
               <ApplicationCard key={app.id} application={app} />
             ))}
+            <div ref={loadMoreRef} className="h-8" />
+            {loadingMore && (
+              <p className="py-3 text-center text-sm text-text-secondary">Loading more...</p>
+            )}
           </div>
         )}
       </div>

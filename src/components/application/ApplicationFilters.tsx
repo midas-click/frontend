@@ -5,9 +5,10 @@ import { useStore } from "@/store";
 interface Props {
   showCreateBtn?: boolean;
   onCreateClick?: () => void;
+  onSearch?: (params?: Record<string, string>) => void;
 }
 
-export function ApplicationFilters({ showCreateBtn, onCreateClick }: Props) {
+export function ApplicationFilters({ showCreateBtn, onCreateClick, onSearch }: Props) {
   const { fetchApplications } = useStore();
   const [search, setSearch] = useState("");
   const didMount = useRef(false);
@@ -20,11 +21,16 @@ export function ApplicationFilters({ showCreateBtn, onCreateClick }: Props) {
 
     const handle = window.setTimeout(() => {
       const keyword = search.trim();
-      fetchApplications(keyword ? { search: keyword } : undefined);
+      const nextParams = keyword ? { search: keyword } : undefined;
+      if (onSearch) {
+        onSearch(nextParams);
+      } else {
+        fetchApplications(nextParams);
+      }
     }, 350);
 
     return () => window.clearTimeout(handle);
-  }, [fetchApplications, search]);
+  }, [fetchApplications, onSearch, search]);
 
   return (
     <div className="flex items-center gap-3 flex-wrap">

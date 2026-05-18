@@ -1,8 +1,14 @@
 /// ─── API Client — typed fetch wrapper with Clerk auth ──────────
 
-import type { Profile, ProfileCreate } from "@/types";
+import type { Application, Profile, ProfileCreate } from "@/types";
 
 const BASE = import.meta.env.VITE_API_BASE_URL || "/api/v1";
+type QueryParams = Record<string, string | number | undefined>;
+interface ApplicationPage {
+  items: Application[];
+  next_cursor?: string | null;
+  has_more: boolean;
+}
 
 // ── Token provider (set by Clerk auth context) ──
 let _tokenProvider: (() => Promise<string | null>) | null = null;
@@ -47,9 +53,15 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
 // ── Applications ─────────────────────────────
 export const applicationsApi = {
-  list: (params?: Record<string, string>) => {
-    const qs = params ? "?" + new URLSearchParams(params) : "";
-    return request<any[]>(`/applications${qs}`);
+  list: (params?: QueryParams) => {
+    const qs = params
+      ? "?" + new URLSearchParams(
+          Object.entries(params)
+            .filter(([, value]) => value != null && value !== "")
+            .map(([key, value]) => [key, String(value)]),
+        )
+      : "";
+    return request<ApplicationPage>(`/applications${qs}`);
   },
   get: (id: string) => request<any>(`/applications/${id}`),
   create: (data: any) =>

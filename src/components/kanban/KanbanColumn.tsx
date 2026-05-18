@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, UIEvent } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import clsx from "clsx";
 
@@ -9,10 +9,31 @@ interface Props {
   text: string;
   count: number;
   children: ReactNode;
+  hasMore?: boolean;
+  loadingMore?: boolean;
+  onLoadMore?: () => void;
 }
 
-export function KanbanColumn({ colId, label, bg, text, count, children }: Props) {
+export function KanbanColumn({
+  colId,
+  label,
+  bg,
+  text,
+  count,
+  children,
+  hasMore,
+  loadingMore,
+  onLoadMore,
+}: Props) {
   const { setNodeRef } = useDroppable({ id: colId, data: { stage: colId } });
+
+  function handleScroll(event: UIEvent<HTMLDivElement>) {
+    const el = event.currentTarget;
+    const distanceToBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    if (distanceToBottom < 160 && hasMore && !loadingMore) {
+      onLoadMore?.();
+    }
+  }
 
   return (
     <div
@@ -30,7 +51,15 @@ export function KanbanColumn({ colId, label, bg, text, count, children }: Props)
       </div>
 
       {/* Cards */}
-      <div className="flex flex-col gap-2 overflow-y-auto flex-1 min-h-0 pr-2">{children}</div>
+      <div
+        className="flex flex-col gap-2 overflow-y-auto flex-1 min-h-0 pr-2"
+        onScroll={handleScroll}
+      >
+        {children}
+        {loadingMore && (
+          <div className="py-2 text-center text-xs text-text-secondary">Loading...</div>
+        )}
+      </div>
     </div>
   );
 }

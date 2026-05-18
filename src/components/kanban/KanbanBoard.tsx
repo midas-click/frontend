@@ -20,9 +20,16 @@ const STAGE_IDS = Object.keys(STAGES);
 interface Props {
   applications: Application[];
   onStageChange: (id: string, stage: string) => void;
+  kanbanPagination?: Record<string, { hasMore: boolean; loading: boolean }>;
+  onLoadMoreStage?: (stage: string) => void;
 }
 
-export function KanbanBoard({ applications, onStageChange }: Props) {
+export function KanbanBoard({
+  applications,
+  onStageChange,
+  kanbanPagination,
+  onLoadMoreStage,
+}: Props) {
   const [activeApp, setActiveApp] = useState<Application | null>(null);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -73,6 +80,9 @@ export function KanbanBoard({ applications, onStageChange }: Props) {
               bg={s.bg}
               text={s.text}
               count={items.length}
+              hasMore={kanbanPagination?.[id]?.hasMore}
+              loadingMore={kanbanPagination?.[id]?.loading}
+              onLoadMore={() => onLoadMoreStage?.(id)}
             >
               <SortableContext items={items.map((a) => a.id)} strategy={verticalListSortingStrategy}>
                 {items.map((app) => (<KanbanCard key={app.id} application={app} />))}

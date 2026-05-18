@@ -1,25 +1,34 @@
 import { useEffect } from "react";
-import { useStore } from "@/store";
-import { KanbanBoard } from "@/components/kanban/KanbanBoard";
 import { ApplicationFilters } from "@/components/application/ApplicationFilters";
+import { KanbanBoard } from "@/components/kanban/KanbanBoard";
+import { useStore } from "@/store";
 
 export function KanbanPage() {
-  const { applications, fetchApplications, moveStage, loading } = useStore();
+  const {
+    applications,
+    fetchKanbanApplications,
+    kanbanPagination,
+    loadMoreKanbanStage,
+    loading,
+    moveStage,
+  } = useStore();
 
-  useEffect(() => { fetchApplications(); }, [fetchApplications]);
+  useEffect(() => { fetchKanbanApplications(); }, [fetchKanbanApplications]);
 
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Kanban Board</h1>
-        <ApplicationFilters />
+        <ApplicationFilters onSearch={fetchKanbanApplications} />
       </div>
       <div className="mt-4">
-        {loading ? (
-          <div className="text-center py-12 text-text-secondary">Loading…</div>
+        {loading && applications.length === 0 ? (
+          <div className="text-center py-12 text-text-secondary">Loading...</div>
         ) : (
           <KanbanBoard
             applications={applications}
+            kanbanPagination={kanbanPagination}
+            onLoadMoreStage={loadMoreKanbanStage}
             onStageChange={(id, stage) => moveStage(id, stage)}
           />
         )}
