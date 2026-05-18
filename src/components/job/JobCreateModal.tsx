@@ -13,29 +13,42 @@ export function JobCreateModal({ open, onClose }: Props) {
   const [rawText, setRawText] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  function resetForm() {
+    setRawText("");
+    setSourceUrl("");
+    setError(null);
+  }
+
+  function handleClose() {
+    resetForm();
+    onClose();
+  }
 
   if (!open) return null;
 
   async function handleSubmit() {
     if (!rawText.trim() || !sourceUrl.trim()) return;
     setAnalyzing(true);
+    setError(null);
     try {
       await jobsApi.analyze(rawText.trim(), sourceUrl.trim());
-      setRawText("");
-      setSourceUrl("");
+      resetForm();
       fetchJobs();
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      setError(err.message || "Could not analyze and save this job.");
     } finally {
       setAnalyzing(false);
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => !analyzing && onClose()}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => !analyzing && handleClose()}>
       <div className="bg-white rounded-xl shadow-xl w-full max-w-xl p-6 relative max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-        <button onClick={() => !analyzing && onClose()} className="absolute top-4 right-4 text-text-muted hover:text-text-secondary" disabled={analyzing}>
+        <button onClick={() => !analyzing && handleClose()} className="absolute top-4 right-4 text-text-muted hover:text-text-secondary" disabled={analyzing}>
           <X className="w-5 h-5" />
         </button>
         <h2 className="text-lg font-bold mb-1">Add Job</h2>
@@ -64,8 +77,11 @@ export function JobCreateModal({ open, onClose }: Props) {
               autoFocus
             />
           </div>
+          {error && (
+            <p className="mr-auto self-center text-sm text-red-600">{error}</p>
+          )}
           <div className="flex gap-3 justify-end">
-            <button onClick={() => !analyzing && onClose()} className="px-4 py-2 text-sm text-text-secondary hover:bg-surface-secondary rounded-btn" disabled={analyzing}>
+            <button onClick={() => !analyzing && handleClose()} className="px-4 py-2 text-sm text-text-secondary hover:bg-surface-secondary rounded-btn" disabled={analyzing}>
               Cancel
             </button>
             <button
