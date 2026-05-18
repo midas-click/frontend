@@ -79,7 +79,7 @@ export function ApplicationDetailPage() {
   const backLabel = backTo === "/kanban" ? "Back to Kanban" : "Back to Applicants";
 
   return (
-    <div className="max-w-3xl">
+    <div className="w-full">
       <Link to={backTo} className="inline-flex items-center gap-1 text-sm text-text-secondary hover:text-text-primary mb-4">
         <ArrowLeft className="w-4 h-4" /> {backLabel}
       </Link>

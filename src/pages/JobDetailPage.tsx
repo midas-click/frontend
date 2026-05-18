@@ -165,7 +165,7 @@ export function JobDetailPage() {
               {job.salary_range && <span className="flex items-center gap-1"><Banknote className="w-4 h-4" />{job.salary_range}</span>}
               {job.source_url && (
                 <a href={job.source_url} target="_blank" rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 px-0 py-1 text-brand-600 rounded-btn text-xs font-medium hover:underline">
+                  className="inline-flex items-center gap-1.5 px-0 py-1 rounded-btn text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline">
                   <ExternalLink className="w-3 h-3" />Job Posting
                 </a>
               )}
