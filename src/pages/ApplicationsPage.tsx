@@ -15,12 +15,11 @@ export function ApplicationsPage() {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Applicants</h1>
+        <ApplicationFilters
+          showCreateBtn
+          onCreateClick={() => setShowCreate(true)}
+        />
       </div>
-
-      <ApplicationFilters
-        showCreateBtn
-        onCreateClick={() => setShowCreate(true)}
-      />
 
       <div className="mt-4">
         {loading ? (

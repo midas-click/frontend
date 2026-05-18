@@ -41,7 +41,7 @@ export function Layout() {
     to === "/" ? pathname === "/" : pathname.startsWith(to);
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ backgroundColor: "#F3EEFF" }}>
+    <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
       <aside className="w-56 bg-white border-r border-border flex flex-col shrink-0">
         {/* Logo */}

@@ -6,7 +6,7 @@ export function PublicLayout() {
   const { isSignedIn } = useAuth();
 
   return (
-    <div className="min-h-screen" style={{ background: "linear-gradient(135deg, #F3EEFF 0%, #E0E7FF 100%)" }}>
+    <div className="min-h-screen">
       {/* Top nav */}
       <nav className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         <Link to="/" className="text-xl font-bold text-brand-900 tracking-tight hover:opacity-80 transition-opacity">

@@ -12,10 +12,8 @@ export function KanbanPage() {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Kanban Board</h1>
+        <ApplicationFilters />
       </div>
-
-      <ApplicationFilters />
-
       <div className="mt-4">
         {loading ? (
           <div className="text-center py-12 text-text-secondary">Loading…</div>
