@@ -1,39 +1,28 @@
 import { create } from "zustand";
 import { applicationsApi, jobsApi, resumesApi } from "@/api/client";
+import { createStagePagination, mergeByIdSorted } from "@/lib/pagination";
 import { STAGES } from "@/lib/utils";
 import {
   Application,
   ApplicationCreate,
   Job,
+  ListParams,
+  PaginatedResponse,
   Resume,
+  StagePagination,
 } from "@/types";
-
-type ApplicationListParams = Record<string, string>;
-type StagePagination = Record<string, { cursor: string | null; hasMore: boolean; loading: boolean }>;
-
-interface ApplicationPage {
-  items: Application[];
-  next_cursor?: string | null;
-  has_more: boolean;
-}
 
 const PAGE_SIZE = 50;
 const KANBAN_PAGE_SIZE = 15;
+const JOB_PAGE_SIZE = 50;
 const STAGE_IDS = Object.keys(STAGES);
 
 function mergeApplications(current: Application[], incoming: Application[]) {
-  const byId = new Map(current.map((app) => [app.id, app]));
-  for (const app of incoming) byId.set(app.id, app);
-  return Array.from(byId.values()).sort((a, b) => {
-    const byDate = new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-    return byDate || b.id.localeCompare(a.id);
-  });
+  return mergeByIdSorted(current, incoming, (app) => app.updated_at);
 }
 
-function createStagePagination(): StagePagination {
-  return Object.fromEntries(
-    STAGE_IDS.map((stage) => [stage, { cursor: null, hasMore: true, loading: false }]),
-  );
+function mergeJobs(current: Job[], incoming: Job[]) {
+  return mergeByIdSorted(current, incoming, (job) => job.created_at);
 }
 
 interface AppState {
@@ -41,16 +30,16 @@ interface AppState {
   setActiveProfileId: (id: string | null) => void;
 
   applications: Application[];
-  applicationFilters: ApplicationListParams;
+  applicationFilters: ListParams;
   loading: boolean;
   loadingMore: boolean;
   hasMoreApplications: boolean;
   nextApplicationsCursor: string | null;
   kanbanPagination: StagePagination;
   error: string | null;
-  fetchApplications: (params?: ApplicationListParams) => Promise<void>;
+  fetchApplications: (params?: ListParams) => Promise<void>;
   loadMoreApplications: () => Promise<void>;
-  fetchKanbanApplications: (params?: ApplicationListParams) => Promise<void>;
+  fetchKanbanApplications: (params?: ListParams) => Promise<void>;
   loadMoreKanbanStage: (stage: string) => Promise<void>;
   createApplication: (data: ApplicationCreate) => Promise<Application>;
   moveStage: (id: string, stage: string) => Promise<void>;
@@ -59,7 +48,13 @@ interface AppState {
   fetchResumes: () => Promise<void>;
 
   jobs: Job[];
-  fetchJobs: () => Promise<void>;
+  jobFilters: ListParams;
+  jobsLoading: boolean;
+  jobsLoadingMore: boolean;
+  hasMoreJobs: boolean;
+  nextJobsCursor: string | null;
+  fetchJobs: (params?: ListParams) => Promise<void>;
+  loadMoreJobs: () => Promise<void>;
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -79,7 +74,7 @@ export const useStore = create<AppState>((set, get) => ({
   loadingMore: false,
   hasMoreApplications: true,
   nextApplicationsCursor: null,
-  kanbanPagination: createStagePagination(),
+  kanbanPagination: createStagePagination(STAGE_IDS),
   error: null,
 
   fetchApplications: async (params) => {
@@ -92,7 +87,7 @@ export const useStore = create<AppState>((set, get) => ({
       nextApplicationsCursor: null,
     });
     try {
-      const page = await applicationsApi.list({ ...filters, limit: PAGE_SIZE }) as ApplicationPage;
+      const page: PaginatedResponse<Application> = await applicationsApi.list({ ...filters, limit: PAGE_SIZE });
       set({
         applications: page.items,
         hasMoreApplications: page.has_more,
@@ -119,7 +114,7 @@ export const useStore = create<AppState>((set, get) => ({
         ...applicationFilters,
         cursor: nextApplicationsCursor,
         limit: PAGE_SIZE,
-      }) as ApplicationPage;
+      });
       set((state) => ({
         applications: mergeApplications(state.applications, page.items),
         hasMoreApplications: page.has_more,
@@ -137,7 +132,7 @@ export const useStore = create<AppState>((set, get) => ({
       applicationFilters: filters,
       loading: true,
       error: null,
-      kanbanPagination: createStagePagination(),
+      kanbanPagination: createStagePagination(STAGE_IDS),
     });
     try {
       const pages = await Promise.all(
@@ -147,10 +142,10 @@ export const useStore = create<AppState>((set, get) => ({
             ...filters,
             stage,
             limit: KANBAN_PAGE_SIZE,
-          }) as ApplicationPage,
+          }),
         })),
       );
-      const kanbanPagination = createStagePagination();
+      const kanbanPagination = createStagePagination(STAGE_IDS);
       for (const { stage, page } of pages) {
         kanbanPagination[stage] = {
           cursor: page.next_cursor || null,
@@ -186,7 +181,7 @@ export const useStore = create<AppState>((set, get) => ({
         stage,
         cursor: stageState.cursor,
         limit: KANBAN_PAGE_SIZE,
-      }) as ApplicationPage;
+      });
       set((state) => ({
         applications: mergeApplications(state.applications, page.items),
         kanbanPagination: {
@@ -234,8 +229,52 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   jobs: [],
-  fetchJobs: async () => {
-    const list = await jobsApi.list();
-    set({ jobs: list });
+  jobFilters: {},
+  jobsLoading: false,
+  jobsLoadingMore: false,
+  hasMoreJobs: true,
+  nextJobsCursor: null,
+  fetchJobs: async (params) => {
+    const filters = params || {};
+    set({
+      jobFilters: filters,
+      jobsLoading: true,
+      error: null,
+      hasMoreJobs: true,
+      nextJobsCursor: null,
+    });
+    try {
+      const page: PaginatedResponse<Job> = await jobsApi.listPage({ ...filters, limit: JOB_PAGE_SIZE });
+      set({
+        jobs: page.items,
+        hasMoreJobs: page.has_more,
+        nextJobsCursor: page.next_cursor || null,
+        jobsLoading: false,
+      });
+    } catch (e: any) {
+      set({ error: e.message, jobsLoading: false });
+    }
+  },
+
+  loadMoreJobs: async () => {
+    const { jobFilters, hasMoreJobs, jobsLoadingMore, nextJobsCursor } = get();
+    if (!hasMoreJobs || jobsLoadingMore || !nextJobsCursor) return;
+
+    set({ jobsLoadingMore: true, error: null });
+    try {
+      const page = await jobsApi.listPage({
+        ...jobFilters,
+        cursor: nextJobsCursor,
+        limit: JOB_PAGE_SIZE,
+      });
+      set((state) => ({
+        jobs: mergeJobs(state.jobs, page.items),
+        hasMoreJobs: page.has_more,
+        nextJobsCursor: page.next_cursor || null,
+        jobsLoadingMore: false,
+      }));
+    } catch (e: any) {
+      set({ error: e.message, jobsLoadingMore: false });
+    }
   },
 }));

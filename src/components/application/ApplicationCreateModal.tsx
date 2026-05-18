@@ -28,6 +28,12 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
   }, []);
 
   useEffect(() => {
+    if (resumes.length > 0) {
+      setResumeId(resumes[0].id);
+    }
+  }, [resumes]);
+
+  useEffect(() => {
     if (jobSearch.trim().length >= 2) jobsApi.list({ search: jobSearch }).then(setJobs);
     setShowJobDropdown(!!jobSearch.trim());
   }, [jobSearch]);
@@ -69,7 +75,7 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
     : jobs.slice(0, 10);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
       <div className="bg-white rounded-card shadow-xl w-full max-w-md p-6 relative" onClick={e => e.stopPropagation()}>
         <button onClick={onClose} className="absolute top-4 right-4 text-text-muted hover:text-text-secondary">
           <X className="w-5 h-5" />

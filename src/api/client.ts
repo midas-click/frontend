@@ -1,14 +1,9 @@
 /// ─── API Client — typed fetch wrapper with Clerk auth ──────────
 
-import type { Application, Profile, ProfileCreate } from "@/types";
+import { buildQueryString } from "@/lib/pagination";
+import type { Application, Job, PaginatedResponse, Profile, ProfileCreate, QueryParams } from "@/types";
 
 const BASE = import.meta.env.VITE_API_BASE_URL || "/api/v1";
-type QueryParams = Record<string, string | number | undefined>;
-interface ApplicationPage {
-  items: Application[];
-  next_cursor?: string | null;
-  has_more: boolean;
-}
 
 // ── Token provider (set by Clerk auth context) ──
 let _tokenProvider: (() => Promise<string | null>) | null = null;
@@ -54,14 +49,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 // ── Applications ─────────────────────────────
 export const applicationsApi = {
   list: (params?: QueryParams) => {
-    const qs = params
-      ? "?" + new URLSearchParams(
-          Object.entries(params)
-            .filter(([, value]) => value != null && value !== "")
-            .map(([key, value]) => [key, String(value)]),
-        )
-      : "";
-    return request<ApplicationPage>(`/applications${qs}`);
+    return request<PaginatedResponse<Application>>(`/applications${buildQueryString(params)}`);
   },
   get: (id: string) => request<any>(`/applications/${id}`),
   create: (data: any) =>
@@ -126,9 +114,11 @@ export const resumesApi = {
 
 // ── Jobs ─────────────────────────────────────
 export const jobsApi = {
+  listPage: (params?: QueryParams) => {
+    return request<PaginatedResponse<Job>>(`/jobs${buildQueryString(params)}`);
+  },
   list: (params?: Record<string, string>) => {
-    const qs = params ? "?" + new URLSearchParams(params) : "";
-    return request<any[]>(`/jobs${qs}`);
+    return request<PaginatedResponse<Job>>(`/jobs${buildQueryString(params)}`).then((page) => page.items);
   },
   get: (id: string) => request<any>(`/jobs/${id}`),
   create: (data: any) =>

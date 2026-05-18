@@ -67,6 +67,23 @@ export interface ApplicationUpdate {
   notes?: string;
 }
 
+export type ListParams = Record<string, string>;
+export type QueryParams = Record<string, string | number | undefined>;
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  next_cursor?: string | null;
+  has_more: boolean;
+}
+
+export interface CursorLoadingState {
+  cursor: string | null;
+  hasMore: boolean;
+  loading: boolean;
+}
+
+export type StagePagination = Record<string, CursorLoadingState>;
+
 // ── Profile ─────────────────────────────────────
 export interface Profile {
   id: string;
