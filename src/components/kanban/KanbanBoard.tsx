@@ -61,7 +61,7 @@ export function KanbanBoard({ applications, onStageChange }: Props) {
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="flex gap-4 overflow-x-auto pb-4" style={{ minHeight: "calc(100vh - 200px)" }}>
+      <div className="flex gap-4 overflow-x-auto pb-4" style={{ height: "calc(100vh - 210px)" }}>
         {STAGE_IDS.map((id) => {
           const s = STAGES[id];
           const items = columnsMap.get(id) || [];

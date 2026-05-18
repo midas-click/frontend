@@ -18,7 +18,7 @@ export function KanbanColumn({ colId, label, bg, text, count, children }: Props)
     <div
       ref={setNodeRef}
       data-col-id={colId}
-      className="flex flex-col w-72 shrink-0 rounded-xl border border-gray-200 p-3"
+      className="flex flex-col w-72 shrink-0 rounded-xl border border-gray-200 p-3 pr-1"
       style={{ backgroundColor: bg }}
     >
       {/* Header */}
@@ -30,7 +30,7 @@ export function KanbanColumn({ colId, label, bg, text, count, children }: Props)
       </div>
 
       {/* Cards */}
-      <div className="flex flex-col gap-2 overflow-y-auto flex-1 min-h-0">{children}</div>
+      <div className="flex flex-col gap-2 overflow-y-auto flex-1 min-h-0 pr-2">{children}</div>
     </div>
   );
 }
