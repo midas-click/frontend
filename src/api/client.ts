@@ -1,7 +1,15 @@
 /// ─── API Client — typed fetch wrapper with Clerk auth ──────────
 
 import { buildQueryString } from "@/lib/pagination";
-import type { Application, Job, PaginatedResponse, Profile, ProfileCreate, QueryParams } from "@/types";
+import type {
+  Application,
+  ApplicationBatchCreate,
+  Job,
+  PaginatedResponse,
+  Profile,
+  ProfileCreate,
+  QueryParams,
+} from "@/types";
 
 const BASE = import.meta.env.VITE_API_BASE_URL || "/api/v1";
 
@@ -54,6 +62,8 @@ export const applicationsApi = {
   get: (id: string) => request<any>(`/applications/${id}`),
   create: (data: any) =>
     request<any>("/applications", { method: "POST", body: JSON.stringify(data) }),
+  createBatch: (data: ApplicationBatchCreate) =>
+    request<Application[]>("/applications/batch", { method: "POST", body: JSON.stringify(data) }),
   update: (id: string, data: any) =>
     request<any>(`/applications/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
   delete: (id: string) =>

@@ -53,6 +53,10 @@ export interface ApplicationCreate {
   notes?: string;
 }
 
+export interface ApplicationBatchCreate {
+  job_ids: string[];
+}
+
 export interface ApplicationUpdate {
   job_title?: string;
   company?: string;

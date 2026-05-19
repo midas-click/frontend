@@ -125,10 +125,6 @@ export function ProfileSwitcher({
                   )}
                 </button>
 
-                {profile.id === activeProfileId && (
-                  <Check className="w-4 h-4 text-purple-600 shrink-0 mx-1" />
-                )}
-
                 {/* Edit / Delete — visible on hover */}
                 <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                   <button
@@ -154,6 +150,10 @@ export function ProfileSwitcher({
                     </button>
                   )}
                 </div>
+
+                {profile.id === activeProfileId && (
+                  <Check className="w-4 h-4 text-purple-600 shrink-0 mx-1" />
+                )}
               </div>
             ))}
             <hr className="my-1 border-gray-100" />

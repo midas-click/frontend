@@ -42,6 +42,7 @@ interface AppState {
   fetchKanbanApplications: (params?: ListParams) => Promise<void>;
   loadMoreKanbanStage: (stage: string) => Promise<void>;
   createApplication: (data: ApplicationCreate) => Promise<Application>;
+  createApplicationsForJobs: (jobIds: string[]) => Promise<Application[]>;
   moveStage: (id: string, stage: string) => Promise<void>;
 
   resumes: Resume[];
@@ -208,6 +209,12 @@ export const useStore = create<AppState>((set, get) => ({
     const app = await applicationsApi.create(data);
     set((state) => ({ applications: mergeApplications([app], state.applications) }));
     return app;
+  },
+
+  createApplicationsForJobs: async (jobIds) => {
+    const apps = await applicationsApi.createBatch({ job_ids: jobIds });
+    set((state) => ({ applications: mergeApplications(apps, state.applications) }));
+    return apps;
   },
 
   moveStage: async (id, stage) => {
