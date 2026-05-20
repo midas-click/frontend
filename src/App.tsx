@@ -16,6 +16,7 @@ import { ResumeDetailPage } from "@/pages/ResumeDetailPage";
 import { JobsPage } from "@/pages/JobsPage";
 import { JobDetailPage } from "@/pages/JobDetailPage";
 import { AnalyticsPage } from "@/pages/AnalyticsPage";
+import { ExtensionAuthPage } from "@/pages/ExtensionAuthPage";
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/sign-in/*" element={<SignInPage />} />
         <Route path="/sign-up/*" element={<SignUpPage />} />
+        <Route path="/extension-auth/*" element={<ExtensionAuthPage />} />
 
         {/* Public — browse jobs without sign in */}
         <Route element={<JobsLayout />}>
