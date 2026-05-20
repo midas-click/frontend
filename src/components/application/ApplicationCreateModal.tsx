@@ -57,6 +57,20 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
       .finally(() => setLoadingScores(false));
   }, [selectedJob]);
 
+  useEffect(() => {
+    const bestResume = resumes
+      .map((resume) => ({
+        id: resume.id,
+        score: matchScores[resume.id]?.match_score,
+      }))
+      .filter((item): item is { id: string; score: number } => typeof item.score === "number")
+      .sort((a, b) => b.score - a.score)[0];
+
+    if (bestResume) {
+      setResumeId(bestResume.id);
+    }
+  }, [matchScores, resumes]);
+
   function selectJob(job: Job) {
     setSelectedJob(job);
     setJobSearch("");
