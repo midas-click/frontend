@@ -50,6 +50,8 @@ export interface ApplicationCreate {
   initial_contact_date?: string;
   resume_id?: string;
   tags?: string[];
+  match_score?: number | null;
+  match_explanation?: string | null;
   notes?: string;
 }
 
@@ -127,6 +129,13 @@ export interface Resume {
   offer_count: number;
   tags: string[];
   created_at: string;
+}
+
+export interface ResumeMatchScore {
+  resume_id: string;
+  resume_filename: string;
+  match_score?: number | null;
+  match_explanation?: string | null;
 }
 
 // ── Job ─────────────────────────────────────────

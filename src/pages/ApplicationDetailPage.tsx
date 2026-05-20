@@ -3,10 +3,11 @@ import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { applicationsApi, resumesApi } from "@/api/client";
 import { Application } from "@/types";
 import { Building2, MapPin, Banknote, Pencil, Trash2, X, Save, ArrowLeft, ExternalLink, FileText } from "lucide-react";
-import { STAGES } from "@/lib/utils";
+import { getMatchScoreBadgeClass, STAGES } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { Timeline } from "@/components/application/Timeline";
 import { CommunicationLog } from "@/components/application/CommunicationLog";
+import clsx from "clsx";
 
 export function ApplicationDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -155,7 +156,11 @@ export function ApplicationDetailPage() {
               )}
             </div>
             <div className="flex gap-2 mt-3 flex-wrap">
-              {app.match_score != null && <span className="px-2.5 py-0.5 bg-green-50 text-green-700 rounded-tag text-sm font-medium">Match: {app.match_score}%</span>}
+              {app.match_score != null && (
+                <span className={clsx("px-2.5 py-0.5 rounded-tag text-sm font-medium", getMatchScoreBadgeClass(app.match_score))}>
+                  Match: {app.match_score}%
+                </span>
+              )}
               {app.tags.map(t => <span key={t} className="px-2.5 py-0.5 bg-brand-50 text-brand-600 rounded-tag text-xs font-medium">{t}</span>)}
             </div>
             {app.notes && <p className="mt-4 text-sm text-text-secondary p-3 bg-surface-secondary rounded-btn whitespace-pre-wrap">{app.notes}</p>}

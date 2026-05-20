@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Application } from "@/types";
 import { Building2, MapPin, FileText } from "lucide-react";
 import clsx from "clsx";
+import { getMatchScoreBadgeClass } from "@/lib/utils";
 
 interface Props {
   application: Application;
@@ -81,11 +82,7 @@ export function KanbanCard({ application, isOverlay }: Props) {
             <span
               className={clsx(
                 "inline-block px-2 py-0.5 rounded text-xs font-medium",
-                application.match_score >= 80
-                  ? "bg-green-100 text-green-700"
-                  : application.match_score >= 50
-                    ? "bg-yellow-100 text-yellow-700"
-                    : "bg-red-100 text-red-700",
+                getMatchScoreBadgeClass(application.match_score),
               )}
             >
               Match: {application.match_score}%

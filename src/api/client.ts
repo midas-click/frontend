@@ -9,6 +9,7 @@ import type {
   Profile,
   ProfileCreate,
   QueryParams,
+  ResumeMatchScore,
 } from "@/types";
 
 const BASE = import.meta.env.VITE_API_BASE_URL || "/api/v1";
@@ -134,6 +135,8 @@ export const jobsApi = {
     return request<PaginatedResponse<Job>>(`/jobs${buildQueryString(params)}`).then((page) => page.items);
   },
   get: (id: string) => request<any>(`/jobs/${id}`),
+  resumeMatchScores: (id: string) =>
+    request<ResumeMatchScore[]>(`/jobs/${id}/resume-match-scores`),
   create: (data: any) =>
     request<any>("/jobs", { method: "POST", body: JSON.stringify(data) }),
   update: (id: string, data: any) =>

@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { Application } from "@/types";
 import { Building2, MapPin, ChevronRight, FileText } from "lucide-react";
-import { STAGES } from "@/lib/utils";
+import { getMatchScoreTextClass, STAGES } from "@/lib/utils";
+import clsx from "clsx";
 
 interface Props {
   application: Application;
@@ -47,7 +48,7 @@ export function ApplicationCard({ application, className }: Props) {
           {s.label}
         </span>
         {application.match_score != null && (
-          <span className="text-xs text-text-secondary font-medium">
+          <span className={clsx("text-xs font-medium", getMatchScoreTextClass(application.match_score))}>
             Match {application.match_score}%
           </span>
         )}
