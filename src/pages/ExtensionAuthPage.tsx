@@ -8,6 +8,7 @@ const EXTENSION_ID_STORAGE_KEY = "midas-extension-id";
 export function ExtensionAuthPage() {
   const [searchParams] = useSearchParams();
   const extensionIdFromUrl = searchParams.get("extensionId") || "";
+  const silent = searchParams.get("silent") === "true";
   const [savedExtensionId, setSavedExtensionId] = useState(() => {
     return sessionStorage.getItem(EXTENSION_ID_STORAGE_KEY) || "";
   });
@@ -18,9 +19,12 @@ export function ExtensionAuthPage() {
   const [message, setMessage] = useState("Checking sign-in status...");
 
   const currentPath = useMemo(() => {
-    const query = extensionId ? `?extensionId=${encodeURIComponent(extensionId)}` : "";
-    return `/extension-auth${query}`;
-  }, [extensionId]);
+    const params = new URLSearchParams();
+    if (extensionId) params.set("extensionId", extensionId);
+    if (silent) params.set("silent", "true");
+    const query = params.toString();
+    return `/extension-auth${query ? `?${query}` : ""}`;
+  }, [extensionId, silent]);
 
   useEffect(() => {
     if (!extensionIdFromUrl) return;
@@ -37,7 +41,7 @@ export function ExtensionAuthPage() {
     }
     if (!isSignedIn) {
       setStatus("sign-in");
-      setMessage("Sign in to connect Midas Click.");
+      setMessage(silent ? "Sign in again to refresh Midas Click." : "Sign in to connect Midas Click.");
       return;
     }
 
@@ -47,7 +51,7 @@ export function ExtensionAuthPage() {
       setMessage("Connecting extension...");
 
       try {
-        const token = await getToken();
+        const token = await getToken({ skipCache: true } as any);
         if (!token) throw new Error("Unable to get Clerk session token");
 
         const runtime = (globalThis as any).chrome?.runtime;
@@ -83,7 +87,10 @@ export function ExtensionAuthPage() {
 
         if (!cancelled) {
           setStatus("success");
-          setMessage("Midas Click extension is connected. You can close this tab.");
+          setMessage(silent ? "Midas Click extension session refreshed." : "Midas Click extension is connected. You can close this tab.");
+          if (silent) {
+            window.setTimeout(() => window.close(), 500);
+          }
         }
       } catch (error) {
         if (!cancelled) {
@@ -97,7 +104,7 @@ export function ExtensionAuthPage() {
     return () => {
       cancelled = true;
     };
-  }, [extensionId, getToken, isLoaded, isSignedIn, user]);
+  }, [extensionId, getToken, isLoaded, isSignedIn, silent, user]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-surface-secondary px-4">
