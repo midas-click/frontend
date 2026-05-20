@@ -115,7 +115,10 @@ export const resumesApi = {
       headers,
       body: form,
     });
-    if (!res.ok) throw new Error("Upload failed");
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.detail || `Upload failed (${res.status})`);
+    }
     return res.json();
   },
   delete: (id: string) =>

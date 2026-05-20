@@ -9,6 +9,7 @@ export function ResumesPage() {
   const { resumes, fetchResumes } = useStore();
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
@@ -20,11 +21,13 @@ export function ResumesPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    setUploadError(null);
     try {
       await resumesApi.upload(file);
       fetchResumes();
     } catch (err) {
       console.error(err);
+      setUploadError(err instanceof Error ? err.message : "Upload failed");
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -59,6 +62,11 @@ export function ResumesPage() {
           </button>
           <input ref={fileRef} type="file" accept=".pdf,.docx,.doc,.txt" onChange={handleUpload} className="hidden" />
         </div>
+        {uploadError && (
+          <div className="mb-4 rounded-card border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {uploadError}
+          </div>
+        )}
 
         {resumes.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-card border-2 border-dashed border-border">
