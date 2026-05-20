@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "@/store";
 import { jobsApi } from "@/api/client";
-import type { Job, ResumeMatchScore } from "@/types";
+import type { Job } from "@/types";
 import { STAGES } from "@/lib/utils";
-import { X, Search, Briefcase, FileText, Upload, Loader2 } from "lucide-react";
+import { X, Search, Briefcase, FileText, Upload } from "lucide-react";
 
 interface Props {
   onClose: () => void;
@@ -21,8 +21,6 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
   const [selectedJob, setSelectedJob] = useState<Job | null>(preSelectedJob ?? null);
   const [showJobDropdown, setShowJobDropdown] = useState(false);
   const [resumeId, setResumeId] = useState<string | null>(null);
-  const [matchScores, setMatchScores] = useState<Record<string, ResumeMatchScore>>({});
-  const [loadingScores, setLoadingScores] = useState(false);
 
   useEffect(() => {
     fetchResumes();
@@ -40,36 +38,8 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
     setShowJobDropdown(!!jobSearch.trim());
   }, [jobSearch]);
 
-  useEffect(() => {
-    if (!selectedJob) {
-      setMatchScores({});
-      return;
-    }
-    setLoadingScores(true);
-    jobsApi.resumeMatchScores(selectedJob.id)
-      .then((scores) => {
-        setMatchScores(Object.fromEntries(scores.map((score) => [score.resume_id, score])));
-      })
-      .catch((err) => {
-        console.error(err);
-        setMatchScores({});
-      })
-      .finally(() => setLoadingScores(false));
-  }, [selectedJob]);
-
-  useEffect(() => {
-    const bestResume = resumes
-      .map((resume) => ({
-        id: resume.id,
-        score: matchScores[resume.id]?.match_score,
-      }))
-      .filter((item): item is { id: string; score: number } => typeof item.score === "number")
-      .sort((a, b) => b.score - a.score)[0];
-
-    if (bestResume) {
-      setResumeId(bestResume.id);
-    }
-  }, [matchScores, resumes]);
+  // Match-score fetching is temporarily disabled while embeddings are off on low-memory Render instances.
+  // Re-enable this block with jobsApi.resumeMatchScores(...) after EMBEDDINGS_ENABLED=true is restored.
 
   function selectJob(job: Job) {
     setSelectedJob(job);
@@ -86,7 +56,6 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
     if (!selectedJob || !resumeId) return;
     setSaving(true);
     try {
-      const selectedMatch = matchScores[resumeId];
       await createApplication({
         job_id: selectedJob.id,
         job_title: selectedJob.title,
@@ -98,8 +67,6 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
         tags: selectedJob.tags,
         notes: selectedJob.description || undefined,
         resume_id: resumeId,
-        match_score: selectedMatch?.match_score ?? undefined,
-        match_explanation: selectedMatch?.match_explanation ?? undefined,
       });
       onCreated();
     } catch (err) { console.error(err); }
@@ -157,12 +124,6 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
             <label className="flex items-center gap-1 text-sm font-medium mb-1">
               <FileText className="w-3.5 h-3.5" />
               <span>Attach Resume <span className="text-red-500">*</span></span>
-              {loadingScores && (
-                <span className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-green-700">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  Calculating
-                </span>
-              )}
             </label>
             {resumes.length > 0 ? (
               <div className="flex gap-2 flex-wrap">
@@ -172,22 +133,6 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
                       resumeId === r.id ? "bg-brand-50 border-brand-300 text-brand-600" : "bg-white border-border text-text-secondary"
                     }`}>
                     <span>{r.original_filename}</span>
-                    {selectedJob && loadingScores && (
-                      <span className="h-4 w-12 rounded-tag bg-green-50 animate-pulse" />
-                    )}
-                    {selectedJob && !loadingScores && (
-                      <span
-                        className={`rounded-tag px-1.5 py-0.5 font-semibold ${
-                          matchScores[r.id]?.match_score == null
-                            ? "bg-surface-secondary text-text-muted"
-                            : "bg-green-50 text-green-700"
-                        }`}
-                      >
-                        {matchScores[r.id]?.match_score == null
-                          ? "No score"
-                          : `${matchScores[r.id]?.match_score}%`}
-                      </span>
-                    )}
                   </button>
                 ))}
               </div>
