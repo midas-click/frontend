@@ -16,6 +16,7 @@ export function ApplicationDetailPage() {
   const [app, setApp] = useState<Application | null>(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editForm, setEditForm] = useState({ job_title: "", company: "", location: "", salary_expectation: "", notes: "", tags: "" });
   const [commSummary, setCommSummary] = useState("");
@@ -70,8 +71,14 @@ export function ApplicationDetailPage() {
 
   async function handleDelete() {
     if (!id) return;
-    await applicationsApi.delete(id);
-    navigate("/applications");
+    setDeleting(true);
+    try {
+      await applicationsApi.delete(id);
+      navigate("/applications");
+    } catch (err) {
+      console.error(err);
+      setDeleting(false);
+    }
   }
 
   if (!app) return <LoadingIndicator label="Loading application..." />;
@@ -200,7 +207,15 @@ export function ApplicationDetailPage() {
         </div>
       </div>
 
-      <ConfirmDialog open={deleteOpen} title="Delete Application" message="Are you sure you want to delete this application? All tracking data, timeline events, and communication logs will be permanently removed." onConfirm={handleDelete} onCancel={() => setDeleteOpen(false)} />
+      <ConfirmDialog
+        open={deleteOpen}
+        title="Delete Application"
+        message="Are you sure you want to delete this application? All tracking data, timeline events, and communication logs will be permanently removed."
+        loading={deleting}
+        loadingLabel="Deleting..."
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteOpen(false)}
+      />
     </div>
   );
 }

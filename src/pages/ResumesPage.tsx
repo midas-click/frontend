@@ -13,6 +13,7 @@ export function ResumesPage() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchResumes({ force: true });
@@ -42,10 +43,17 @@ export function ResumesPage() {
 
   async function handleDelete() {
     if (!deleteId) return;
-    await resumesApi.delete(deleteId);
-    setDeleteOpen(false);
-    setDeleteId(null);
-    fetchResumes({ force: true });
+    setDeleting(true);
+    try {
+      await resumesApi.delete(deleteId);
+      setDeleteOpen(false);
+      setDeleteId(null);
+      fetchResumes({ force: true });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDeleting(false);
+    }
   }
 
   return (
@@ -124,8 +132,10 @@ export function ResumesPage() {
         open={deleteOpen}
         title="Delete Resume"
         message="Are you sure you want to delete this resume? The file content and tags will be permanently removed."
+        loading={deleting}
+        loadingLabel="Deleting..."
         onConfirm={handleDelete}
-        onCancel={() => { setDeleteOpen(false); setDeleteId(null); }}
+        onCancel={() => { if (!deleting) { setDeleteOpen(false); setDeleteId(null); } }}
       />
     </div>
   );

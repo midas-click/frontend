@@ -14,6 +14,7 @@ export function ResumeDetailPage() {
   const [tagInput, setTagInput] = useState("");
   const [savingTags, setSavingTags] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (id) resumesApi.get(id).then(setResume).catch(console.error);
@@ -21,8 +22,14 @@ export function ResumeDetailPage() {
 
   async function handleDelete() {
     if (!id) return;
-    await resumesApi.delete(id);
-    navigate("/resumes");
+    setDeleting(true);
+    try {
+      await resumesApi.delete(id);
+      navigate("/resumes");
+    } catch (err) {
+      console.error(err);
+      setDeleting(false);
+    }
   }
 
   async function addTag(tag: string) {
@@ -165,6 +172,8 @@ export function ResumeDetailPage() {
         open={deleteOpen}
         title="Delete Resume"
         message="Are you sure you want to delete this resume? The parsed content and all attached tags will be permanently removed."
+        loading={deleting}
+        loadingLabel="Deleting..."
         onConfirm={handleDelete}
         onCancel={() => setDeleteOpen(false)}
       />

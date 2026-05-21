@@ -16,6 +16,7 @@ export function JobDetailPage() {
   const [job, setJob] = useState<Job | null>(null);
   const [editing, setEditing] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [showCreateApp, setShowCreateApp] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
@@ -62,8 +63,14 @@ export function JobDetailPage() {
 
   async function handleDelete() {
     if (!id) return;
-    await jobsApi.delete(id);
-    navigate("/jobs");
+    setDeleting(true);
+    try {
+      await jobsApi.delete(id);
+      navigate("/jobs");
+    } catch (err) {
+      console.error(err);
+      setDeleting(false);
+    }
   }
 
   if (!job) return <LoadingIndicator label="Loading job..." />;
@@ -201,6 +208,8 @@ export function JobDetailPage() {
         open={deleteOpen}
         title="Delete Job"
         message="Are you sure you want to delete this job? All tags and description will be permanently removed."
+        loading={deleting}
+        loadingLabel="Deleting..."
         onConfirm={handleDelete}
         onCancel={() => setDeleteOpen(false)}
       />
