@@ -18,7 +18,7 @@ export function KanbanPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Kanban Board</h1>
+        <h1 className="text-2xl font-bold">Applicant Board</h1>
         <ApplicationFilters onSearch={fetchKanbanApplications} />
       </div>
       <div className="mt-4">

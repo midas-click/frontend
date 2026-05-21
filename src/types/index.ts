@@ -90,6 +90,8 @@ export interface CursorLoadingState {
 
 export type StagePagination = Record<string, CursorLoadingState>;
 
+export type EmbeddingStatus = "disabled" | "pending" | "processing" | "completed" | "failed";
+
 // ── Profile ─────────────────────────────────────
 export interface Profile {
   id: string;
@@ -128,6 +130,9 @@ export interface Resume {
   interview_count: number;
   offer_count: number;
   tags: string[];
+  embedding_status?: EmbeddingStatus;
+  embedding_error?: string | null;
+  embedded_at?: string | null;
   created_at: string;
 }
 
@@ -152,6 +157,9 @@ export interface Job {
   source_url?: string;
   org_name: string;
   tags: string[];
+  embedding_status?: EmbeddingStatus;
+  embedding_error?: string | null;
+  embedded_at?: string | null;
   created_at: string;
 }
 

@@ -2,9 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "@/store";
 import { jobsApi } from "@/api/client";
-import type { Job } from "@/types";
-import { STAGES } from "@/lib/utils";
-import { X, Search, Briefcase, FileText, Upload } from "lucide-react";
+import type { Job, ResumeMatchScore } from "@/types";
+import { getMatchScoreBadgeClass, STAGES } from "@/lib/utils";
+import { X, Search, Briefcase, FileText, Upload, Loader2 } from "lucide-react";
+import clsx from "clsx";
+
+const MATCH_SCORE_RETRY_LIMIT = 10;
+const MATCH_SCORE_RETRY_DELAY_MS = 2500;
 
 interface Props {
   onClose: () => void;
@@ -21,6 +25,10 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
   const [selectedJob, setSelectedJob] = useState<Job | null>(preSelectedJob ?? null);
   const [showJobDropdown, setShowJobDropdown] = useState(false);
   const [resumeId, setResumeId] = useState<string | null>(null);
+  const [matchScores, setMatchScores] = useState<ResumeMatchScore[]>([]);
+  const [loadingMatchScores, setLoadingMatchScores] = useState(false);
+  const [matchScoreError, setMatchScoreError] = useState("");
+  const [resumeManuallySelected, setResumeManuallySelected] = useState(false);
 
   useEffect(() => {
     fetchResumes();
@@ -28,26 +36,76 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
   }, []);
 
   useEffect(() => {
-    if (resumes.length > 0) {
+    if (resumes.length > 0 && !resumeId) {
       setResumeId(resumes[0].id);
     }
-  }, [resumes]);
+  }, [resumes, resumeId]);
 
   useEffect(() => {
     if (jobSearch.trim().length >= 2) jobsApi.list({ search: jobSearch }).then(setJobs);
     setShowJobDropdown(!!jobSearch.trim());
   }, [jobSearch]);
 
-  // Match-score fetching is temporarily disabled while embeddings are off on low-memory Render instances.
-  // Re-enable this block with jobsApi.resumeMatchScores(...) after EMBEDDINGS_ENABLED=true is restored.
+  useEffect(() => {
+    if (!selectedJob?.id || resumes.length === 0) {
+      setMatchScores([]);
+      setMatchScoreError("");
+      return;
+    }
+
+    let cancelled = false;
+    let retryTimer: number | undefined;
+    const selectedJobId = selectedJob.id;
+    setLoadingMatchScores(true);
+    setMatchScoreError("");
+
+    async function fetchMatchScores(attempt = 0) {
+      let scheduledRetry = false;
+      try {
+        const scores = await jobsApi.resumeMatchScores(selectedJobId);
+        if (cancelled) return;
+        setMatchScores(scores);
+
+        const hasAnyScore = scores.some((score) => score.match_score != null);
+        if (!hasAnyScore && attempt < MATCH_SCORE_RETRY_LIMIT) {
+          scheduledRetry = true;
+          retryTimer = window.setTimeout(() => fetchMatchScores(attempt + 1), MATCH_SCORE_RETRY_DELAY_MS);
+          return;
+        }
+
+        if (!resumeManuallySelected) {
+          const bestScore = scores
+            .filter((score) => score.match_score != null)
+            .sort((a, b) => (b.match_score ?? -1) - (a.match_score ?? -1))[0];
+          setResumeId(bestScore?.resume_id || resumes[0]?.id || null);
+        }
+      } catch (error) {
+        if (cancelled) return;
+        setMatchScores([]);
+        setMatchScoreError(error instanceof Error ? error.message : "Unable to calculate match scores");
+        if (!resumeManuallySelected) setResumeId(resumes[0]?.id || null);
+      } finally {
+        if (!cancelled && !scheduledRetry) setLoadingMatchScores(false);
+      }
+    }
+
+    fetchMatchScores();
+
+    return () => {
+      cancelled = true;
+      if (retryTimer) window.clearTimeout(retryTimer);
+    };
+  }, [selectedJob?.id, resumes, resumeManuallySelected]);
 
   function selectJob(job: Job) {
     setSelectedJob(job);
     setJobSearch("");
     setShowJobDropdown(false);
+    setResumeManuallySelected(false);
   }
 
   function toggleResume(id: string) {
+    setResumeManuallySelected(true);
     setResumeId((prev) => prev === id ? null : id);
   }
 
@@ -55,6 +113,7 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
     e.preventDefault();
     if (!selectedJob || !resumeId) return;
     setSaving(true);
+    const selectedMatchScore = matchScores.find((score) => score.resume_id === resumeId);
     try {
       await createApplication({
         job_id: selectedJob.id,
@@ -67,6 +126,8 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
         tags: selectedJob.tags,
         notes: selectedJob.description || undefined,
         resume_id: resumeId,
+        match_score: selectedMatchScore?.match_score ?? undefined,
+        match_explanation: selectedMatchScore?.match_explanation ?? undefined,
       });
       onCreated();
     } catch (err) { console.error(err); }
@@ -76,6 +137,7 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
   const filteredJobs = jobSearch.trim()
     ? jobs.filter((j) => j.title.toLowerCase().includes(jobSearch.toLowerCase()) || j.company.toLowerCase().includes(jobSearch.toLowerCase()))
     : jobs.slice(0, 10);
+  const scoreByResumeId = new Map(matchScores.map((score) => [score.resume_id, score]));
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
@@ -126,16 +188,42 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
               <span>Attach Resume <span className="text-red-500">*</span></span>
             </label>
             {resumes.length > 0 ? (
-              <div className="flex gap-2 flex-wrap">
-                {resumes.map((r) => (
-                  <button key={r.id} type="button" onClick={() => toggleResume(r.id)}
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-tag text-xs border transition-colors text-left ${
-                      resumeId === r.id ? "bg-brand-50 border-brand-300 text-brand-600" : "bg-white border-border text-text-secondary"
-                    }`}>
-                    <span>{r.original_filename}</span>
-                  </button>
-                ))}
-              </div>
+              <>
+                {selectedJob && loadingMatchScores && (
+                  <div className="mb-2 flex items-center gap-2 text-xs text-text-secondary">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    Calculating resume match scores...
+                  </div>
+                )}
+                {selectedJob && matchScoreError && (
+                  <p className="mb-2 text-xs text-amber-700">
+                    Match scores unavailable. You can still choose a resume manually.
+                  </p>
+                )}
+                <div className="flex gap-2 flex-wrap">
+                  {resumes.map((r) => {
+                    const score = scoreByResumeId.get(r.id);
+                    return (
+                      <button key={r.id} type="button" onClick={() => toggleResume(r.id)}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-tag text-xs border transition-colors text-left ${
+                          resumeId === r.id ? "bg-brand-50 border-brand-300 text-brand-600" : "bg-white border-border text-text-secondary"
+                        }`}>
+                        <span>{r.original_filename}</span>
+                        {score?.match_score != null && (
+                          <span className={clsx("rounded-tag px-1.5 py-0.5 font-medium", getMatchScoreBadgeClass(score.match_score))}>
+                            {score.match_score}%
+                          </span>
+                        )}
+                        {selectedJob && !loadingMatchScores && score && score.match_score == null && (
+                          <span className="rounded-tag bg-surface-secondary px-1.5 py-0.5 font-medium text-text-muted">
+                            Pending
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
             ) : (
               <div className="p-3 bg-amber-50 border border-amber-200 rounded-btn">
                 <p className="text-sm text-amber-700 mb-2">No resumes uploaded yet. A resume is required to create an application.</p>

@@ -5,7 +5,7 @@ import clsx from "clsx";
 interface Props {
   colId: string;
   label: string;
-  bg: string;
+  bg?: string;
   text: string;
   count: number;
   children: ReactNode;
@@ -17,7 +17,6 @@ interface Props {
 export function KanbanColumn({
   colId,
   label,
-  bg,
   text,
   count,
   children,
@@ -39,13 +38,12 @@ export function KanbanColumn({
     <div
       ref={setNodeRef}
       data-col-id={colId}
-      className="flex flex-col w-72 shrink-0 rounded-xl border border-gray-200 p-3 pr-1"
-      style={{ backgroundColor: bg }}
+      className="flex flex-col w-72 shrink-0 rounded-xl border border-gray-200 bg-surface-secondary p-3 pr-1"
     >
       {/* Header */}
       <div className="flex items-center gap-1 mb-3">
         <h3 className="font-semibold text-sm truncate" style={{ color: text }}>{label}</h3>
-        <span className={clsx("text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ml-auto", count > 0 ? "bg-white/70 text-gray-700" : "bg-white/40 text-text-muted")}>
+        <span className={clsx("text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ml-auto", count > 0 ? "bg-white text-gray-700" : "bg-white text-text-muted")}>
           {count}
         </span>
       </div>
