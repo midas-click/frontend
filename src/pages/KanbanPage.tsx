@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { ApplicationFilters } from "@/components/application/ApplicationFilters";
 import { KanbanBoard } from "@/components/kanban/KanbanBoard";
+import { LoadingIndicator } from "@/components/shared/LoadingIndicator";
 import { useStore } from "@/store";
 
 export function KanbanPage() {
@@ -23,7 +24,7 @@ export function KanbanPage() {
       </div>
       <div className="mt-4">
         {loading && applications.length === 0 ? (
-          <div className="text-center py-12 text-text-secondary">Loading...</div>
+          <LoadingIndicator label="Loading applicant board..." />
         ) : (
           <KanbanBoard
             applications={applications}

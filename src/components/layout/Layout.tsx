@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { AuthHeader } from "@/components/auth/AuthHeader";
 import { BrandLogo } from "@/components/shared/BrandLogo";
+import { GlobalLoadingBar } from "@/components/shared/LoadingIndicator";
+import { useStore } from "@/store";
 
 const NAV_SECTIONS = [
   {
@@ -37,6 +39,18 @@ const NAV_SECTIONS = [
 
 export function Layout() {
   const { pathname } = useLocation();
+  const isLoading = useStore((s) =>
+    s.loading ||
+    s.loadingMore ||
+    s.jobsLoading ||
+    s.jobsLoadingMore ||
+    s.resumesLoading ||
+    s.profilesLoading ||
+    s.dashboardLoading ||
+    s.dashboardRefreshing ||
+    s.analyticsLoading ||
+    s.analyticsRefreshing,
+  );
 
   const isActive = (to: string) =>
     to === "/" ? pathname === "/" : pathname.startsWith(to);
@@ -86,6 +100,7 @@ export function Layout() {
         <header className="h-14 bg-white border-b border-border flex items-center justify-end px-4 shrink-0">
           <AuthHeader />
         </header>
+        <GlobalLoadingBar active={isLoading} />
 
         {/* Page content */}
         <main className="flex-1 overflow-auto">

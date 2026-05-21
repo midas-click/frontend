@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { LoadingIndicator } from "@/components/shared/LoadingIndicator";
 import { useStore } from "@/store";
-import { analyticsApi } from "@/api/client";
 import { STAGES } from "@/lib/utils";
-import type { AnalyticsOverview, ResumePerformance, IndustryTrend } from "@/types";
 import {
   BarChart,
   Bar,
@@ -18,26 +17,21 @@ import {
 } from "recharts";
 
 export function AnalyticsPage() {
-  const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
-  const [resumes, setResumes] = useState<ResumePerformance[]>([]);
-  const [trends, setTrends] = useState<IndustryTrend[]>([]);
-  const [loading, setLoading] = useState(true);
   const activeProfileId = useStore((s) => s.activeProfileId);
+  const overview = useStore((s) => s.analyticsOverview);
+  const resumes = useStore((s) => s.analyticsResumes);
+  const trends = useStore((s) => s.analyticsTrends);
+  const loading = useStore((s) => s.analyticsLoading);
+  const refreshing = useStore((s) => s.analyticsRefreshing);
+  const fetchAnalytics = useStore((s) => s.fetchAnalytics);
 
   useEffect(() => {
-    Promise.all([
-      analyticsApi.overview(),
-      analyticsApi.resumes(),
-      analyticsApi.trends(),
-    ]).then(([o, r, t]) => {
-      setOverview(o);
-      setResumes(r);
-      setTrends(t);
-    }).catch(console.error)
-      .finally(() => setLoading(false));
-  }, [activeProfileId]);
+    fetchAnalytics({ force: true, background: Boolean(overview) });
+    // The active profile controls the API scope; cached data stays visible during refresh.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeProfileId, fetchAnalytics]);
 
-  if (loading) return <p className="text-text-secondary">Loading analytics…</p>;
+  if (loading && !overview) return <LoadingIndicator label="Loading analytics..." />;
 
   const stageData = overview?.by_stage
     ? Object.entries(overview.by_stage).map(([id, value]) => ({ id, name: STAGES[id]?.label || id, value }))
@@ -45,10 +39,12 @@ export function AnalyticsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Analytics</h1>
+      <div className="mb-6 flex items-center gap-3">
+        <h1 className="text-2xl font-bold">Analytics</h1>
+        {refreshing && <LoadingIndicator compact label="Updating..." />}
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Stage Distribution Pie */}
         <div className="bg-white rounded-card border border-border shadow-card p-6">
           <h2 className="font-semibold mb-4">Applications by Stage</h2>
           {stageData.length > 0 ? (
@@ -69,7 +65,6 @@ export function AnalyticsPage() {
           )}
         </div>
 
-        {/* Conversion Funnel */}
         <div className="bg-white rounded-card border border-border shadow-card p-6">
           <h2 className="font-semibold mb-4">Conversion Rates</h2>
           <div className="space-y-4">
@@ -103,15 +98,14 @@ export function AnalyticsPage() {
           </div>
         </div>
 
-        {/* Resume Performance */}
         <div className="bg-white rounded-card border border-border shadow-card p-6">
           <h2 className="font-semibold mb-4">Resume Performance</h2>
           {resumes.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={resumes.map((r) => ({
                 ...r,
-                interviewRate: r.applications > 0 ? Math.round(r.interviews / r.applications * 100) : 0,
-                offerRate: r.applications > 0 ? Math.round(r.offers / r.applications * 100) : 0,
+                interviewRate: r.applications > 0 ? Math.round((r.interviews / r.applications) * 100) : 0,
+                offerRate: r.applications > 0 ? Math.round((r.offers / r.applications) * 100) : 0,
               }))}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="filename" tick={{ fontSize: 11 }} angle={-20} textAnchor="end" height={60} />
@@ -127,7 +121,6 @@ export function AnalyticsPage() {
           )}
         </div>
 
-        {/* Applications per Resume */}
         <div className="bg-white rounded-card border border-border shadow-card p-6">
           <h2 className="font-semibold mb-4">Applications per Resume</h2>
           {resumes.length > 0 ? (
@@ -145,7 +138,6 @@ export function AnalyticsPage() {
           )}
         </div>
 
-        {/* Industry Trends */}
         <div className="bg-white rounded-card border border-border shadow-card p-6 overflow-x-auto">
           <h2 className="font-semibold mb-4">Tag / Industry Trends</h2>
           {trends.length > 0 ? (

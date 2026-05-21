@@ -5,6 +5,7 @@ import { Application } from "@/types";
 import { Building2, MapPin, Banknote, Pencil, Trash2, X, Save, ArrowLeft, ExternalLink, FileText } from "lucide-react";
 import { getMatchScoreBadgeClass, STAGES } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { LoadingIndicator } from "@/components/shared/LoadingIndicator";
 import { Timeline } from "@/components/application/Timeline";
 import { CommunicationLog } from "@/components/application/CommunicationLog";
 import clsx from "clsx";
@@ -73,7 +74,7 @@ export function ApplicationDetailPage() {
     navigate("/applications");
   }
 
-  if (!app) return <p className="text-text-secondary">Loading…</p>;
+  if (!app) return <LoadingIndicator label="Loading application..." />;
 
   const from = (location.state as any)?.from;
   const backTo = from === "kanban" ? "/kanban" : "/applications";

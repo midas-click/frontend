@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/clerk-react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { jobsApi } from "@/api/client";
+import { LoadingIndicator } from "@/components/shared/LoadingIndicator";
 import type { Job } from "@/types";
 import { Building2, MapPin, Globe, Banknote, ExternalLink, ArrowLeft, Trash2, Pencil, X, Save, Briefcase } from "lucide-react";
 import { format } from "date-fns";
@@ -65,7 +66,7 @@ export function JobDetailPage() {
     navigate("/jobs");
   }
 
-  if (!job) return <p className="text-text-secondary">Loading…</p>;
+  if (!job) return <LoadingIndicator label="Loading job..." />;
 
   // User can manage if they own the job, or are an admin in the job's organization
   const canManage =

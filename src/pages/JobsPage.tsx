@@ -4,6 +4,7 @@ import { Briefcase, Plus } from "lucide-react";
 import { JobCard } from "@/components/job/JobCard";
 import { JobCreateModal } from "@/components/job/JobCreateModal";
 import { JobFilters } from "@/components/job/JobFilters";
+import { LoadingIndicator } from "@/components/shared/LoadingIndicator";
 import { useStore } from "@/store";
 
 type ActionMessage = { text: string; tone: "info" | "error" };
@@ -148,7 +149,7 @@ export function JobsPage() {
       </div>
 
       {jobsLoading && jobs.length === 0 ? (
-        <p className="text-text-secondary">Loading...</p>
+        <LoadingIndicator label="Loading latest jobs..." />
       ) : jobs.length === 0 && !showCreate ? (
         <div className="text-center py-16 bg-white rounded-card border-2 border-dashed border-border">
           <Briefcase className="w-12 h-12 text-text-muted mx-auto mb-3" />
@@ -203,7 +204,7 @@ export function JobsPage() {
           ))}
           <div ref={loadMoreRef} className="h-8" />
           {jobsLoadingMore && (
-            <p className="py-3 text-center text-sm text-text-secondary">Loading more...</p>
+            <LoadingIndicator compact label="Loading more..." className="justify-center py-3" />
           )}
         </div>
       )}

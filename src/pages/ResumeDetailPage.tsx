@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { resumesApi } from "@/api/client";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { LoadingIndicator } from "@/components/shared/LoadingIndicator";
 import type { Resume } from "@/types";
 import { FileText, ArrowLeft, Trash2, Hash, Clock } from "lucide-react";
 import { format } from "date-fns";
@@ -50,7 +51,7 @@ export function ResumeDetailPage() {
     }
   }
 
-  if (!resume) return <p className="text-text-secondary">Loading…</p>;
+  if (!resume) return <LoadingIndicator label="Loading resume..." />;
 
   return (
     <div className="max-w-4xl">

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ApplicationCard } from "@/components/application/ApplicationCard";
 import { ApplicationCreateModal } from "@/components/application/ApplicationCreateModal";
 import { ApplicationFilters } from "@/components/application/ApplicationFilters";
+import { LoadingIndicator } from "@/components/shared/LoadingIndicator";
 import { useStore } from "@/store";
 
 export function ApplicationsPage() {
@@ -49,7 +50,7 @@ export function ApplicationsPage() {
 
       <div className="mt-4">
         {loading && applications.length === 0 ? (
-          <p className="text-text-secondary">Loading...</p>
+          <LoadingIndicator label="Loading applicants..." />
         ) : applications.length === 0 ? (
           <p className="text-text-secondary">
             No applications yet.{" "}
@@ -66,7 +67,7 @@ export function ApplicationsPage() {
             ))}
             <div ref={loadMoreRef} className="h-8" />
             {loadingMore && (
-              <p className="py-3 text-center text-sm text-text-secondary">Loading more...</p>
+              <LoadingIndicator compact label="Loading more..." className="justify-center py-3" />
             )}
           </div>
         )}

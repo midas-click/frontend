@@ -1,15 +1,18 @@
 import { create } from "zustand";
-import { applicationsApi, jobsApi, profilesApi, resumesApi } from "@/api/client";
+import { analyticsApi, applicationsApi, jobsApi, profilesApi, resumesApi } from "@/api/client";
 import { createStagePagination, mergeByIdSorted } from "@/lib/pagination";
 import { STAGES } from "@/lib/utils";
 import {
   Application,
   ApplicationCreate,
+  AnalyticsOverview,
+  IndustryTrend,
   Job,
   ListParams,
   PaginatedResponse,
   Profile,
   Resume,
+  ResumePerformance,
   StagePagination,
 } from "@/types";
 
@@ -64,6 +67,20 @@ interface AppState {
   nextJobsCursor: string | null;
   fetchJobs: (params?: ListParams) => Promise<void>;
   loadMoreJobs: () => Promise<void>;
+
+  dashboardOverview: AnalyticsOverview | null;
+  dashboardLoaded: boolean;
+  dashboardLoading: boolean;
+  dashboardRefreshing: boolean;
+  fetchDashboardOverview: (options?: { force?: boolean; background?: boolean }) => Promise<void>;
+
+  analyticsOverview: AnalyticsOverview | null;
+  analyticsResumes: ResumePerformance[];
+  analyticsTrends: IndustryTrend[];
+  analyticsLoaded: boolean;
+  analyticsLoading: boolean;
+  analyticsRefreshing: boolean;
+  fetchAnalytics: (options?: { force?: boolean; background?: boolean }) => Promise<void>;
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -100,6 +117,16 @@ export const useStore = create<AppState>((set, get) => ({
       profiles: [],
       profilesLoaded: false,
       profilesLoading: false,
+      dashboardOverview: null,
+      dashboardLoaded: false,
+      dashboardLoading: false,
+      dashboardRefreshing: false,
+      analyticsOverview: null,
+      analyticsResumes: [],
+      analyticsTrends: [],
+      analyticsLoaded: false,
+      analyticsLoading: false,
+      analyticsRefreshing: false,
     });
   },
 
@@ -326,6 +353,76 @@ export const useStore = create<AppState>((set, get) => ({
       }));
     } catch (e: any) {
       set({ error: e.message, jobsLoadingMore: false });
+    }
+  },
+
+  dashboardOverview: null,
+  dashboardLoaded: false,
+  dashboardLoading: false,
+  dashboardRefreshing: false,
+  fetchDashboardOverview: async (options) => {
+    const { dashboardLoaded, dashboardLoading, dashboardRefreshing } = get();
+    if (!options?.force && (dashboardLoaded || dashboardLoading || dashboardRefreshing)) return;
+
+    const refreshInBackground = Boolean(options?.background && dashboardLoaded);
+    set({
+      dashboardLoading: !refreshInBackground,
+      dashboardRefreshing: refreshInBackground,
+      error: null,
+    });
+    try {
+      const overview = await analyticsApi.overview();
+      set({
+        dashboardOverview: overview,
+        dashboardLoaded: true,
+        dashboardLoading: false,
+        dashboardRefreshing: false,
+      });
+    } catch (e: any) {
+      set({
+        error: e.message,
+        dashboardLoading: false,
+        dashboardRefreshing: false,
+      });
+    }
+  },
+
+  analyticsOverview: null,
+  analyticsResumes: [],
+  analyticsTrends: [],
+  analyticsLoaded: false,
+  analyticsLoading: false,
+  analyticsRefreshing: false,
+  fetchAnalytics: async (options) => {
+    const { analyticsLoaded, analyticsLoading, analyticsRefreshing } = get();
+    if (!options?.force && (analyticsLoaded || analyticsLoading || analyticsRefreshing)) return;
+
+    const refreshInBackground = Boolean(options?.background && analyticsLoaded);
+    set({
+      analyticsLoading: !refreshInBackground,
+      analyticsRefreshing: refreshInBackground,
+      error: null,
+    });
+    try {
+      const [overview, resumes, trends] = await Promise.all([
+        analyticsApi.overview(),
+        analyticsApi.resumes(),
+        analyticsApi.trends(),
+      ]);
+      set({
+        analyticsOverview: overview,
+        analyticsResumes: resumes,
+        analyticsTrends: trends,
+        analyticsLoaded: true,
+        analyticsLoading: false,
+        analyticsRefreshing: false,
+      });
+    } catch (e: any) {
+      set({
+        error: e.message,
+        analyticsLoading: false,
+        analyticsRefreshing: false,
+      });
     }
   },
 }));

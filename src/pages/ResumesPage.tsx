@@ -4,9 +4,10 @@ import { useStore } from "@/store";
 import { resumesApi } from "@/api/client";
 import { FileText, Upload, Trash2 } from "lucide-react";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { LoadingIndicator } from "@/components/shared/LoadingIndicator";
 
 export function ResumesPage() {
-  const { resumes, fetchResumes } = useStore();
+  const { resumes, resumesLoading, fetchResumes } = useStore();
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -51,7 +52,10 @@ export function ResumesPage() {
     <div>
       <div>
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">Resumes</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold">Resumes</h1>
+            {resumesLoading && resumes.length > 0 && <LoadingIndicator compact label="Updating..." />}
+          </div>
           <button
             onClick={() => fileRef.current?.click()}
             disabled={uploading}
@@ -68,7 +72,9 @@ export function ResumesPage() {
           </div>
         )}
 
-        {resumes.length === 0 ? (
+        {resumesLoading && resumes.length === 0 ? (
+          <LoadingIndicator label="Loading resumes..." />
+        ) : resumes.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-card border-2 border-dashed border-border">
             <FileText className="w-12 h-12 text-text-muted mx-auto mb-3" />
             <p className="text-text-secondary">No resumes uploaded yet.</p>
