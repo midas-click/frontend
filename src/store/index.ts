@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { applicationsApi, jobsApi, resumesApi } from "@/api/client";
+import { applicationsApi, jobsApi, profilesApi, resumesApi } from "@/api/client";
 import { createStagePagination, mergeByIdSorted } from "@/lib/pagination";
 import { STAGES } from "@/lib/utils";
 import {
@@ -8,13 +8,14 @@ import {
   Job,
   ListParams,
   PaginatedResponse,
+  Profile,
   Resume,
   StagePagination,
 } from "@/types";
 
-const PAGE_SIZE = 50;
+const APPLICANT_PAGE_SIZE = 30;
 const KANBAN_PAGE_SIZE = 15;
-const JOB_PAGE_SIZE = 50;
+const JOB_PAGE_SIZE = 30;
 const STAGE_IDS = Object.keys(STAGES);
 
 function mergeApplications(current: Application[], incoming: Application[]) {
@@ -28,6 +29,11 @@ function mergeJobs(current: Job[], incoming: Job[]) {
 interface AppState {
   activeProfileId: string | null;
   setActiveProfileId: (id: string | null) => void;
+  profiles: Profile[];
+  profilesLoaded: boolean;
+  profilesLoading: boolean;
+  fetchProfiles: (options?: { force?: boolean }) => Promise<Profile[]>;
+  clearProfileState: () => void;
 
   applications: Application[];
   applicationFilters: ListParams;
@@ -70,6 +76,32 @@ export const useStore = create<AppState>((set, get) => ({
     }
     set({ activeProfileId: id });
   },
+  profiles: [],
+  profilesLoaded: false,
+  profilesLoading: false,
+  fetchProfiles: async (options) => {
+    const { profilesLoaded, profilesLoading } = get();
+    if (!options?.force && (profilesLoaded || profilesLoading)) return get().profiles;
+
+    set({ profilesLoading: true });
+    try {
+      const profiles = await profilesApi.list();
+      set({ profiles, profilesLoaded: true, profilesLoading: false });
+      return profiles;
+    } catch (e: any) {
+      set({ error: e.message, profilesLoading: false });
+      throw e;
+    }
+  },
+  clearProfileState: () => {
+    localStorage.removeItem("midas-active-profile");
+    set({
+      activeProfileId: null,
+      profiles: [],
+      profilesLoaded: false,
+      profilesLoading: false,
+    });
+  },
 
   applications: [],
   applicationFilters: {},
@@ -90,7 +122,7 @@ export const useStore = create<AppState>((set, get) => ({
       nextApplicationsCursor: null,
     });
     try {
-      const page: PaginatedResponse<Application> = await applicationsApi.list({ ...filters, limit: PAGE_SIZE });
+      const page: PaginatedResponse<Application> = await applicationsApi.list({ ...filters, limit: APPLICANT_PAGE_SIZE });
       set({
         applications: page.items,
         hasMoreApplications: page.has_more,
@@ -116,7 +148,7 @@ export const useStore = create<AppState>((set, get) => ({
       const page = await applicationsApi.list({
         ...applicationFilters,
         cursor: nextApplicationsCursor,
-        limit: PAGE_SIZE,
+        limit: APPLICANT_PAGE_SIZE,
       });
       set((state) => ({
         applications: mergeApplications(state.applications, page.items),

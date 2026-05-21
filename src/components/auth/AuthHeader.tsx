@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { UserButton, useUser } from "@clerk/clerk-react";
 import { useStore } from "@/store";
 import { OrgSwitcher } from "./OrgSwitcher";
-import { ProfileSwitcher, ProfileOption } from "./ProfileSwitcher";
+import { ProfileSwitcher } from "./ProfileSwitcher";
 import { api } from "@/api/client";
 
 interface CreateProfileDialogProps {
@@ -90,28 +90,23 @@ function CreateProfileDialog({ open, onClose, onCreated }: CreateProfileDialogPr
 /** Header bar with org switcher, profile switcher, and user menu. */
 export function AuthHeader() {
   const { user } = useUser();
-  const storeSetActiveProfileId = useStore((s) => s.setActiveProfileId);
-  const [profiles, setProfiles] = useState<ProfileOption[]>([]);
-  const [activeProfileId, setActiveProfileId] = useState<string | null>(
-    () => localStorage.getItem("midas-active-profile")
-  );
-  const [profilesLoading, setProfilesLoading] = useState(true);
+  const activeProfileId = useStore((s) => s.activeProfileId);
+  const fetchProfilesFromStore = useStore((s) => s.fetchProfiles);
+  const profiles = useStore((s) => s.profiles);
+  const profilesLoading = useStore((s) => s.profilesLoading);
+  const setActiveProfileId = useStore((s) => s.setActiveProfileId);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const autoCreateAttempted = useRef(false);
 
-  const fetchProfiles = useCallback(async () => {
+  const fetchProfiles = useCallback(async (options?: { force?: boolean }) => {
     try {
-      const data = await api.profiles.list();
-      setProfiles(data.map((p: any) => ({ id: p.id, name: p.name, headline: p.headline })));
+      const data = await fetchProfilesFromStore(options);
 
       // Auto-select first profile if none is currently active
       const storedId = localStorage.getItem("midas-active-profile");
-      const storedValid = storedId && data.some((p: any) => p.id === storedId);
+      const storedValid = storedId && data.some((p) => p.id === storedId);
       if (data.length > 0 && !storedValid) {
-        const firstId = data[0].id;
-        setActiveProfileId(firstId);
-        localStorage.setItem("midas-active-profile", firstId);
-        storeSetActiveProfileId(firstId);
+        setActiveProfileId(data[0].id);
       }
 
       // Auto-create a default profile if none exist yet
@@ -125,11 +120,8 @@ export function AuthHeader() {
 
         try {
           const created: any = await api.profiles.create({ name: defaultName });
-          const newProfile = { id: created.id, name: created.name, headline: created.headline };
-          setProfiles([newProfile]);
+          await fetchProfilesFromStore({ force: true });
           setActiveProfileId(created.id);
-          localStorage.setItem("midas-active-profile", created.id);
-          storeSetActiveProfileId(created.id);
         } catch (e) {
           console.error("Auto-create profile failed:", e);
           autoCreateAttempted.current = false; // allow retry on next fetch
@@ -137,10 +129,8 @@ export function AuthHeader() {
       }
     } catch {
       // Not yet authenticated or org not selected
-    } finally {
-      setProfilesLoading(false);
     }
-  }, [user]);
+  }, [fetchProfilesFromStore, setActiveProfileId, user]);
 
   useEffect(() => {
     if (user) fetchProfiles();
@@ -148,8 +138,6 @@ export function AuthHeader() {
 
   const handleSwitchProfile = (profileId: string) => {
     setActiveProfileId(profileId);
-    localStorage.setItem("midas-active-profile", profileId);
-    storeSetActiveProfileId(profileId);
     window.location.reload();
   };
 
@@ -162,7 +150,7 @@ export function AuthHeader() {
         activeProfileId={activeProfileId}
         onSwitch={handleSwitchProfile}
         onCreateNew={() => setShowCreateDialog(true)}
-        onProfilesChanged={fetchProfiles}
+        onProfilesChanged={() => fetchProfiles({ force: true })}
         loading={profilesLoading}
       />
 
@@ -178,7 +166,7 @@ export function AuthHeader() {
       <CreateProfileDialog
         open={showCreateDialog}
         onClose={() => setShowCreateDialog(false)}
-        onCreated={fetchProfiles}
+        onCreated={() => fetchProfiles({ force: true })}
       />
     </div>
   );

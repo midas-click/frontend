@@ -1,10 +1,12 @@
 import { useEffect } from "react";
 import { useAuth } from "@clerk/clerk-react";
 import { setTokenProvider } from "@/api/client";
+import { useStore } from "@/store";
 
 /** Injects Clerk's getToken into the API client's token provider. */
 export function AuthTokenBridge({ children }: { children: React.ReactNode }) {
-  const { getToken } = useAuth();
+  const { getToken, isSignedIn } = useAuth();
+  const clearProfileState = useStore((s) => s.clearProfileState);
 
   useEffect(() => {
     setTokenProvider(async () => {
@@ -15,6 +17,10 @@ export function AuthTokenBridge({ children }: { children: React.ReactNode }) {
       }
     });
   }, [getToken]);
+
+  useEffect(() => {
+    if (isSignedIn === false) clearProfileState();
+  }, [clearProfileState, isSignedIn]);
 
   return <>{children}</>;
 }
