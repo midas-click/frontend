@@ -11,8 +11,8 @@ const FEATURES = [
   },
   {
     icon: Sparkles,
-    title: "AI-Powered Resume Tailoring",
-    body: "Automatically tailor your resume to match any job description. Highlight the skills and experience that matter most.",
+    title: "AI Job Capture",
+    body: "Paste a job description or capture it from the Chrome extension, then let AI extract the title, company, location, salary, and tags.",
   },
   {
     icon: BarChart3,
@@ -30,7 +30,7 @@ const STEPS = [
   { step: 1, title: "Upload your resume", body: "Drag and drop your PDF resume. Our parser extracts all the key sections automatically." },
   { step: 2, title: "Add jobs you're targeting", body: "Paste a job description and let AI extract the details, or add jobs manually." },
   { step: 3, title: "Track your pipeline", body: "Move applications through a visual Kanban board — from Applied to Offer." },
-  { step: 4, title: "Optimize & improve", body: "Use match scores and analytics to refine your resume and target the right roles." },
+  { step: 4, title: "Compare & improve", body: "Use match scores and analytics to understand which resumes and roles are working best." },
 ];
 
 export default function HomePage() {
@@ -78,8 +78,8 @@ export default function HomePage() {
         </h1>
         <p className="mt-6 text-lg text-text-secondary max-w-2xl mx-auto leading-relaxed">
           MidasClick is the all-in-one job application manager that helps you track
-          every application, tailor your resume with AI, and see what's working with
-          real analytics.
+          every application, compare jobs against your resumes, and see what's working
+          with real analytics.
         </p>
         <div className="mt-8 flex items-center justify-center">
           <Link
@@ -138,7 +138,7 @@ export default function HomePage() {
           </h2>
           <p className="text-brand-200 mb-8 text-sm leading-relaxed">
             Join thousands of job seekers who use MidasClick to track applications,
-            tailor resumes, and land more interviews.
+            compare resume fit, and land more interviews.
           </p>
           <Link
             to="/jobs"
