@@ -1,12 +1,15 @@
 import { SignUp } from "@clerk/clerk-react";
 import { Link } from "react-router-dom";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 
 export default function SignUpPage() {
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, #F3EEFF 0%, #E0E7FF 100%)" }}>
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link to="/" className="text-2xl font-bold text-gray-900 hover:text-brand-700 transition-colors">MidasClick</Link>
+          <Link to="/" className="inline-flex justify-center hover:opacity-80 transition-opacity">
+            <BrandLogo imageClassName="h-10" textClassName="text-xl" />
+          </Link>
           <p className="text-gray-500 mt-1">Create an account to get started</p>
         </div>
         <SignUp

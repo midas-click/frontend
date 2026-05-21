@@ -163,10 +163,21 @@ export function ApplicationDetailPage() {
               )}
               {app.tags.map(t => <span key={t} className="px-2.5 py-0.5 bg-brand-50 text-brand-600 rounded-tag text-xs font-medium">{t}</span>)}
             </div>
-            {app.notes && <p className="mt-4 text-sm text-text-secondary p-3 bg-surface-secondary rounded-btn whitespace-pre-wrap">{app.notes}</p>}
           </div>
         )}
       </div>
+
+      {!editing && app.notes && (
+        <div className="bg-white rounded-card border border-border shadow-card p-6 mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold">Raw Job Text</h2>
+            <span className="text-xs text-text-muted">Reference only</span>
+          </div>
+          <div className="h-80 overflow-y-scroll rounded-btn border border-border bg-surface-secondary px-4 py-3 text-sm text-text-secondary whitespace-pre-wrap leading-relaxed">
+            {app.notes}
+          </div>
+        </div>
+      )}
 
       {/* Timeline */}
       <div className="bg-white rounded-card border border-border shadow-card p-6 mb-6">

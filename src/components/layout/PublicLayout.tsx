@@ -1,5 +1,6 @@
 import { Outlet, Link } from "react-router-dom";
 import { useAuth } from "@clerk/clerk-react";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 
 /** Minimal layout for public pages — brand logo + sign in/sign up. */
 export function PublicLayout() {
@@ -9,8 +10,8 @@ export function PublicLayout() {
     <div className="min-h-screen">
       {/* Top nav */}
       <nav className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-        <Link to="/" className="text-xl font-bold text-brand-900 tracking-tight hover:opacity-80 transition-opacity">
-          MidasClick
+        <Link to="/" className="hover:opacity-80 transition-opacity">
+          <BrandLogo />
         </Link>
         <div className="flex items-center gap-3">
           {isSignedIn ? (

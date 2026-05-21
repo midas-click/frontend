@@ -1,6 +1,7 @@
 import { useAuth } from "@clerk/clerk-react";
 import { Navigate, Link } from "react-router-dom";
 import { Briefcase, FileText, Sparkles, BarChart3, ChevronRight } from "lucide-react";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 
 const FEATURES = [
   {
@@ -51,7 +52,7 @@ export default function HomePage() {
     <div className="min-h-screen" style={{ background: "linear-gradient(135deg, #F3EEFF 0%, #E0E7FF 100%)" }}>
       {/* ── Nav ─────────────────────────────────── */}
       <nav className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-        <span className="text-xl font-bold text-brand-900 tracking-tight">MidasClick</span>
+        <BrandLogo />
         <div className="flex items-center gap-3">
           <Link
             to="/sign-in"

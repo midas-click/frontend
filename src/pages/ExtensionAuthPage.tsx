@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { SignIn, useAuth, useUser } from "@clerk/clerk-react";
 import { Link, useSearchParams } from "react-router-dom";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 
 type BridgeStatus = "loading" | "sign-in" | "sending" | "success" | "error";
 const EXTENSION_ID_STORAGE_KEY = "midas-extension-id";
@@ -109,8 +110,8 @@ export function ExtensionAuthPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-surface-secondary px-4">
       <div className="w-full max-w-md bg-white border border-border rounded-card shadow-card p-6">
-        <Link to="/" className="text-xl font-bold text-gray-900 hover:text-brand-700">
-          MidasClick
+        <Link to="/" className="inline-flex hover:opacity-80 transition-opacity">
+          <BrandLogo />
         </Link>
         <h1 className="mt-5 text-lg font-semibold">Connect Chrome Extension</h1>
         <p className={`mt-2 text-sm ${status === "error" ? "text-red-600" : "text-text-secondary"}`}>

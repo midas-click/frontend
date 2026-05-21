@@ -9,6 +9,7 @@ import {
   List,
 } from "lucide-react";
 import { AuthHeader } from "@/components/auth/AuthHeader";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 
 const NAV_SECTIONS = [
   {
@@ -46,7 +47,7 @@ export function Layout() {
       <aside className="w-56 bg-white border-r border-border flex flex-col shrink-0">
         {/* Logo */}
         <div className="h-14 flex items-center px-4 border-b border-border">
-          <span className="font-bold text-lg text-text-primary tracking-tight">MidasClick</span>
+          <BrandLogo imageClassName="h-9" textClassName="text-lg" />
         </div>
 
         {/* Nav sections */}

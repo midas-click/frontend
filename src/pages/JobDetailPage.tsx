@@ -183,8 +183,13 @@ export function JobDetailPage() {
 
       {!editing && job.description && (
         <div className="bg-white rounded-card border border-border shadow-card p-6">
-          <h2 className="font-semibold mb-3">Job Description</h2>
-          <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{job.description}</div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold">Raw Job Text</h2>
+            <span className="text-xs text-text-muted">Reference only</span>
+          </div>
+          <div className="h-80 overflow-y-scroll rounded-btn border border-border bg-surface-secondary px-4 py-3 text-sm text-text-secondary whitespace-pre-wrap leading-relaxed">
+            {job.description}
+          </div>
         </div>
       )}
 
