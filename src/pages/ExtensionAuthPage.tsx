@@ -5,6 +5,7 @@ import { BrandLogo } from "@/components/shared/BrandLogo";
 
 type BridgeStatus = "loading" | "sign-in" | "sending" | "success" | "error";
 const EXTENSION_ID_STORAGE_KEY = "midas-extension-id";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api/v1";
 
 export function ExtensionAuthPage() {
   const [searchParams] = useSearchParams();
@@ -61,13 +62,16 @@ export function ExtensionAuthPage() {
         }
 
         const profileId = localStorage.getItem("midas-active-profile");
+        const profileName = await fetchActiveProfileName(token, profileId);
         const payload = {
           type: "MIDAS_AUTH_TOKEN",
           token,
           profileId,
+          profileName,
           user: {
             id: user?.id,
             email: user?.primaryEmailAddress?.emailAddress,
+            name: user?.firstName || user?.fullName || user?.primaryEmailAddress?.emailAddress,
           },
         };
 
@@ -152,4 +156,24 @@ export function ExtensionAuthPage() {
       </div>
     </div>
   );
+}
+
+async function fetchActiveProfileName(token: string, profileId: string | null) {
+  if (!profileId) return "";
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/profiles`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!res.ok) return "";
+    const profiles = await res.json();
+    const activeProfile = Array.isArray(profiles)
+      ? profiles.find((profile) => profile.id === profileId)
+      : null;
+    return activeProfile?.name || "";
+  } catch {
+    return "";
+  }
 }
