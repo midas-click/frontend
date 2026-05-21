@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "@/store";
 import { jobsApi } from "@/api/client";
@@ -7,8 +7,43 @@ import { getMatchScoreBadgeClass, STAGES } from "@/lib/utils";
 import { X, Search, Briefcase, FileText, Upload, Loader2 } from "lucide-react";
 import clsx from "clsx";
 
-const MATCH_SCORE_RETRY_LIMIT = 10;
-const MATCH_SCORE_RETRY_DELAY_MS = 2500;
+const MATCH_SCORE_CACHE_TTL_MS = 1000;
+
+type MatchScoreCacheEntry = {
+  expiresAt: number;
+  promise: Promise<ResumeMatchScore[]>;
+};
+
+const matchScoreRequests = new Map<string, MatchScoreCacheEntry>();
+const matchScoreResults = new Map<string, ResumeMatchScore[]>();
+
+function getMatchScoreCacheKey(jobId: string, resumeIdsKey: string) {
+  return `${jobId}:${resumeIdsKey}`;
+}
+
+function fetchResumeMatchScoresOnce(jobId: string, resumeIdsKey: string) {
+  const cacheKey = getMatchScoreCacheKey(jobId, resumeIdsKey);
+  const cachedResult = matchScoreResults.get(cacheKey);
+  if (cachedResult) return Promise.resolve(cachedResult);
+
+  const now = Date.now();
+  const cached = matchScoreRequests.get(cacheKey);
+  if (cached && cached.expiresAt > now) return cached.promise;
+
+  const promise = jobsApi.resumeMatchScores(jobId).then((scores) => {
+    matchScoreResults.set(cacheKey, scores);
+    return scores;
+  });
+  matchScoreRequests.set(cacheKey, {
+    expiresAt: now + MATCH_SCORE_CACHE_TTL_MS,
+    promise,
+  });
+  promise.catch(() => {
+    const current = matchScoreRequests.get(cacheKey);
+    if (current?.promise === promise) matchScoreRequests.delete(cacheKey);
+  });
+  return promise;
+}
 
 interface Props {
   onClose: () => void;
@@ -18,7 +53,7 @@ interface Props {
 
 export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: Props) {
   const navigate = useNavigate();
-  const { createApplication, resumes, fetchResumes } = useStore();
+  const { createApplication, resumes, resumesLoaded, fetchResumes } = useStore();
   const [saving, setSaving] = useState(false);
   const [jobSearch, setJobSearch] = useState("");
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -28,12 +63,16 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
   const [matchScores, setMatchScores] = useState<ResumeMatchScore[]>([]);
   const [loadingMatchScores, setLoadingMatchScores] = useState(false);
   const [matchScoreError, setMatchScoreError] = useState("");
-  const [resumeManuallySelected, setResumeManuallySelected] = useState(false);
+  const resumeManuallySelectedRef = useRef(false);
+  const resumeIdsKey = useMemo(() => resumes.map((resume) => resume.id).join("|"), [resumes]);
 
   useEffect(() => {
-    fetchResumes();
+    if (!resumesLoaded) fetchResumes();
+  }, [fetchResumes, resumesLoaded]);
+
+  useEffect(() => {
     if (!preSelectedJob) jobsApi.list().then(setJobs);
-  }, []);
+  }, [preSelectedJob]);
 
   useEffect(() => {
     if (resumes.length > 0 && !resumeId) {
@@ -54,26 +93,33 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
     }
 
     let cancelled = false;
-    let retryTimer: number | undefined;
     const selectedJobId = selectedJob.id;
+    const cacheKey = getMatchScoreCacheKey(selectedJobId, resumeIdsKey);
+    const cachedScores = matchScoreResults.get(cacheKey);
+
+    if (cachedScores) {
+      setMatchScores(cachedScores);
+      setMatchScoreError("");
+      setLoadingMatchScores(false);
+      if (!resumeManuallySelectedRef.current) {
+        const bestScore = cachedScores
+          .filter((score) => score.match_score != null)
+          .sort((a, b) => (b.match_score ?? -1) - (a.match_score ?? -1))[0];
+        setResumeId(bestScore?.resume_id || resumes[0]?.id || null);
+      }
+      return;
+    }
+
     setLoadingMatchScores(true);
     setMatchScoreError("");
 
-    async function fetchMatchScores(attempt = 0) {
-      let scheduledRetry = false;
+    async function fetchMatchScores() {
       try {
-        const scores = await jobsApi.resumeMatchScores(selectedJobId);
+        const scores = await fetchResumeMatchScoresOnce(selectedJobId, resumeIdsKey);
         if (cancelled) return;
         setMatchScores(scores);
 
-        const hasAnyScore = scores.some((score) => score.match_score != null);
-        if (!hasAnyScore && attempt < MATCH_SCORE_RETRY_LIMIT) {
-          scheduledRetry = true;
-          retryTimer = window.setTimeout(() => fetchMatchScores(attempt + 1), MATCH_SCORE_RETRY_DELAY_MS);
-          return;
-        }
-
-        if (!resumeManuallySelected) {
+        if (!resumeManuallySelectedRef.current) {
           const bestScore = scores
             .filter((score) => score.match_score != null)
             .sort((a, b) => (b.match_score ?? -1) - (a.match_score ?? -1))[0];
@@ -83,9 +129,9 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
         if (cancelled) return;
         setMatchScores([]);
         setMatchScoreError(error instanceof Error ? error.message : "Unable to calculate match scores");
-        if (!resumeManuallySelected) setResumeId(resumes[0]?.id || null);
+        if (!resumeManuallySelectedRef.current) setResumeId(resumes[0]?.id || null);
       } finally {
-        if (!cancelled && !scheduledRetry) setLoadingMatchScores(false);
+        if (!cancelled) setLoadingMatchScores(false);
       }
     }
 
@@ -93,19 +139,18 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
 
     return () => {
       cancelled = true;
-      if (retryTimer) window.clearTimeout(retryTimer);
     };
-  }, [selectedJob?.id, resumes, resumeManuallySelected]);
+  }, [selectedJob?.id, resumeIdsKey]);
 
   function selectJob(job: Job) {
     setSelectedJob(job);
     setJobSearch("");
     setShowJobDropdown(false);
-    setResumeManuallySelected(false);
+    resumeManuallySelectedRef.current = false;
   }
 
   function toggleResume(id: string) {
-    setResumeManuallySelected(true);
+    resumeManuallySelectedRef.current = true;
     setResumeId((prev) => prev === id ? null : id);
   }
 
@@ -183,24 +228,27 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
 
           {/* Attach Resume (required) */}
           <div>
+            <div className="flex justify-between">
             <label className="flex items-center gap-1 text-sm font-medium mb-1">
               <FileText className="w-3.5 h-3.5" />
               <span>Attach Resume <span className="text-red-500">*</span></span>
             </label>
+            {selectedJob && loadingMatchScores && (
+              <div className="mb-2 flex items-center gap-2 text-xs text-green-700">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                Calculating resume match scores...
+              </div>
+            )}
+            {selectedJob && matchScoreError && (
+              <p className="mb-2 text-xs text-amber-700">
+                Match scores unavailable. You can still choose a resume manually.
+              </p>
+            )}
+            </div>
             {resumes.length > 0 ? (
               <>
-                {selectedJob && loadingMatchScores && (
-                  <div className="mb-2 flex items-center gap-2 text-xs text-text-secondary">
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    Calculating resume match scores...
-                  </div>
-                )}
-                {selectedJob && matchScoreError && (
-                  <p className="mb-2 text-xs text-amber-700">
-                    Match scores unavailable. You can still choose a resume manually.
-                  </p>
-                )}
-                <div className="flex gap-2 flex-wrap">
+                
+                <div className="flex flex-col gap-2">
                   {resumes.map((r) => {
                     const score = scoreByResumeId.get(r.id);
                     return (
@@ -214,9 +262,9 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
                             {score.match_score}%
                           </span>
                         )}
-                        {selectedJob && !loadingMatchScores && score && score.match_score == null && (
+                        {selectedJob && score && score.match_score == null && (
                           <span className="rounded-tag bg-surface-secondary px-1.5 py-0.5 font-medium text-text-muted">
-                            Pending
+                            None
                           </span>
                         )}
                       </button>

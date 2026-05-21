@@ -14,7 +14,7 @@ export function ResumesPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchResumes();
+    fetchResumes({ force: true });
   }, [fetchResumes]);
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -24,7 +24,7 @@ export function ResumesPage() {
     setUploadError(null);
     try {
       await resumesApi.upload(file);
-      fetchResumes();
+      fetchResumes({ force: true });
     } catch (err) {
       console.error(err);
       setUploadError(err instanceof Error ? err.message : "Upload failed");
@@ -44,7 +44,7 @@ export function ResumesPage() {
     await resumesApi.delete(deleteId);
     setDeleteOpen(false);
     setDeleteId(null);
-    fetchResumes();
+    fetchResumes({ force: true });
   }
 
   return (

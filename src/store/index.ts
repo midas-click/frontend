@@ -46,7 +46,9 @@ interface AppState {
   moveStage: (id: string, stage: string) => Promise<void>;
 
   resumes: Resume[];
-  fetchResumes: () => Promise<void>;
+  resumesLoaded: boolean;
+  resumesLoading: boolean;
+  fetchResumes: (options?: { force?: boolean }) => Promise<void>;
 
   jobs: Job[];
   jobFilters: ListParams;
@@ -230,9 +232,19 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   resumes: [],
-  fetchResumes: async () => {
-    const list = await resumesApi.list();
-    set({ resumes: list });
+  resumesLoaded: false,
+  resumesLoading: false,
+  fetchResumes: async (options) => {
+    const { resumesLoaded, resumesLoading } = get();
+    if (!options?.force && (resumesLoaded || resumesLoading)) return;
+    set({ resumesLoading: true });
+    try {
+      const list = await resumesApi.list();
+      set({ resumes: list, resumesLoaded: true, resumesLoading: false });
+    } catch (e: any) {
+      set({ error: e.message, resumesLoading: false });
+      throw e;
+    }
   },
 
   jobs: [],
