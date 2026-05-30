@@ -56,11 +56,6 @@ export function ExtensionAuthPage() {
         const token = await getToken({ skipCache: true } as any);
         if (!token) throw new Error("Unable to get Clerk session token");
 
-        const runtime = (globalThis as any).chrome?.runtime;
-        if (!runtime?.sendMessage) {
-          throw new Error("Chrome extension messaging is unavailable in this browser");
-        }
-
         const profileId = localStorage.getItem("midas-active-profile");
         const profileName = await fetchActiveProfileName(token, profileId);
         const payload = {
@@ -75,20 +70,7 @@ export function ExtensionAuthPage() {
           },
         };
 
-        await new Promise<void>((resolve, reject) => {
-          runtime.sendMessage(extensionId, payload, (response: any) => {
-            const lastError = runtime.lastError;
-            if (lastError) {
-              reject(new Error(lastError.message));
-              return;
-            }
-            if (!response?.ok) {
-              reject(new Error(response?.error || "Extension did not accept the token"));
-              return;
-            }
-            resolve();
-          });
-        });
+        await sendMessageToExtension(extensionId, payload);
 
         if (!cancelled) {
           setStatus("success");
@@ -155,6 +137,39 @@ export function ExtensionAuthPage() {
         )}
       </div>
     </div>
+  );
+}
+
+async function sendMessageToExtension(extensionId: string, payload: unknown) {
+  const chromeRuntime = (globalThis as any).chrome?.runtime;
+  if (chromeRuntime?.sendMessage) {
+    return new Promise<void>((resolve, reject) => {
+      chromeRuntime.sendMessage(extensionId, payload, (response: any) => {
+        const lastError = chromeRuntime.lastError;
+        if (lastError) {
+          reject(new Error(lastError.message));
+          return;
+        }
+        if (!response?.ok) {
+          reject(new Error(response?.error || "Extension did not accept the token"));
+          return;
+        }
+        resolve();
+      });
+    });
+  }
+
+  const browserRuntime = (globalThis as any).browser?.runtime;
+  if (browserRuntime?.sendMessage) {
+    const response = await browserRuntime.sendMessage(extensionId, payload);
+    if (!response?.ok) {
+      throw new Error(response?.error || "Extension did not accept the token");
+    }
+    return;
+  }
+
+  throw new Error(
+    "Extension messaging is unavailable. Open this page from the Midas Click extension in Chrome, then reload the extension if you recently changed manifest.json.",
   );
 }
 
