@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { ApplicationCard } from "@/components/application/ApplicationCard";
-import { ApplicationCreateModal } from "@/components/application/ApplicationCreateModal";
 import { ApplicationFilters } from "@/components/application/ApplicationFilters";
 import { LoadingIndicator } from "@/components/shared/LoadingIndicator";
 import { useStore } from "@/store";
@@ -15,7 +14,6 @@ export function ApplicationsPage() {
     loading,
     loadingMore,
   } = useStore();
-  const [showCreate, setShowCreate] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => { fetchApplications(); }, [fetchApplications]);
@@ -42,8 +40,6 @@ export function ApplicationsPage() {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Applicants</h1>
         <ApplicationFilters
-          showCreateBtn
-          onCreateClick={() => setShowCreate(true)}
           onSearch={fetchApplications}
         />
       </div>
@@ -53,12 +49,9 @@ export function ApplicationsPage() {
           <LoadingIndicator label="Loading applicants..." />
         ) : applications.length === 0 ? (
           <p className="text-text-secondary">
-            No applications yet.{" "}
-            <button onClick={() => setShowCreate(true)} className="text-brand-600 underline">
-              Create one
-            </button>
-            {" "}or go to{" "}
-            <Link to="/kanban" className="text-brand-600 underline">Kanban</Link>.
+            No applications yet. Create applicants from the{" "}
+            <Link to="/jobs" className="text-brand-600 underline">Jobs</Link>
+            {" "}page.
           </p>
         ) : (
           <div className="space-y-2">
@@ -73,15 +66,6 @@ export function ApplicationsPage() {
         )}
       </div>
 
-      {showCreate && (
-        <ApplicationCreateModal
-          onClose={() => setShowCreate(false)}
-          onCreated={() => {
-            setShowCreate(false);
-            fetchApplications();
-          }}
-        />
-      )}
     </div>
   );
 }

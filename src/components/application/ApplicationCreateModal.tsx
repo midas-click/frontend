@@ -4,7 +4,7 @@ import { useStore } from "@/store";
 import { jobsApi } from "@/api/client";
 import type { Job, ResumeMatchScore } from "@/types";
 import { getMatchScoreBadgeClass, STAGES } from "@/lib/utils";
-import { X, Search, Briefcase, FileText, Upload, Loader2 } from "lucide-react";
+import { X, Briefcase, FileText, Upload, Loader2 } from "lucide-react";
 import clsx from "clsx";
 
 const MATCH_SCORE_CACHE_TTL_MS = 1000;
@@ -48,17 +48,13 @@ function fetchResumeMatchScoresOnce(jobId: string, resumeIdsKey: string) {
 interface Props {
   onClose: () => void;
   onCreated: () => void;
-  preSelectedJob?: Job;
+  preSelectedJob: Job;
 }
 
 export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: Props) {
   const navigate = useNavigate();
   const { createApplication, resumes, resumesLoaded, fetchResumes } = useStore();
   const [saving, setSaving] = useState(false);
-  const [jobSearch, setJobSearch] = useState("");
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [selectedJob, setSelectedJob] = useState<Job | null>(preSelectedJob ?? null);
-  const [showJobDropdown, setShowJobDropdown] = useState(false);
   const [resumeId, setResumeId] = useState<string | null>(null);
   const [matchScores, setMatchScores] = useState<ResumeMatchScore[]>([]);
   const [loadingMatchScores, setLoadingMatchScores] = useState(false);
@@ -71,29 +67,20 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
   }, [fetchResumes, resumesLoaded]);
 
   useEffect(() => {
-    if (!preSelectedJob) jobsApi.list().then(setJobs);
-  }, [preSelectedJob]);
-
-  useEffect(() => {
     if (resumes.length > 0 && !resumeId) {
       setResumeId(resumes[0].id);
     }
   }, [resumes, resumeId]);
 
   useEffect(() => {
-    if (jobSearch.trim().length >= 2) jobsApi.list({ search: jobSearch }).then(setJobs);
-    setShowJobDropdown(!!jobSearch.trim());
-  }, [jobSearch]);
-
-  useEffect(() => {
-    if (!selectedJob?.id || resumes.length === 0) {
+    if (!preSelectedJob.id || resumes.length === 0) {
       setMatchScores([]);
       setMatchScoreError("");
       return;
     }
 
     let cancelled = false;
-    const selectedJobId = selectedJob.id;
+    const selectedJobId = preSelectedJob.id;
     const cacheKey = getMatchScoreCacheKey(selectedJobId, resumeIdsKey);
     const cachedScores = matchScoreResults.get(cacheKey);
 
@@ -140,14 +127,7 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
     return () => {
       cancelled = true;
     };
-  }, [selectedJob?.id, resumeIdsKey]);
-
-  function selectJob(job: Job) {
-    setSelectedJob(job);
-    setJobSearch("");
-    setShowJobDropdown(false);
-    resumeManuallySelectedRef.current = false;
-  }
+  }, [preSelectedJob.id, resumeIdsKey]);
 
   function toggleResume(id: string) {
     resumeManuallySelectedRef.current = true;
@@ -156,20 +136,19 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!selectedJob || !resumeId) return;
+    if (!resumeId) return;
     setSaving(true);
     const selectedMatchScore = matchScores.find((score) => score.resume_id === resumeId);
     try {
       await createApplication({
-        job_id: selectedJob.id,
-        job_title: selectedJob.title,
-        company: selectedJob.company,
+        job_id: preSelectedJob.id,
+        job_title: preSelectedJob.title,
+        company: preSelectedJob.company,
         stage: Object.keys(STAGES)[0],
-        location: selectedJob.location || "",
-        source_url: selectedJob.source_url || undefined,
-        salary_expectation: selectedJob.salary_range || undefined,
-        tags: selectedJob.tags,
-        notes: selectedJob.description || undefined,
+        location: preSelectedJob.location || "",
+        source_url: preSelectedJob.source_url || undefined,
+        salary_expectation: preSelectedJob.salary_range || undefined,
+        tags: preSelectedJob.tags,
         resume_id: resumeId,
         match_score: selectedMatchScore?.match_score ?? undefined,
         match_explanation: selectedMatchScore?.match_explanation ?? undefined,
@@ -179,9 +158,6 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
     finally { setSaving(false); }
   }
 
-  const filteredJobs = jobSearch.trim()
-    ? jobs.filter((j) => j.title.toLowerCase().includes(jobSearch.toLowerCase()) || j.company.toLowerCase().includes(jobSearch.toLowerCase()))
-    : jobs.slice(0, 10);
   const scoreByResumeId = new Map(matchScores.map((score) => [score.resume_id, score]));
 
   return (
@@ -190,7 +166,7 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
         <button onClick={onClose} className="absolute top-4 right-4 text-text-muted hover:text-text-secondary">
           <X className="w-5 h-5" />
         </button>
-        <h2 className="text-lg font-bold mb-4">New Application</h2>
+        <h2 className="text-lg font-bold mb-4">Apply to Job</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Attach Job */}
@@ -198,32 +174,16 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
             <label className="block text-sm font-medium mb-1">
               <Briefcase className="w-3.5 h-3.5 inline mr-1" />Attach Job
             </label>
-            {selectedJob ? (
-              <div className="flex items-center justify-between p-3 bg-brand-50 border border-brand-200 rounded-btn">
-                <div>
-                  <p className="text-sm font-medium">{selectedJob.title}</p>
-                  <p className="text-xs text-text-secondary">{selectedJob.company}{selectedJob.location ? ` · ${selectedJob.location}` : ""}{selectedJob.salary_range ? ` · ${selectedJob.salary_range}` : ""}</p>
-                </div>
-                <button type="button" onClick={() => setSelectedJob(null)} className="text-text-muted hover:text-red-500"><X className="w-4 h-4" /></button>
+            <div className="p-3 bg-brand-50 border border-brand-200 rounded-btn">
+              <div>
+                <p className="text-sm font-medium">{preSelectedJob.title}</p>
+                <p className="text-xs text-text-secondary">
+                  {preSelectedJob.company}
+                  {preSelectedJob.location ? ` · ${preSelectedJob.location}` : ""}
+                  {preSelectedJob.salary_range ? ` · ${preSelectedJob.salary_range}` : ""}
+                </p>
               </div>
-            ) : (
-              <div className="relative">
-                <Search className="absolute left-3 top-2.5 w-4 h-4 text-text-muted" />
-                <input value={jobSearch} onChange={e => setJobSearch(e.target.value)}
-                  onFocus={() => setShowJobDropdown(true)} onBlur={() => setTimeout(() => setShowJobDropdown(false), 200)}
-                  placeholder="Search saved jobs…" className="w-full border rounded-btn pl-9 pr-3 py-2 text-sm" />
-                {showJobDropdown && filteredJobs.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border rounded-btn shadow-lg max-h-48 overflow-y-auto">
-                    {filteredJobs.map((j) => (
-                      <button key={j.id} type="button" onMouseDown={() => selectJob(j)}
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-surface-secondary flex items-center justify-between">
-                        <span>{j.title} <span className="text-text-muted">@ {j.company}</span></span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+            </div>
           </div>
 
           {/* Attach Resume (required) */}
@@ -233,13 +193,13 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
               <FileText className="w-3.5 h-3.5" />
               <span>Attach Resume <span className="text-red-500">*</span></span>
             </label>
-            {selectedJob && loadingMatchScores && (
+            {loadingMatchScores && (
               <div className="mb-2 flex items-center gap-2 text-xs text-green-700">
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 Calculating resume match scores...
               </div>
             )}
-            {selectedJob && matchScoreError && (
+            {matchScoreError && (
               <p className="mb-2 text-xs text-amber-700">
                 Match scores unavailable. You can still choose a resume manually.
               </p>
@@ -262,7 +222,7 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
                             {score.match_score}%
                           </span>
                         )}
-                        {selectedJob && score && score.match_score == null && (
+                        {score && score.match_score == null && (
                           <span className="rounded-tag bg-surface-secondary px-1.5 py-0.5 font-medium text-text-muted">
                             None
                           </span>
@@ -292,9 +252,9 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
 
           <div className="flex gap-3 justify-end pt-2">
             <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-text-secondary hover:bg-surface-secondary rounded-btn">Cancel</button>
-            <button type="submit" disabled={saving || !selectedJob || !resumeId}
+            <button type="submit" disabled={saving || !resumeId}
               className="px-4 py-2 bg-brand-900 text-white text-sm font-medium rounded-btn hover:bg-brand-800 disabled:opacity-50">
-              {saving ? "Creating…" : "Create"}
+              {saving ? "Creating..." : "Create"}
             </button>
           </div>
         </form>

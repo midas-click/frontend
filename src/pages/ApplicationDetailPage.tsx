@@ -2,23 +2,22 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { applicationsApi, resumesApi } from "@/api/client";
 import { Application } from "@/types";
-import { Building2, MapPin, Banknote, Pencil, Trash2, X, Save, ArrowLeft, ExternalLink, FileText } from "lucide-react";
+import { Building2, MapPin, Banknote, Trash2, ArrowLeft, ExternalLink, FileText } from "lucide-react";
 import { getMatchScoreBadgeClass, STAGES } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { LoadingIndicator } from "@/components/shared/LoadingIndicator";
 import { Timeline } from "@/components/application/Timeline";
 import { CommunicationLog } from "@/components/application/CommunicationLog";
+import { useStore } from "@/store";
 import clsx from "clsx";
 
 export function ApplicationDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const deleteApplication = useStore((state) => state.deleteApplication);
   const [app, setApp] = useState<Application | null>(null);
-  const [editing, setEditing] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [editForm, setEditForm] = useState({ job_title: "", company: "", location: "", salary_expectation: "", notes: "", tags: "" });
   const [commSummary, setCommSummary] = useState("");
   const [commChannel, setCommChannel] = useState("email");
   const [resumeGone, setResumeGone] = useState(false);
@@ -35,32 +34,6 @@ export function ApplicationDetailPage() {
     }
   }, [app?.resume_id]);
 
-  function startEditing() {
-    if (!app) return;
-    setEditForm({
-      job_title: app.job_title, company: app.company,
-      location: app.location || "", salary_expectation: app.salary_expectation || "",
-      notes: app.notes || "", tags: app.tags.join(", "),
-    });
-    setEditing(true);
-  }
-
-  async function saveEdit() {
-    if (!id || !app) return;
-    setSaving(true);
-    try {
-      const updated = await applicationsApi.update(id, {
-        job_title: editForm.job_title, company: editForm.company,
-        location: editForm.location || null,
-        salary_expectation: editForm.salary_expectation || null,
-        notes: editForm.notes || null,
-        tags: editForm.tags ? editForm.tags.split(",").map(t => t.trim()).filter(Boolean) : [],
-      });
-      setApp(updated); setEditing(false);
-    } catch (err) { console.error(err); }
-    finally { setSaving(false); }
-  }
-
   async function addCommunication() {
     if (!id || !commSummary.trim()) return;
     await applicationsApi.addCommunication(id, { channel: commChannel, summary: commSummary });
@@ -73,7 +46,7 @@ export function ApplicationDetailPage() {
     if (!id) return;
     setDeleting(true);
     try {
-      await applicationsApi.delete(id);
+      await deleteApplication(id);
       navigate("/applications");
     } catch (err) {
       console.error(err);
@@ -86,6 +59,19 @@ export function ApplicationDetailPage() {
   const from = (location.state as any)?.from;
   const backTo = from === "kanban" ? "/kanban" : "/applications";
   const backLabel = backTo === "/kanban" ? "Back to Kanban" : "Back to Applicants";
+  const resumeLink = app.resume_id && app.resume_filename
+    ? resumeGone
+      ? (
+        <span className="inline-flex items-center gap-1.5 px-0 py-1 text-text-secondary text-xs font-medium">
+          <FileText className="w-3 h-3" />{app.resume_filename}
+        </span>
+      )
+      : (
+        <Link to={`/resumes/${app.resume_id}`} className="inline-flex items-center gap-1.5 px-0 py-1 text-blue-600 rounded-btn text-xs font-medium hover:underline">
+          <FileText className="w-3 h-3" />{app.resume_filename}
+        </Link>
+      )
+    : null;
 
   return (
     <div className="w-full">
@@ -95,97 +81,42 @@ export function ApplicationDetailPage() {
 
       {/* Header */}
       <div className="bg-white rounded-card border border-border shadow-card p-6 mb-6">
-        {editing ? (
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1">Job Title</label>
-                <input value={editForm.job_title} onChange={e => setEditForm(f => ({ ...f, job_title: e.target.value }))} className="w-full border rounded-btn px-3 py-2 text-sm" />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1">Company</label>
-                <input value={editForm.company} onChange={e => setEditForm(f => ({ ...f, company: e.target.value }))} className="w-full border rounded-btn px-3 py-2 text-sm" />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1">Location</label>
-                <input value={editForm.location} onChange={e => setEditForm(f => ({ ...f, location: e.target.value }))} className="w-full border rounded-btn px-3 py-2 text-sm" />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1">Salary</label>
-                <input type="text" value={editForm.salary_expectation} onChange={e => setEditForm(f => ({ ...f, salary_expectation: e.target.value }))} placeholder="e.g. $120k or Competitive" className="w-full border rounded-btn px-3 py-2 text-sm" />
-              </div>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-text-secondary mb-1">Notes</label>
-              <textarea value={editForm.notes} onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))} className="w-full border rounded-btn px-3 py-2 text-sm" rows={3} />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-text-secondary mb-1">Tags (comma-separated)</label>
-              <input value={editForm.tags} onChange={e => setEditForm(f => ({ ...f, tags: e.target.value }))} className="w-full border rounded-btn px-3 py-2 text-sm" placeholder="react, remote, healthtech" />
-            </div>
-            <div className="flex gap-2 pt-2">
-              <button onClick={saveEdit} disabled={saving} className="flex items-center gap-1.5 px-4 py-2 bg-brand-900 text-white text-sm rounded-btn hover:bg-brand-800 disabled:opacity-50">
-                <Save className="w-4 h-4" />{saving ? "Saving…" : "Save"}
-              </button>
-              <button onClick={() => setEditing(false)} className="flex items-center gap-1.5 px-4 py-2 border border-border text-text-secondary text-sm rounded-btn hover:bg-surface-secondary">
-                <X className="w-4 h-4" />Cancel
-              </button>
+        <div>
+          <div className="flex items-start justify-between mb-3">
+            {app.source_url ? (
+              <a
+                href={app.source_url}
+                target="_blank"
+                rel="noreferrer"
+                className="group inline-flex min-w-0 flex-1 items-center gap-2"
+              >
+                <h2 className="truncate text-xl font-bold group-hover:text-brand-600">{app.job_title}</h2>
+                <ExternalLink className="h-4 w-4 shrink-0 text-text-muted group-hover:text-brand-600" />
+              </a>
+            ) : (
+              <h2 className="min-w-0 flex-1 truncate text-2xl font-bold">{app.job_title}</h2>
+            )}
+            <div className="flex items-center gap-2 shrink-0 ml-4">
+              <span className="px-2.5 py-0.5 rounded-full text-sm font-medium capitalize" style={{ backgroundColor: STAGES[app.stage as string]?.bg, color: STAGES[app.stage as string]?.text }}>{STAGES[app.stage as string]?.label || app.stage}</span>
+              <button onClick={() => setDeleteOpen(true)} className="p-1.5 text-text-muted hover:text-red-500 border border-border rounded-btn" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
             </div>
           </div>
-        ) : (
-          <div>
-            <div className="flex items-start justify-between mb-3">
-              <h1 className="text-2xl font-bold flex-1">{app.job_title}</h1>
-              <div className="flex items-center gap-2 shrink-0 ml-4">
-                <span className="px-2.5 py-0.5 rounded-full text-sm font-medium capitalize" style={{ backgroundColor: STAGES[app.stage as string]?.bg, color: STAGES[app.stage as string]?.text }}>{STAGES[app.stage as string]?.label || app.stage}</span>
-                <button onClick={startEditing} className="p-1.5 text-text-muted hover:text-text-primary border border-border rounded-btn" title="Edit"><Pencil className="w-3.5 h-3.5" /></button>
-                <button onClick={() => setDeleteOpen(true)} className="p-1.5 text-text-muted hover:text-red-500 border border-border rounded-btn" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 text-text-secondary flex-wrap">
-              <span className="flex items-center gap-1"><Building2 className="w-4 h-4" />{app.company}</span>
-              {app.location && <span className="flex items-center gap-1"><MapPin className="w-4 h-4" />{app.location}</span>}
-              {app.salary_expectation && <span className="flex items-center gap-1"><Banknote className="w-4 h-4" />{app.salary_expectation}</span>}
-              {app.source_url && (
-                <a href={app.source_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-0 py-1 text-blue-600 rounded-btn text-xs font-medium hover:underline">
-                  <ExternalLink className="w-3 h-3" />Job Posting
-                </a>
-              )}
-              {app.resume_id && app.resume_filename && (
-                resumeGone ? (
-                  <span className="inline-flex items-center gap-1.5 px-0 py-1 text-text-secondary text-xs font-medium">
-                    <FileText className="w-3 h-3" />{app.resume_filename}
-                  </span>
-                ) : (
-                  <Link to={`/resumes/${app.resume_id}`} className="inline-flex items-center gap-1.5 px-0 py-1 text-blue-600 rounded-btn text-xs font-medium hover:underline">
-                    <FileText className="w-3 h-3" />{app.resume_filename}
-                  </Link>
-                )
-              )}
-            </div>
-            <div className="flex gap-2 mt-3 flex-wrap">
-              {app.match_score != null && (
-                <span className={clsx("px-2.5 py-0.5 rounded-tag text-sm font-medium", getMatchScoreBadgeClass(app.match_score))}>
-                  Match: {app.match_score}%
-                </span>
-              )}
-              {app.tags.map(t => <span key={t} className="px-2.5 py-0.5 bg-brand-50 text-brand-600 rounded-tag text-xs font-medium">{t}</span>)}
-            </div>
+          <div className="flex items-center gap-4 text-text-secondary flex-wrap">
+            <span className="flex items-center gap-1"><Building2 className="w-4 h-4" />{app.company}</span>
+            {app.location && <span className="flex items-center gap-1"><MapPin className="w-4 h-4" />{app.location}</span>}
+            {app.salary_expectation && <span className="flex items-center gap-1"><Banknote className="w-4 h-4" />{app.salary_expectation}</span>}
+            {resumeLink}
           </div>
-        )}
-      </div>
-
-      {!editing && app.notes && (
-        <div className="bg-white rounded-card border border-border shadow-card p-6 mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-semibold">Raw Job Text</h2>
-            <span className="text-xs text-text-muted">Reference only</span>
-          </div>
-          <div className="h-80 overflow-y-scroll rounded-btn border border-border bg-surface-secondary px-4 py-3 text-sm text-text-secondary whitespace-pre-wrap leading-relaxed">
-            {app.notes}
+          <div className="flex gap-2 mt-3 flex-wrap">
+            {app.match_score != null && (
+              <span className={clsx("px-2.5 py-0.5 rounded-tag text-sm font-medium", getMatchScoreBadgeClass(app.match_score))}>
+                Match: {app.match_score}%
+              </span>
+            )}
+            {app.tags.map(t => <span key={t} className="px-2.5 py-0.5 bg-brand-50 text-brand-600 rounded-tag text-xs font-medium">{t}</span>)}
           </div>
         </div>
-      )}
+      </div>
 
       {/* Timeline */}
       <div className="bg-white rounded-card border border-border shadow-card p-6 mb-6">

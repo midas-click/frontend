@@ -65,8 +65,6 @@ export const applicationsApi = {
     request<any>("/applications", { method: "POST", body: JSON.stringify(data) }),
   createBatch: (data: ApplicationBatchCreate) =>
     request<Application[]>("/applications/batch", { method: "POST", body: JSON.stringify(data) }),
-  update: (id: string, data: any) =>
-    request<any>(`/applications/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
   delete: (id: string) =>
     request<void>(`/applications/${id}`, { method: "DELETE" }),
   moveStage: (id: string, stage: string, detail?: string) =>
@@ -131,21 +129,9 @@ export const jobsApi = {
   listPage: (params?: QueryParams) => {
     return request<PaginatedResponse<Job>>(`/jobs${buildQueryString(params)}`);
   },
-  list: (params?: Record<string, string>) => {
-    return request<PaginatedResponse<Job>>(`/jobs${buildQueryString(params)}`).then((page) => page.items);
-  },
   get: (id: string) => request<any>(`/jobs/${id}`),
   resumeMatchScores: (id: string) =>
     request<ResumeMatchScore[]>(`/jobs/${id}/resume-match-scores`),
-  create: (data: any) =>
-    request<any>("/jobs", { method: "POST", body: JSON.stringify(data) }),
-  update: (id: string, data: any) =>
-    request<any>(`/jobs/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
-  analyze: (rawText: string, sourceUrl?: string) =>
-    request<any>("/jobs/analyze", {
-      method: "POST",
-      body: JSON.stringify({ raw_text: rawText, source_url: sourceUrl || "" }),
-    }),
   delete: (id: string) => request<void>(`/jobs/${id}`, { method: "DELETE" }),
 };
 

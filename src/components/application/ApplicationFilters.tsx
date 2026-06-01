@@ -3,12 +3,10 @@ import { Search, X } from "lucide-react";
 import { useStore } from "@/store";
 
 interface Props {
-  showCreateBtn?: boolean;
-  onCreateClick?: () => void;
   onSearch?: (params?: Record<string, string>) => void;
 }
 
-export function ApplicationFilters({ showCreateBtn, onCreateClick, onSearch }: Props) {
+export function ApplicationFilters({ onSearch }: Props) {
   const { fetchApplications } = useStore();
   const [search, setSearch] = useState("");
   const didMount = useRef(false);
@@ -51,15 +49,6 @@ export function ApplicationFilters({ showCreateBtn, onCreateClick, onSearch }: P
           </button>
         )}
       </div>
-
-      {showCreateBtn && (
-        <button
-          onClick={onCreateClick}
-          className="ml-auto px-4 py-2 bg-brand-900 text-white text-sm font-medium rounded-btn hover:bg-brand-800 shrink-0"
-        >
-          + New Application
-        </button>
-      )}
     </div>
   );
 }

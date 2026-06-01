@@ -14,7 +14,6 @@ import { ApplicationDetailPage } from "@/pages/ApplicationDetailPage";
 import { ResumesPage } from "@/pages/ResumesPage";
 import { ResumeDetailPage } from "@/pages/ResumeDetailPage";
 import { JobsPage } from "@/pages/JobsPage";
-import { JobDetailPage } from "@/pages/JobDetailPage";
 import { AnalyticsPage } from "@/pages/AnalyticsPage";
 import { ExtensionAuthPage } from "@/pages/ExtensionAuthPage";
 
@@ -31,7 +30,6 @@ export default function App() {
         {/* Public — browse jobs without sign in */}
         <Route element={<JobsLayout />}>
           <Route path="/jobs" element={<JobsPage />} />
-          <Route path="/jobs/:id" element={<JobDetailPage />} />
         </Route>
 
         {/* Protected */}

@@ -12,7 +12,7 @@ const FEATURES = [
   {
     icon: Sparkles,
     title: "AI Job Capture",
-    body: "Paste a job description or capture it from the Chrome extension, then let AI extract the title, company, location, salary, and tags.",
+    body: "Capture a job from the Chrome extension, then let AI extract the title, company, location, salary, and tags.",
   },
   {
     icon: BarChart3,
@@ -28,7 +28,7 @@ const FEATURES = [
 
 const STEPS = [
   { step: 1, title: "Upload your resume", body: "Drag and drop your PDF resume. Our parser extracts all the key sections automatically." },
-  { step: 2, title: "Add jobs you're targeting", body: "Paste a job description and let AI extract the details, or add jobs manually." },
+  { step: 2, title: "Capture jobs you're targeting", body: "Use the Chrome extension on a job posting page and let AI extract the details." },
   { step: 3, title: "Track your pipeline", body: "Move applications through a visual Kanban board — from Applied to Offer." },
   { step: 4, title: "Compare & improve", body: "Use match scores and analytics to understand which resumes and roles are working best." },
 ];

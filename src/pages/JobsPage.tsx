@@ -1,18 +1,23 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@clerk/clerk-react";
-import { Briefcase, Plus } from "lucide-react";
+import { Briefcase } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ApplicationCreateModal } from "@/components/application/ApplicationCreateModal";
 import { JobCard } from "@/components/job/JobCard";
-import { JobCreateModal } from "@/components/job/JobCreateModal";
 import { JobFilters } from "@/components/job/JobFilters";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { LoadingIndicator } from "@/components/shared/LoadingIndicator";
 import { useStore } from "@/store";
+import type { Job } from "@/types";
 
 type ActionMessage = { text: string; tone: "info" | "error" };
 
 export function JobsPage() {
-  const { isSignedIn } = useAuth();
+  const navigate = useNavigate();
+  const { isSignedIn, userId } = useAuth();
   const {
     createApplicationsForJobs,
+    deleteJob: deleteJobFromStore,
     fetchJobs,
     hasMoreJobs,
     jobs,
@@ -20,10 +25,12 @@ export function JobsPage() {
     jobsLoadingMore,
     loadMoreJobs,
   } = useStore();
-  const [showCreate, setShowCreate] = useState(false);
   const [selectedJobIds, setSelectedJobIds] = useState<Set<string>>(() => new Set());
   const [batching, setBatching] = useState(false);
   const [actionMessage, setActionMessage] = useState<ActionMessage | null>(null);
+  const [deleteJob, setDeleteJob] = useState<Job | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [applyJob, setApplyJob] = useState<Job | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const selectAllRef = useRef<HTMLInputElement | null>(null);
   const selectedJobs = jobs.filter((job) => selectedJobIds.has(job.id));
@@ -131,30 +138,45 @@ export function JobsPage() {
     }
   }
 
+  async function handleDeleteJob() {
+    if (!deleteJob) return;
+    setDeleting(true);
+    setActionMessage(null);
+    try {
+      await deleteJobFromStore(deleteJob.id);
+      setSelectedJobIds((current) => {
+        const next = new Set(current);
+        next.delete(deleteJob.id);
+        return next;
+      });
+      setDeleteJob(null);
+    } catch (err) {
+      console.error(err);
+      setActionMessage({
+        text: err instanceof Error ? err.message : "Could not delete this job.",
+        tone: "error",
+      });
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between gap-4 mb-6">
         <h1 className="text-2xl font-bold">Jobs</h1>
         <div className="flex items-center gap-3 flex-1 justify-end">
           <JobFilters onSearch={fetchJobs} isSignedIn={Boolean(isSignedIn)} />
-          {isSignedIn && (
-            <button
-              onClick={() => setShowCreate(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-brand-900 text-white text-sm font-medium rounded-btn hover:bg-brand-800 shrink-0"
-            >
-              <Plus className="w-4 h-4" /> Add Job
-            </button>
-          )}
         </div>
       </div>
 
       {jobsLoading && jobs.length === 0 ? (
         <LoadingIndicator label="Loading latest jobs..." />
-      ) : jobs.length === 0 && !showCreate ? (
+      ) : jobs.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-card border-2 border-dashed border-border">
           <Briefcase className="w-12 h-12 text-text-muted mx-auto mb-3" />
           <p className="text-text-secondary">No saved jobs yet.</p>
-          <p className="text-sm text-text-muted mt-1">Paste a job description and let AI extract the details.</p>
+          <p className="text-sm text-text-muted mt-1">Use the Chrome extension to capture jobs from posting pages.</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -200,6 +222,10 @@ export function JobsPage() {
               job={job}
               selected={selectedJobIds.has(job.id)}
               onSelectedChange={handleSelectJob}
+              canManage={Boolean(userId && job.user_id === userId)}
+              canApply={Boolean(isSignedIn)}
+              onDelete={setDeleteJob}
+              onApply={setApplyJob}
             />
           ))}
           <div ref={loadMoreRef} className="h-8" />
@@ -209,7 +235,25 @@ export function JobsPage() {
         </div>
       )}
 
-      <JobCreateModal open={showCreate} onClose={() => setShowCreate(false)} />
+      <ConfirmDialog
+        open={deleteJob !== null}
+        title="Delete Job"
+        message={`Delete "${deleteJob?.title}"? Its tags and matching vectors will be permanently removed.`}
+        loading={deleting}
+        loadingLabel="Deleting..."
+        onConfirm={handleDeleteJob}
+        onCancel={() => setDeleteJob(null)}
+      />
+      {applyJob && (
+        <ApplicationCreateModal
+          preSelectedJob={applyJob}
+          onClose={() => setApplyJob(null)}
+          onCreated={() => {
+            setApplyJob(null);
+            navigate("/kanban");
+          }}
+        />
+      )}
     </div>
   );
 }

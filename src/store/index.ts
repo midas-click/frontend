@@ -52,6 +52,7 @@ interface AppState {
   loadMoreKanbanStage: (stage: string) => Promise<void>;
   createApplication: (data: ApplicationCreate) => Promise<Application>;
   createApplicationsForJobs: (jobIds: string[]) => Promise<Application[]>;
+  deleteApplication: (id: string) => Promise<void>;
   moveStage: (id: string, stage: string) => Promise<void>;
 
   resumes: Resume[];
@@ -67,6 +68,7 @@ interface AppState {
   nextJobsCursor: string | null;
   fetchJobs: (params?: ListParams) => Promise<void>;
   loadMoreJobs: () => Promise<void>;
+  deleteJob: (id: string) => Promise<void>;
 
   dashboardOverview: AnalyticsOverview | null;
   dashboardLoaded: boolean;
@@ -278,6 +280,13 @@ export const useStore = create<AppState>((set, get) => ({
     return apps;
   },
 
+  deleteApplication: async (id) => {
+    await applicationsApi.delete(id);
+    set((state) => ({
+      applications: state.applications.filter((app) => app.id !== id),
+    }));
+  },
+
   moveStage: async (id, stage) => {
     const prev = get().applications;
     set({
@@ -354,6 +363,13 @@ export const useStore = create<AppState>((set, get) => ({
     } catch (e: any) {
       set({ error: e.message, jobsLoadingMore: false });
     }
+  },
+
+  deleteJob: async (id) => {
+    await jobsApi.delete(id);
+    set((state) => ({
+      jobs: state.jobs.filter((job) => job.id !== id),
+    }));
   },
 
   dashboardOverview: null,

@@ -34,7 +34,6 @@ export interface Application {
   communication_log: CommunicationLog[];
   timeline: TimelineEvent[];
   follow_up_date?: string;
-  notes?: string;
   created_at: string;
   updated_at: string;
 }
@@ -52,25 +51,10 @@ export interface ApplicationCreate {
   tags?: string[];
   match_score?: number | null;
   match_explanation?: string | null;
-  notes?: string;
 }
 
 export interface ApplicationBatchCreate {
   job_ids: string[];
-}
-
-export interface ApplicationUpdate {
-  job_title?: string;
-  company?: string;
-  location?: string;
-  salary_expectation?: string;
-  initial_contact_date?: string;
-  resume_id?: string;
-  tags?: string[];
-  match_score?: number;
-  match_explanation?: string;
-  follow_up_date?: string;
-  notes?: string;
 }
 
 export type ListParams = Record<string, string>;
@@ -150,7 +134,6 @@ export interface Job {
   org_id?: string;
   title: string;
   company: string;
-  description?: string;
   location?: string;
   remote?: boolean;
   salary_range?: string;
@@ -160,18 +143,9 @@ export interface Job {
   embedding_status?: EmbeddingStatus;
   embedding_error?: string | null;
   embedded_at?: string | null;
+  vector_store?: string | null;
+  vector_chunk_count?: number;
   created_at: string;
-}
-
-export interface JobCreate {
-  title: string;
-  company: string;
-  description?: string;
-  location?: string;
-  remote?: boolean;
-  salary_range?: string;
-  source_url?: string;
-  tags?: string[];
 }
 
 // ── Analytics ───────────────────────────────────

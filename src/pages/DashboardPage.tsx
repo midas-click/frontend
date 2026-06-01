@@ -127,10 +127,10 @@ export function DashboardPage() {
 
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Link
-              to="/applications"
+              to="/jobs"
               className="p-4 bg-brand-50 text-brand-600 rounded-xl text-center font-medium hover:bg-brand-100 transition-colors"
             >
-              + New Application
+              Browse Jobs
             </Link>
             <Link
               to="/resumes"
@@ -139,10 +139,10 @@ export function DashboardPage() {
               Upload Resume
             </Link>
             <Link
-              to="/jobs"
+              to="/applications"
               className="p-4 bg-surface-secondary text-gray-700 rounded-xl text-center font-medium hover:bg-gray-200 transition-colors"
             >
-              Browse Jobs
+              View Applicants
             </Link>
           </div>
         </>
