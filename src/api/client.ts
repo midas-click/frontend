@@ -132,7 +132,6 @@ export const jobsApi = {
   get: (id: string) => request<any>(`/jobs/${id}`),
   resumeMatchScores: (id: string) =>
     request<ResumeMatchScore[]>(`/jobs/${id}/resume-match-scores`),
-  delete: (id: string) => request<void>(`/jobs/${id}`, { method: "DELETE" }),
 };
 
 // ── Analytics ───────────────────────────────

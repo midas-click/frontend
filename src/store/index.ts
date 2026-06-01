@@ -68,7 +68,6 @@ interface AppState {
   nextJobsCursor: string | null;
   fetchJobs: (params?: ListParams) => Promise<void>;
   loadMoreJobs: () => Promise<void>;
-  deleteJob: (id: string) => Promise<void>;
 
   dashboardOverview: AnalyticsOverview | null;
   dashboardLoaded: boolean;
@@ -363,13 +362,6 @@ export const useStore = create<AppState>((set, get) => ({
     } catch (e: any) {
       set({ error: e.message, jobsLoadingMore: false });
     }
-  },
-
-  deleteJob: async (id) => {
-    await jobsApi.delete(id);
-    set((state) => ({
-      jobs: state.jobs.filter((job) => job.id !== id),
-    }));
   },
 
   dashboardOverview: null,

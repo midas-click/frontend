@@ -1,13 +1,11 @@
-import { Banknote, Briefcase, ExternalLink, Globe, MapPin, Trash2 } from "lucide-react";
+import { Banknote, Briefcase, ExternalLink, Globe, MapPin } from "lucide-react";
 import type { Job } from "@/types";
 
 interface Props {
   job: Job;
   selected?: boolean;
   onSelectedChange?: (jobId: string, selected: boolean) => void;
-  canManage?: boolean;
   canApply?: boolean;
-  onDelete?: (job: Job) => void;
   onApply?: (job: Job) => void;
 }
 
@@ -15,9 +13,7 @@ export function JobCard({
   job,
   selected = false,
   onSelectedChange,
-  canManage = false,
   canApply = false,
-  onDelete,
   onApply,
 }: Props) {
   return (
@@ -53,7 +49,6 @@ export function JobCard({
               {job.remote && <span className="flex items-center gap-1"><Globe className="w-3.5 h-3.5" />Remote</span>}
               {job.salary_range && <span className="flex items-center gap-1 text-xs text-text-secondary"><Banknote className="w-3.5 h-3.5" />{job.salary_range}</span>}
             </p>
-            <p className="mt-2 text-xs text-text-muted">Author: {job.org_name || "Unknown"}</p>
             {job.tags && job.tags.length > 0 && (
               <div className="flex gap-1 mt-2 flex-wrap">
                 {job.tags.slice(0, 8).map((tag) => (
@@ -72,17 +67,6 @@ export function JobCard({
                 aria-label={`Apply to ${job.title}`}
               >
                 <Briefcase className="h-3.5 w-3.5" />
-              </button>
-            )}
-            {canManage && (
-              <button
-                type="button"
-                onClick={() => onDelete?.(job)}
-                className="p-1.5 text-text-muted hover:text-red-500 border border-border rounded-btn hover:bg-red-50"
-                title="Delete"
-                aria-label={`Delete ${job.title}`}
-              >
-                <Trash2 className="h-3.5 w-3.5" />
               </button>
             )}
           </div>

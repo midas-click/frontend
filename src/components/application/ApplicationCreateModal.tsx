@@ -223,8 +223,11 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
                           </span>
                         )}
                         {score && score.match_score == null && (
-                          <span className="rounded-tag bg-surface-secondary px-1.5 py-0.5 font-medium text-text-muted">
-                            None
+                          <span
+                            className="rounded-tag bg-surface-secondary px-1.5 py-0.5 font-medium text-text-muted"
+                            title={score.match_explanation || "Match score unavailable"}
+                          >
+                            {shortUnavailableReason(score.match_explanation)}
                           </span>
                         )}
                       </button>
@@ -261,4 +264,14 @@ export function ApplicationCreateModal({ onClose, onCreated, preSelectedJob }: P
       </div>
     </div>
   );
+}
+
+function shortUnavailableReason(explanation?: string | null) {
+  if (!explanation) return "Unavailable";
+  const lower = explanation.toLowerCase();
+  if (lower.includes("job embedding")) return "Job embedding not ready";
+  if (lower.includes("resume embedding")) return "Resume embedding not ready";
+  if (lower.includes("job was not found")) return "Job unavailable";
+  if (lower.includes("resume was not found")) return "Resume unavailable";
+  return "Unavailable";
 }

@@ -130,15 +130,12 @@ export interface ResumeMatchScore {
 // ── Job ─────────────────────────────────────────
 export interface Job {
   id: string;
-  user_id: string;
-  org_id?: string;
   title: string;
   company: string;
   location?: string;
   remote?: boolean;
   salary_range?: string;
   source_url?: string;
-  org_name: string;
   tags: string[];
   embedding_status?: EmbeddingStatus;
   embedding_error?: string | null;

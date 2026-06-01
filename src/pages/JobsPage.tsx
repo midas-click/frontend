@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { ApplicationCreateModal } from "@/components/application/ApplicationCreateModal";
 import { JobCard } from "@/components/job/JobCard";
 import { JobFilters } from "@/components/job/JobFilters";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { LoadingIndicator } from "@/components/shared/LoadingIndicator";
 import { useStore } from "@/store";
 import type { Job } from "@/types";
@@ -14,10 +13,9 @@ type ActionMessage = { text: string; tone: "info" | "error" };
 
 export function JobsPage() {
   const navigate = useNavigate();
-  const { isSignedIn, userId } = useAuth();
+  const { isSignedIn } = useAuth();
   const {
     createApplicationsForJobs,
-    deleteJob: deleteJobFromStore,
     fetchJobs,
     hasMoreJobs,
     jobs,
@@ -28,8 +26,6 @@ export function JobsPage() {
   const [selectedJobIds, setSelectedJobIds] = useState<Set<string>>(() => new Set());
   const [batching, setBatching] = useState(false);
   const [actionMessage, setActionMessage] = useState<ActionMessage | null>(null);
-  const [deleteJob, setDeleteJob] = useState<Job | null>(null);
-  const [deleting, setDeleting] = useState(false);
   const [applyJob, setApplyJob] = useState<Job | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const selectAllRef = useRef<HTMLInputElement | null>(null);
@@ -138,35 +134,12 @@ export function JobsPage() {
     }
   }
 
-  async function handleDeleteJob() {
-    if (!deleteJob) return;
-    setDeleting(true);
-    setActionMessage(null);
-    try {
-      await deleteJobFromStore(deleteJob.id);
-      setSelectedJobIds((current) => {
-        const next = new Set(current);
-        next.delete(deleteJob.id);
-        return next;
-      });
-      setDeleteJob(null);
-    } catch (err) {
-      console.error(err);
-      setActionMessage({
-        text: err instanceof Error ? err.message : "Could not delete this job.",
-        tone: "error",
-      });
-    } finally {
-      setDeleting(false);
-    }
-  }
-
   return (
     <div>
       <div className="flex items-center justify-between gap-4 mb-6">
         <h1 className="text-2xl font-bold">Jobs</h1>
         <div className="flex items-center gap-3 flex-1 justify-end">
-          <JobFilters onSearch={fetchJobs} isSignedIn={Boolean(isSignedIn)} />
+          <JobFilters onSearch={fetchJobs} />
         </div>
       </div>
 
@@ -222,9 +195,7 @@ export function JobsPage() {
               job={job}
               selected={selectedJobIds.has(job.id)}
               onSelectedChange={handleSelectJob}
-              canManage={Boolean(userId && job.user_id === userId)}
               canApply={Boolean(isSignedIn)}
-              onDelete={setDeleteJob}
               onApply={setApplyJob}
             />
           ))}
@@ -234,16 +205,6 @@ export function JobsPage() {
           )}
         </div>
       )}
-
-      <ConfirmDialog
-        open={deleteJob !== null}
-        title="Delete Job"
-        message={`Delete "${deleteJob?.title}"? Its tags and matching vectors will be permanently removed.`}
-        loading={deleting}
-        loadingLabel="Deleting..."
-        onConfirm={handleDeleteJob}
-        onCancel={() => setDeleteJob(null)}
-      />
       {applyJob && (
         <ApplicationCreateModal
           preSelectedJob={applyJob}
