@@ -1,4 +1,5 @@
-import { Banknote, Briefcase, ExternalLink, Globe, MapPin } from "lucide-react";
+import { Banknote, Briefcase, CalendarDays, ExternalLink, Globe, MapPin } from "lucide-react";
+import { format } from "date-fns";
 import type { Job } from "@/types";
 
 interface Props {
@@ -16,6 +17,12 @@ export function JobCard({
   canApply = false,
   onApply,
 }: Props) {
+  // The API returns naive UTC timestamps (no zone). Mark as UTC so the browser
+  // converts to the viewer's local time instead of parsing the string as local.
+  const postedAt = job.created_at
+    ? new Date(/[zZ]|[+-]\d\d:?\d\d$/.test(job.created_at) ? job.created_at : `${job.created_at}Z`)
+    : null;
+
   return (
     <div className="flex items-stretch gap-3 bg-white rounded-card border border-border shadow-card p-4 hover:shadow-md transition-shadow">
       <label className="flex items-start pt-1 shrink-0">
@@ -57,7 +64,7 @@ export function JobCard({
               </div>
             )}
           </div>
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="flex shrink-0 flex-col items-end gap-1 self-stretch">
             {canApply && (
               <button
                 type="button"
@@ -68,6 +75,15 @@ export function JobCard({
               >
                 <Briefcase className="h-3.5 w-3.5" />
               </button>
+            )}
+            {postedAt && (
+              <span
+                className="mt-auto flex items-center gap-1 whitespace-nowrap text-xs text-text-muted"
+                title={format(postedAt, "PPpp")}
+              >
+                <CalendarDays className="w-3.5 h-3.5" />
+                {format(postedAt, "MMM d, yyyy h:mm a")}
+              </span>
             )}
           </div>
         </div>
